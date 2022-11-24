@@ -27,7 +27,6 @@ QNRBF_USING_NAMESPACE
 
 static QString posToStr(qint64 pos) {
     static const int print_base = 16;
-
     return "0x" + QString::number(pos, print_base).toUpper();
 }
 
@@ -107,7 +106,7 @@ QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
             case (quint8) QNrbf::RecordTypeEnumeration::SystemClassWithMembers: {
                 QNrbf::SystemClassWithMembers record;
                 if (!record.read(in)) {
-                    qDebug().noquote() << QString("QNrbfStream: read SystemClassWithMembers error "
+                    qDebug().noquote() << QString("QNrbfStream: read System error "
                                                   "at %1, start from %2")
                                               .arg(posToStr(device()->pos()), posToStr(startPos));
                     failed = true;
@@ -120,7 +119,7 @@ QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
                 QNrbf::ClassWithMembers record;
                 if (!record.read(in)) {
                     qDebug().noquote().noquote()
-                        << QString("QNrbfStream: read ClassWithMembers error at %1, start from %2")
+                        << QString("QNrbfStream: read User error at %1, start from %2")
                                .arg(posToStr(device()->pos()), posToStr(startPos));
                     failed = true;
                 } else {
@@ -132,7 +131,7 @@ QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
                 QNrbf::SystemClassWithMembersAndTypes record;
                 if (!record.read(in)) {
                     qDebug().noquote()
-                        << QString("QNrbfStream: read SystemClassWithMembersAndTypes "
+                        << QString("QNrbfStream: read SystemWithTypes "
                                    "error at %1, start from %2")
                                .arg(posToStr(device()->pos()), posToStr(startPos));
                     failed = true;
@@ -144,7 +143,7 @@ QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
             case (quint8) QNrbf::RecordTypeEnumeration::ClassWithMembersAndTypes: {
                 QNrbf::ClassWithMembersAndTypes record;
                 if (!record.read(in)) {
-                    qDebug().noquote() << QString("QNrbfStream: read ClassWithMembersAndTypes "
+                    qDebug().noquote() << QString("QNrbfStream: read UserWithTypes "
                                                   "error at %1, start from %2")
                                               .arg(posToStr(device()->pos()), posToStr(startPos));
                     failed = true;

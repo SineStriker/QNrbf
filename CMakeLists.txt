@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-project(QNrbf LANGUAGES CXX VERSION 0.0.1.0)
+project(QNrbfFormat LANGUAGES CXX VERSION 0.0.1.0)
 
 option(QNRBF_BUILD_STATIC off "Build QNrbf as a static library")
 option(QNRBF_BUILD_TEST on "Build test targets")
@@ -26,7 +26,7 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PRIVATE QNRBF_LIBRARY)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    OUTPUT_NAME QNrbfFormat$<$<CONFIG:Debug>:d>
+    OUTPUT_NAME ${PROJECT_NAME}$<$<CONFIG:Debug>:d>
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${_qt_libs})

@@ -1,7 +1,7 @@
 #ifndef QNRBF_QNRBFOBJECT_H
 #define QNRBF_QNRBFOBJECT_H
 
-#include <QDataStream>
+#include <QHash>
 
 #include "qnrbf_global.h"
 

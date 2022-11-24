@@ -23,6 +23,4 @@ public:
 
 QNRBF_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QNrbf::ClassInfo);
-
 #endif // QNRBF_CLASSINFO_H

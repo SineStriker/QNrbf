@@ -21,6 +21,4 @@ public:
 
 QNRBF_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QNrbf::ArrayInfo);
-
 #endif // __ARRAYINFO_H__

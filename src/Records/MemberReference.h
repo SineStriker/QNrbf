@@ -20,4 +20,5 @@ public:
 
 QNRBF_END_NAMESPACE
 
+
 #endif // QNRBF_MEMBERREFERENCE_H

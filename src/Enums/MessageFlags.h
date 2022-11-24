@@ -29,6 +29,4 @@ enum class MessageFlags : quint32 {
 
 QNRBF_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QNrbf::MessageFlags);
-
 #endif // QNRBF_MESSAGEFLAGS_H

@@ -25,6 +25,4 @@ namespace Parser {
 
 QNRBF_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QNrbf::BinaryArrayTypeEnumeration);
-
 #endif // QNRBF_BINARYARRAYTYPEENUMERATION_H

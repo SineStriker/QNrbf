@@ -19,6 +19,4 @@ public:
 
 QNRBF_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QNrbf::MemberTypeInfo);
-
 #endif // QNRBF_MEMBERTYPEINFO_H

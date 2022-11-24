@@ -1,15 +1,15 @@
 #ifndef QNRBF_SYSTEMCLASSWITHMEMBERSANDTYPES_H
 #define QNRBF_SYSTEMCLASSWITHMEMBERSANDTYPES_H
 
-#include "Structures/ClassInfo.h"
-#include "Structures/MemberTypeInfo.h"
+#include "Common/ClassMemberObject.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API SystemClassWithMembersAndTypes {
+// 2.3.2.3 SystemClassWithMembersAndTypes
+
+class QNRBF_API SystemClassWithMembersAndTypes : public ClassMemberObject {
 public:
-    ClassInfo classInfo;
-    MemberTypeInfo memberTypeInfo;
+    SystemClassWithMembersAndTypes();
 
     bool read(QDataStream &in);
 };

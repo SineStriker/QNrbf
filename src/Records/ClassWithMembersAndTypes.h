@@ -1,18 +1,16 @@
 #ifndef QNRBF_CLASSWITHMEMBERSANDTYPES_H
 #define QNRBF_CLASSWITHMEMBERSANDTYPES_H
 
-#include "Structures/ClassInfo.h"
-#include "Structures/MemberTypeInfo.h"
+#include "Common/ClassMemberObject.h"
 
 QNRBF_BEGIN_NAMESPACE
 
 // 2.3.2.1 ClassWithMembersAndTypes
-class QNRBF_API ClassWithMembersAndTypes {
+
+class QNRBF_API ClassWithMembersAndTypes : public ClassMemberObject {
 public:
     ClassWithMembersAndTypes();
 
-    ClassInfo classInfo;
-    MemberTypeInfo memberTypeInfo;
     qint32 libraryId;
 
     bool read(QDataStream &in);

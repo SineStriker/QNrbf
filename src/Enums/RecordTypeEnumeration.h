@@ -40,6 +40,4 @@ namespace Parser {
 
 QNRBF_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QNrbf::RecordTypeEnumeration);
-
 #endif // QNRBF_RECORDTYPEENUMERATION_H

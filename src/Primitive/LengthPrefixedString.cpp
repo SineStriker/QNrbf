@@ -1,5 +1,7 @@
 #include "LengthPrefixedString.h"
 
+#include <QDebug>
+
 QNRBF_BEGIN_NAMESPACE
 
 static const quint8 mask_high1 = 0b10000000;
@@ -74,6 +76,8 @@ bool Parser::readString(QString &out, QDataStream &in) {
     // Decode
     out = QString::fromUtf8(buf, (int) size);
     delete[] buf;
+
+    qDebug() << out;
 
     return true;
 }

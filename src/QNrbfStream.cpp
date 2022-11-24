@@ -10,6 +10,8 @@
 #include "Records/ArraySingleString.h"
 #include "Records/BinaryArray.h"
 #include "Records/BinaryLibrary.h"
+#include "Records/BinaryMethodCall.h"
+#include "Records/BinaryMethodReturn.h"
 #include "Records/BinaryObjectString.h"
 #include "Records/ClassWithId.h"
 #include "Records/ClassWithMembers.h"
@@ -59,252 +61,270 @@ QDataStream &QNrbfStream::operator>>(QString &str) {
 }
 
 QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
-    quint8 recordType;
-
     QDataStream &in = *this;
     bool failed = false;
+    bool hasHead = false;
+    bool reachEnd = false;
 
-    qint64 startPos = in.device()->pos();
-    in >> recordType;
+    while (!atEnd() && !reachEnd) {
+        qint64 startPos = in.device()->pos();
 
-    switch (recordType) {
-        case (quint8) QNrbf::RecordTypeEnumeration::SerializedStreamHeader: {
-            QNrbf::SerializationHeader record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString(
-                           "QNrbfStream: read SerializedStreamHeader error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
+        quint8 recordType;
+        in >> recordType;
+
+        switch (recordType) {
+            case (quint8) QNrbf::RecordTypeEnumeration::SerializedStreamHeader: {
+                if (!hasHead) {
+                    QNrbf::SerializationHeader record;
+                    if (!record.read(in)) {
+                        qDebug().noquote()
+                            << QString("QNrbfStream: read SerializedStreamHeader error "
+                                       "at %1, start from %2")
+                                   .arg(posToStr(device()->pos()), posToStr(startPos));
+                        failed = true;
+                    } else {
+                        // res = WRAPP(record);
+                    }
+                    hasHead = true;
+                } else {
+                    qDebug() << "QNrbfStream: multiple stream header";
+                    failed = true;
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::ClassWithId: {
+                QNrbf::ClassWithId record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString("QNrbfStream: read ClassWithId error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::SystemClassWithMembers: {
+                QNrbf::SystemClassWithMembers record;
+                if (!record.read(in)) {
+                    qDebug().noquote() << QString("QNrbfStream: read SystemClassWithMembers error "
+                                                  "at %1, start from %2")
+                                              .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::ClassWithMembers: {
+                QNrbf::ClassWithMembers record;
+                if (!record.read(in)) {
+                    qDebug().noquote().noquote()
+                        << QString("QNrbfStream: read ClassWithMembers error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::SystemClassWithMembersAndTypes: {
+                QNrbf::SystemClassWithMembersAndTypes record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString("QNrbfStream: read SystemClassWithMembersAndTypes "
+                                   "error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::ClassWithMembersAndTypes: {
+                QNrbf::ClassWithMembersAndTypes record;
+                if (!record.read(in)) {
+                    qDebug().noquote() << QString("QNrbfStream: read ClassWithMembersAndTypes "
+                                                  "error at %1, start from %2")
+                                              .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::BinaryObjectString: {
+                QNrbf::BinaryObjectString record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString(
+                               "QNrbfStream: read BinaryObjectString error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::BinaryArray: {
+                QNrbf::BinaryArray record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString("QNrbfStream: read BinaryArray error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::MemberPrimitiveTyped: {
+                QNrbf::MemberPrimitiveTyped record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString(
+                               "QNrbfStream: read MemberPrimitiveTyped error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::MemberReference: {
+                QNrbf::MemberReference record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString("QNrbfStream: read MemberReference error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::ObjectNull: {
+                //            QNrbf::ObjectNull record;
+                //            record.placeholder = 0;
+                //            // res = WRAPP(record);
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::MessageEnd: {
+                reachEnd = true;
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::BinaryLibrary: {
+                QNrbf::BinaryLibrary record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString("QNrbfStream: read readBinaryLibrary error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::ObjectNullMultiple256: {
+                QNrbf::ObjectNullMultiple record;
+                if (!record.read(in, true)) {
+                    qDebug().noquote()
+                        << QString(
+                               "QNrbfStream: read ObjectNullMultiple256 error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::ObjectNullMultiple: {
+                QNrbf::ObjectNullMultiple record;
+                if (!record.read(in, false)) {
+                    qDebug().noquote()
+                        << QString(
+                               "QNrbfStream: read ObjectNullMultiple error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::ArraySinglePrimitive: {
+                QNrbf::ArraySinglePrimitive record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString(
+                               "QNrbfStream: read ArraySinglePrimitive error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::ArraySingleObject: {
+                QNrbf::ArraySingleObject record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString("QNrbfStream: read ArraySingleObject error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::ArraySingleString: {
+                QNrbf::ArraySingleString record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString("QNrbfStream: read ArraySingleString error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::MethodCall: {
+                QNrbf::BinaryMethodCall record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString("QNrbfStream: read BinaryMethodCall error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            case (quint8) QNrbf::RecordTypeEnumeration::MethodReturn: {
+                QNrbf::BinaryMethodReturn record;
+                if (!record.read(in)) {
+                    qDebug().noquote()
+                        << QString(
+                               "QNrbfStream: read BinaryMethodReturn error at %1, start from %2")
+                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    failed = true;
+                } else {
+                    // res = WRAPP(record);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        if (failed) {
+            if (status() == QDataStream::Ok) {
+                setStatus(QDataStream::ReadCorruptData);
             }
             break;
         }
-        case (quint8) QNrbf::RecordTypeEnumeration::ClassWithId: {
-            QNrbf::ClassWithId record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read ClassWithId error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::SystemClassWithMembers: {
-            QNrbf::SystemClassWithMembers record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString(
-                           "QNrbfStream: read SystemClassWithMembers error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::ClassWithMembers: {
-            QNrbf::ClassWithMembers record;
-            if (!record.read(in)) {
-                qDebug().noquote().noquote()
-                    << QString("QNrbfStream: read ClassWithMembers error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::SystemClassWithMembersAndTypes: {
-            QNrbf::SystemClassWithMembersAndTypes record;
-            if (!record.read(in)) {
-                qDebug().noquote() << QString("QNrbfStream: read SystemClassWithMembersAndTypes "
-                                              "error at %1, start from %2")
-                                          .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::ClassWithMembersAndTypes: {
-            QNrbf::ClassWithMembersAndTypes record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString(
-                           "QNrbfStream: read ClassWithMembersAndTypes error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::BinaryObjectString: {
-            QNrbf::BinaryObjectString record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read BinaryObjectString error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::BinaryArray: {
-            QNrbf::BinaryArray record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read BinaryArray error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::MemberPrimitiveTyped: {
-            QNrbf::MemberPrimitiveTyped record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read MemberPrimitiveTyped error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::MemberReference: {
-            QNrbf::MemberReference record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read MemberReference error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::ObjectNull: {
-            //            QNrbf::ObjectNull record;
-            //            record.placeholder = 0;
-            //            res = WRAPP(record);
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::MessageEnd: {
-            //            QNrbf::MessageEnd record;
-            //            record.placeholder = 0;
-            //            res = WRAPP(record);
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::BinaryLibrary: {
-            QNrbf::BinaryLibrary record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read readBinaryLibrary error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::ObjectNullMultiple256: {
-            QNrbf::ObjectNullMultiple record;
-            if (!record.read(in, true)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read ObjectNullMultiple256 error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::ObjectNullMultiple: {
-            QNrbf::ObjectNullMultiple record;
-            if (!record.read(in, false)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read ObjectNullMultiple error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::ArraySinglePrimitive: {
-            QNrbf::ArraySinglePrimitive record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read ArraySinglePrimitive error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::ArraySingleObject: {
-            QNrbf::ArraySingleObject record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read ArraySingleObject error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::ArraySingleString: {
-            QNrbf::ArraySingleString record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read ArraySingleString error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::MethodCall: {
-            QNrbf::BinaryMethodCall record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read BinaryMethodCall error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        case (quint8) QNrbf::RecordTypeEnumeration::MethodReturn: {
-            QNrbf::BinaryMethodReturn record;
-            if (!record.read(in)) {
-                qDebug().noquote()
-                    << QString("QNrbfStream: read BinaryMethodReturn error at %1, start from %2")
-                           .arg(posToStr(device()->pos()), posToStr(startPos));
-                failed = true;
-            } else {
-                res = WRAPP(record);
-            }
-            break;
-        }
-        default:
-            break;
     }
 
-    Q_UNUSED(failed);
-    return res;
+    return *this;
 }
 
 void QNrbfStream::init() {

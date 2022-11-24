@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QFile>
 
-#include <QNrbfStream.h>
+#include <QNrbfStream>
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -29,7 +29,8 @@ int main(int argc, char *argv[]) {
     QNrbfObject obj;
 
     // Read file head
-    in >> name >> ver;
+    in >> name;
+    in >> ver;
 
     // Read content
     in >> obj;

@@ -21,5 +21,4 @@ bool ObjectNullMultiple::read(QDataStream &in, bool is256) {
     return true;
 }
 
-
 QNRBF_END_NAMESPACE

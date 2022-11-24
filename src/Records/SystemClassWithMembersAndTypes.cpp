@@ -6,7 +6,7 @@ bool SystemClassWithMembersAndTypes::read(QDataStream &in) {
     if (!classInfo.read(in)) {
         return false;
     }
-    if (!memberTypeInfo.read(in)) {
+    if (!memberTypeInfo.read(in, classInfo.memberCount)) {
         return false;
     }
     return true;

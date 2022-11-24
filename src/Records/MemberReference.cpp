@@ -7,7 +7,11 @@ QNrbf::MemberReference::MemberReference() {
 }
 
 bool MemberReference::read(QDataStream &in) {
-    return false;
+    in >> idRef;
+    if (idRef <= 0) {
+        return false;
+    }
+    return true;
 }
 
 QNRBF_END_NAMESPACE

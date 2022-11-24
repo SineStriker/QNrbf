@@ -13,7 +13,7 @@ int DateTime::kind() const {
     return 0;
 }
 
-bool DateTime::Read(QDataStream &in) {
+bool DateTime::read(QDataStream &in) {
     in >> _data;
     if (in.status() != QDataStream::Ok)
         return false;

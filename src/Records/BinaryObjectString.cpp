@@ -1,5 +1,7 @@
 #include "BinaryObjectString.h"
 
+#include "Primitive/LengthPrefixedString.h"
+
 QNRBF_BEGIN_NAMESPACE
 
 BinaryObjectString::BinaryObjectString() {
@@ -7,7 +9,14 @@ BinaryObjectString::BinaryObjectString() {
 }
 
 bool BinaryObjectString::read(QDataStream &in) {
-    return false;
+    in >> objectId;
+    if (in.status() != QDataStream::Ok) {
+        return false;
+    }
+    if (!Parser::readString(value, in)) {
+        return false;
+    }
+    return true;
 }
 
 

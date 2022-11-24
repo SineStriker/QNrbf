@@ -1,9 +1,9 @@
 #ifndef __ARRAYINFO_H__
 #define __ARRAYINFO_H__
 
-#include "qnrbf_global.h"
-
 #include <QDataStream>
+
+#include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE
 

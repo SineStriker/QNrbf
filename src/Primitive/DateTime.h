@@ -18,7 +18,7 @@ public:
 
     quint64 _data;
 
-    bool Read(QDataStream &in);
+    bool read(QDataStream &in);
 };
 
 QNRBF_END_NAMESPACE

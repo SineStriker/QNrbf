@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.17)
 project(QNrbf LANGUAGES CXX VERSION 0.0.1.0)
 
 option(QNRBF_BUILD_STATIC off "Build QNrbf as a static library")
+option(QNRBF_BUILD_TEST on "Build test targets")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
@@ -29,3 +30,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${_qt_libs})
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
+
+if (QNRBF_BUILD_TEST)
+    add_subdirectory(test)
+endif()

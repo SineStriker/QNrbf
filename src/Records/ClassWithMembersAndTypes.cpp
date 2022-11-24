@@ -7,7 +7,17 @@ QNrbf::ClassWithMembersAndTypes::ClassWithMembersAndTypes() {
 }
 
 bool ClassWithMembersAndTypes::read(QDataStream &in) {
-    return false;
+    if (!classInfo.read(in)) {
+        return false;
+    }
+    if (!memberTypeInfo.read(in, classInfo.memberCount)) {
+        return false;
+    }
+    in >> libraryId;
+    if (in.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
 }
 
 QNRBF_END_NAMESPACE

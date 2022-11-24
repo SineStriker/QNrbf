@@ -17,6 +17,7 @@
 
 #define QNRBF_BEGIN_NAMESPACE namespace QNrbf {
 #define QNRBF_END_NAMESPACE };
+#define QNRBF_USING_NAMESPACE using namespace QNrbf;
 
 #define QNRBF_BEGIN_PARSER namespace Parser {
 #define QNRBF_END_PARSER };

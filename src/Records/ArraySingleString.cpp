@@ -3,7 +3,7 @@
 QNRBF_BEGIN_NAMESPACE
 
 bool QNrbf::ArraySingleString::read(QDataStream &in) {
-    return false;
+    return arrayInfo.read(in);
 }
 
 QNRBF_END_NAMESPACE

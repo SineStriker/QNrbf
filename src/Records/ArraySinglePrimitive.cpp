@@ -7,7 +7,13 @@ ArraySinglePrimitive::ArraySinglePrimitive() {
 }
 
 bool ArraySinglePrimitive::read(QDataStream &in) {
-    return false;
+    if (!arrayInfo.read(in)) {
+        return false;
+    }
+    if (!Parser::readPrimitiveTypeEnum(primitiveTypeEnum, in)) {
+        return false;
+    }
+    return true;
 }
 
 QNRBF_END_NAMESPACE

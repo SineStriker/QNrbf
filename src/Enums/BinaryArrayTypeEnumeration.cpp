@@ -2,17 +2,17 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-bool Parser::readBinaryArrayTypeEnum(QNrbf::BinaryArrayTypeEnumeration &out, QDataStream &in) {
+bool Parser::readBinaryArrayTypeEnum(BinaryArrayTypeEnumeration &out, QDataStream &in) {
     quint8 binArrayTypeEnum;
     in >> binArrayTypeEnum;
     if (in.status() != QDataStream::Ok) {
         return false;
     }
-    if (binArrayTypeEnum > (quint8) QNrbf::BinaryArrayTypeEnumeration::RectangularOffset) {
+    if (binArrayTypeEnum > (quint8) BinaryArrayTypeEnumeration::RectangularOffset) {
         in.setStatus(QDataStream::ReadCorruptData);
         return false;
     }
-    out = (QNrbf::BinaryArrayTypeEnumeration) binArrayTypeEnum;
+    out = (BinaryArrayTypeEnumeration) binArrayTypeEnum;
     return true;
 }
 

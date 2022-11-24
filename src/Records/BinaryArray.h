@@ -20,6 +20,7 @@ public:
     QList<qint32> lengths;
     QList<qint32> lowerBounds;
 
+    BinaryTypeEnumeration binaryType;
     RemotingTypeInfo additionInfo;
 
     bool read(QDataStream &in);

@@ -1,11 +1,7 @@
 #ifndef QNRBF_MEMBERTYPEINFO_H
 #define QNRBF_MEMBERTYPEINFO_H
 
-#include <QDataStream>
-#include <QVariant>
-
-#include "qnrbf_global.h"
-
+#include "Common/RemotingTypeInfo.h"
 #include "Enums/BinaryTypeEnumeration.h"
 
 QNRBF_BEGIN_NAMESPACE
@@ -16,9 +12,9 @@ class QNRBF_API MemberTypeInfo {
 public:
     QList<BinaryTypeEnumeration> binaryTypeEnums;
 
-    QVariantList additionalInfos;
+    QList<RemotingTypeInfo> additionalInfos;
 
-    bool read(QDataStream &in);
+    bool read(QDataStream &in, qint32 memberCount);
 };
 
 QNRBF_END_NAMESPACE

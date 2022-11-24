@@ -8,7 +8,12 @@ ClassWithId::ClassWithId() {
 }
 
 bool ClassWithId::read(QDataStream &in) {
-    return false;
+    in >> objectId;
+    in >> metadataId;
+    if (in.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
 }
 
 QNRBF_END_NAMESPACE

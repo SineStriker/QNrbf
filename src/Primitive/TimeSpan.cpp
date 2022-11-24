@@ -6,7 +6,7 @@ TimeSpan::TimeSpan() {
     _data = 0;
 }
 
-bool TimeSpan::Read(QDataStream &in) {
+bool TimeSpan::read(QDataStream &in) {
     in >> _data;
     if (in.status() != QDataStream::Ok)
         return false;

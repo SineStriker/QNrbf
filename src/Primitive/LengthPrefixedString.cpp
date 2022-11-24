@@ -2,11 +2,13 @@
 
 QNRBF_BEGIN_NAMESPACE
 
+static const quint8 mask_high1 = 0b10000000;
+static const quint8 mask_low7 = 0b01111111;
+static const quint8 mask_low3 = 0b00000111;
+
 bool Parser::readLengthPrefix(quint32 &size, QDataStream &in) {
     size = 0;
 
-    quint8 flag = 0b10000000;
-    quint8 mask = 0b01111111;
     quint8 byte;
     quint8 offset = 0;
 
@@ -15,8 +17,8 @@ bool Parser::readLengthPrefix(quint32 &size, QDataStream &in) {
     if (in.status() != QDataStream::Ok) {
         return false;
     }
-    size |= byte & mask;
-    if (!(byte & flag)) {
+    size |= byte & mask_low7;
+    if (!(byte & mask_high1)) {
         return true;
     }
 
@@ -27,13 +29,11 @@ bool Parser::readLengthPrefix(quint32 &size, QDataStream &in) {
             return false;
         }
         offset += 7;
-        size |= quint32(byte & mask) << offset;
-        if (!(byte & flag)) {
+        size |= quint32(byte & mask_low7) << offset;
+        if (!(byte & mask_high1)) {
             return true;
         }
     }
-
-    quint8 mask2 = 0b00000111;
 
     // 5th byte
     in >> byte;
@@ -41,9 +41,9 @@ bool Parser::readLengthPrefix(quint32 &size, QDataStream &in) {
         return false;
     }
     offset += 3;
-    size |= quint32(byte & mask2) << offset;
+    size |= quint32(byte & mask_low3) << offset;
     // High 5 bits must be 0
-    if (byte & (~mask2)) {
+    if (byte & (~mask_low3)) {
         return false;
     }
 
@@ -64,15 +64,15 @@ bool Parser::readString(QString &out, QDataStream &in) {
         return false;
     }
 
-    // Read bytes
+    // read bytes
     auto buf = new char[size];
-    if (in.readRawData(buf, size) < 0) {
+    if (in.readRawData(buf, (int) size) < 0) {
         delete[] buf;
         return false;
     }
 
     // Decode
-    out = QString::fromUtf8(buf, size);
+    out = QString::fromUtf8(buf, (int) size);
     delete[] buf;
 
     return true;

@@ -2,7 +2,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-ClassWithMembers::ClassWithMembers() : ClassMemberObject(User) {
+ClassWithMembers::ClassWithMembers() {
     libraryId = 0;
 }
 

@@ -7,9 +7,9 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API DataRecord : public AbstractObject {
+class QNRBF_API DataObject : public AbstractObject {
 public:
-    DataRecord(const QVariant &data) : data(data) {
+    DataObject(const QVariant &data) : data(data) {
     }
     QVariant data;
 };

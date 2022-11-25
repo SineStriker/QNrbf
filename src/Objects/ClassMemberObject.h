@@ -14,6 +14,7 @@ public:
     ClassInfo classInfo;
     MemberTypeInfo memberTypeInfo;
     QSharedPointer<BinaryObject> value;
+    qint32 libraryId;
 
     enum Type {
         User = 1,
@@ -23,8 +24,7 @@ public:
         SystemWithTypes = System | WithTypes,
     };
 
-    explicit ClassMemberObject(Type t) : t(t) {
-    }
+    ClassMemberObject(Type t);
 
     inline Type type() const {
         return t;

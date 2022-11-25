@@ -1,4 +1,4 @@
-#include "QNrbfStream.h"
+#include "qnrbfstream.h"
 
 #include <QDebug>
 
@@ -25,25 +25,29 @@
 
 QNRBF_USING_NAMESPACE
 
+static void init(QNrbfStream *stream) {
+    stream->setByteOrder(QDataStream::LittleEndian);
+}
+
 static QString posToStr(qint64 pos) {
     static const int print_base = 16;
     return "0x" + QString::number(pos, print_base).toUpper();
 }
 
 QNrbfStream::QNrbfStream() {
-    init();
+    init(this);
 }
 
 QNrbfStream::QNrbfStream(QIODevice *dev) : QDataStream(dev) {
-    init();
+    init(this);
 }
 
 QNrbfStream::QNrbfStream(QByteArray *in, QIODevice::OpenMode flags) : QDataStream(in, flags) {
-    init();
+    init(this);
 }
 
 QNrbfStream::QNrbfStream(const QByteArray &in) : QDataStream(in) {
-    init();
+    init(this);
 }
 
 QNrbfStream::~QNrbfStream() {
@@ -130,10 +134,9 @@ QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
             case (quint8) QNrbf::RecordTypeEnumeration::SystemClassWithMembersAndTypes: {
                 QNrbf::SystemClassWithMembersAndTypes record;
                 if (!record.read(in)) {
-                    qDebug().noquote()
-                        << QString("QNrbfStream: read SystemWithTypes "
-                                   "error at %1, start from %2")
-                               .arg(posToStr(device()->pos()), posToStr(startPos));
+                    qDebug().noquote() << QString("QNrbfStream: read SystemWithTypes "
+                                                  "error at %1, start from %2")
+                                              .arg(posToStr(device()->pos()), posToStr(startPos));
                     failed = true;
                 } else {
                     // res = WRAPP(record);
@@ -324,8 +327,4 @@ QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
     }
 
     return *this;
-}
-
-void QNrbfStream::init() {
-    setByteOrder(QDataStream::LittleEndian);
 }

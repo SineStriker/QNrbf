@@ -3,7 +3,7 @@
 
 #include <QDataStream>
 
-#include "QNrbfObject.h"
+#include <qnrbfobject.h>
 
 class QNRBF_API QNrbfStream : public QDataStream {
 public:
@@ -16,9 +16,6 @@ public:
 public:
     QDataStream &operator>>(QString &str);
     QDataStream &operator>>(QNrbfObject &obj);
-
-private:
-    void init();
 };
 
 #endif // QNRBF_QNRBFSTREAM_H

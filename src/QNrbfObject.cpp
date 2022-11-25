@@ -1,4 +1,4 @@
-#include "QNrbfObject.h"
+#include "qnrbfobject.h"
 
 QNrbfObject::QNrbfObject() {
 }

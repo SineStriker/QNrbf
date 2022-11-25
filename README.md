@@ -1,4 +1,4 @@
-# QNrbf
+# QNrbfFormat
 
 C++/Qt library to read/write MS-NRBF.
 

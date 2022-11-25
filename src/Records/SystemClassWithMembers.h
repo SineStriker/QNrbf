@@ -1,15 +1,17 @@
 #ifndef QNRBF_SYSTEMCLASSWITHMEMBERS_H
 #define QNRBF_SYSTEMCLASSWITHMEMBERS_H
 
-#include "Common/ClassMemberObject.h"
+#include "Structures/ClassInfo.h"
 
 QNRBF_BEGIN_NAMESPACE
 
 // 2.3.2.4 SystemClassWithMembers
 
-class QNRBF_API SystemClassWithMembers : public ClassMemberObject {
+class QNRBF_API SystemClassWithMembers {
 public:
     SystemClassWithMembers();
+
+    ClassInfo classInfo;
 
     bool read(QDataStream &in);
 };

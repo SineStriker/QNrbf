@@ -3,12 +3,7 @@
 
 // Private part
 
-#include <QDataStream>
-#include <QVariant>
-
-#include "qnrbf_global.h"
-
-#include "Common/BinaryObject.h"
+#include "Objects/BinaryObject.h"
 
 #include "Records/BinaryArray.h"
 #include "Records/BinaryObjectString.h"
@@ -20,26 +15,26 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class ReadHelper {
+class QNRBF_API ReadHelper {
 public:
     explicit ReadHelper(QDataStream *stream);
     ~ReadHelper();
 
-    bool onClassWithId(ClassWithId &in, QSharedPointer<AbstractObject> &out);
+    bool onClassWithId(ClassWithId &in, ObjectRef &out);
 
-    bool onSystemClassWithMembers(SystemClassWithMembers &in, QSharedPointer<AbstractObject> &out);
+    bool onSystemClassWithMembers(SystemClassWithMembers &in, ObjectRef &out);
 
-    bool onClassWithMembers(ClassWithMembers &in, QSharedPointer<AbstractObject> &out);
+    bool onClassWithMembers(ClassWithMembers &in, ObjectRef &out);
 
-    bool onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes &in,
-                                          QSharedPointer<AbstractObject> &out);
-    bool onClassWithMembersAndTypes(ClassWithMembersAndTypes &in,
-                                    QSharedPointer<AbstractObject> &out);
-    bool onBinaryObjectString(BinaryObjectString &in, QSharedPointer<AbstractObject> &out);
+    bool onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes &in, ObjectRef &out);
 
-    bool onBinaryArray(BinaryArray &in, QSharedPointer<AbstractObject> &out);
+    bool onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, ObjectRef &out);
 
-    QHash<qint32, QSharedPointer<AbstractObject>> objects;
+    bool onBinaryObjectString(BinaryObjectString &in, ObjectRef &out);
+
+    bool onBinaryArray(BinaryArray &in, ObjectRef &out);
+
+    QHash<qint32, ObjectRef> objects;
     QHash<qint32, QString> libraries;
 
 protected:

@@ -2,7 +2,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-SystemClassWithMembers::SystemClassWithMembers() : ClassMemberObject(System) {
+SystemClassWithMembers::SystemClassWithMembers() {
 }
 
 bool SystemClassWithMembers::read(QDataStream &in) {

@@ -2,8 +2,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-SystemClassWithMembersAndTypes::SystemClassWithMembersAndTypes()
-    : ClassMemberObject(SystemWithTypes) {
+SystemClassWithMembersAndTypes::SystemClassWithMembersAndTypes() {
 }
 
 bool SystemClassWithMembersAndTypes::read(QDataStream &in) {

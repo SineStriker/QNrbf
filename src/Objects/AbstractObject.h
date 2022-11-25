@@ -2,6 +2,7 @@
 #define QNRBF_ABSTRACTOBJECT_H
 
 #include <QDataStream>
+#include <QSharedPointer>
 
 #include "qnrbf_global.h"
 
@@ -11,6 +12,8 @@ class QNRBF_API AbstractObject {
 public:
     virtual ~AbstractObject();
 };
+
+using ObjectRef = QSharedPointer<AbstractObject>;
 
 QNRBF_END_NAMESPACE
 

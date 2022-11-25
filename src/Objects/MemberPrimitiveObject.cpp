@@ -2,7 +2,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-MemberPrimitiveObject::MemberPrimitiveObject() {
+MemberPrimitiveObject::MemberPrimitiveObject() : AbstractObject(MemberPrimitive) {
     primitiveTypeEnum = PrimitiveTypeEnumeration::Null;
 }
 

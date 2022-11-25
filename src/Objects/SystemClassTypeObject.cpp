@@ -10,6 +10,12 @@ SystemClassTypeObject::SystemClassTypeObject(const SystemClassWithMembersAndType
     fromRecord(record);
 }
 
+SystemClassTypeObject::SystemClassTypeObject(const SystemClassWithMembersAndTypes &record,
+                                             const BinaryObjectRef &value)
+    : SystemClassTypeObject(record) {
+    this->value = value;
+}
+
 void SystemClassTypeObject::fromRecord(const SystemClassWithMembersAndTypes &record) {
     classInfo = record.classInfo;
     memberTypeInfo = record.memberTypeInfo;

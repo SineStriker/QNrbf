@@ -9,6 +9,12 @@ SystemClassObject::SystemClassObject(const SystemClassWithMembers &record) : Sys
     fromRecord(record);
 }
 
+SystemClassObject::SystemClassObject(const SystemClassWithMembers &record,
+                                     const BinaryObjectRef &value)
+    : SystemClassObject(record) {
+    this->value = value;
+}
+
 void SystemClassObject::fromRecord(const SystemClassWithMembers &record) {
     classInfo = record.classInfo;
 }

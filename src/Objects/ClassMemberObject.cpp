@@ -2,7 +2,8 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-ClassMemberObject::ClassMemberObject(QNrbf::ClassMemberObject::Type t) : t(t) {
+ClassMemberObject::ClassMemberObject(QNrbf::ClassMemberObject::ClassType t)
+    : AbstractObject(ClassMember), ct(t) {
     libraryId = 0;
 }
 

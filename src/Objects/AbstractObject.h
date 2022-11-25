@@ -10,7 +10,24 @@ QNRBF_BEGIN_NAMESPACE
 
 class QNRBF_API AbstractObject {
 public:
+    enum Type {
+        Binary,
+        ClassMember,
+        Data,
+        DeferredReference,
+        MemberPrimitive,
+        Null,
+    };
+
+    AbstractObject(Type type);
     virtual ~AbstractObject();
+
+    inline Type type() const {
+        return t;
+    }
+
+protected:
+    Type t;
 };
 
 using ObjectRef = QSharedPointer<AbstractObject>;

@@ -11,12 +11,7 @@ QNRBF_BEGIN_NAMESPACE
 
 class QNRBF_API ClassMemberObject : public AbstractObject {
 public:
-    ClassInfo classInfo;
-    MemberTypeInfo memberTypeInfo;
-    QSharedPointer<BinaryObject> value;
-    qint32 libraryId;
-
-    enum Type {
+    enum ClassType {
         User = 1,
         WithTypes = 2, // Flag
         UserWithTypes = User | WithTypes,
@@ -24,15 +19,22 @@ public:
         SystemWithTypes = System | WithTypes,
     };
 
-    ClassMemberObject(Type t);
+    ClassMemberObject(ClassType t);
 
-    inline Type type() const {
-        return t;
+    ClassInfo classInfo;
+    MemberTypeInfo memberTypeInfo;
+    QSharedPointer<BinaryObject> value;
+    qint32 libraryId;
+
+    inline ClassType classType() const {
+        return ct;
     }
 
 protected:
-    Type t;
+    ClassType ct;
 };
+
+using BinaryObjectRef = QSharedPointer<BinaryObject>;
 
 QNRBF_END_NAMESPACE
 

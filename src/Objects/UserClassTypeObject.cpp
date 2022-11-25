@@ -10,6 +10,12 @@ UserClassTypeObject::UserClassTypeObject(const ClassWithMembersAndTypes &record)
     fromRecord(record);
 }
 
+UserClassTypeObject::UserClassTypeObject(const ClassWithMembersAndTypes &record,
+                                         const BinaryObjectRef &value)
+    : UserClassTypeObject(record) {
+    this->value = value;
+}
+
 void UserClassTypeObject::fromRecord(const ClassWithMembersAndTypes &record) {
     classInfo = record.classInfo;
     memberTypeInfo = record.memberTypeInfo;

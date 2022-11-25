@@ -7,6 +7,8 @@ QNRBF_BEGIN_NAMESPACE
 
 class BinaryObject : public AbstractObject {
 public:
+    BinaryObject();
+
     QString typeName;
     QString assemblyName;
 };

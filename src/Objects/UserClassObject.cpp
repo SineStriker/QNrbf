@@ -9,6 +9,11 @@ UserClassObject::UserClassObject(const ClassWithMembers &record) : UserClassObje
     fromRecord(record);
 }
 
+UserClassObject::UserClassObject(const ClassWithMembers &record, const BinaryObjectRef &value)
+    : UserClassObject(record) {
+    this->value = value;
+}
+
 void UserClassObject::fromRecord(const ClassWithMembers &record) {
     classInfo = record.classInfo;
     libraryId = record.libraryId;

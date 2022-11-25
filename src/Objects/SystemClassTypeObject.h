@@ -10,6 +10,8 @@ class QNRBF_API SystemClassTypeObject : public ClassMemberObject {
 public:
     SystemClassTypeObject();
     SystemClassTypeObject(const SystemClassWithMembersAndTypes &record);
+    SystemClassTypeObject(const SystemClassWithMembersAndTypes &record,
+                          const BinaryObjectRef &value);
 
     void fromRecord(const SystemClassWithMembersAndTypes &record);
 };

@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.2.3.3 BinaryMethodReturn
 
-class QNRBF_API BinaryMethodReturn {
+class QNRBF_INTERNAL BinaryMethodReturn {
 public:
     BinaryMethodReturn();
 

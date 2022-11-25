@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.4.2.1 ArrayInfo
 
-class QNRBF_API ArrayInfo {
+class QNRBF_INTERNAL ArrayInfo {
 public:
     ArrayInfo();
 

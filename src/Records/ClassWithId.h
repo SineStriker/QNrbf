@@ -8,7 +8,7 @@
 QNRBF_BEGIN_NAMESPACE
 
 // 2.3.2.5 ClassWithId
-class QNRBF_API ClassWithId {
+class QNRBF_INTERNAL ClassWithId {
 public:
     ClassWithId();
 

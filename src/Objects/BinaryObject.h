@@ -13,6 +13,8 @@ public:
     QString assemblyName;
 };
 
+using BinaryObjectRef = QSharedPointer<BinaryObject>;
+
 QNRBF_END_NAMESPACE
 
 #endif // QNRBF_BINARYOBJECT_H

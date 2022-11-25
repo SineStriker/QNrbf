@@ -7,7 +7,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.3.2.4 SystemClassWithMembers
 
-class QNRBF_API SystemClassWithMembers {
+class QNRBF_INTERNAL SystemClassWithMembers {
 public:
     SystemClassWithMembers();
 

@@ -5,7 +5,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API DeferredReferenceObject : public AbstractObject {
+class QNRBF_INTERNAL DeferredReferenceObject : public AbstractObject {
 public:
     DeferredReferenceObject(qint32 id);
 

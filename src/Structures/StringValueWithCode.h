@@ -7,7 +7,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.2.2.2 StringValueWithCode
 
-class QNRBF_API StringValueWithCode {
+class QNRBF_INTERNAL StringValueWithCode {
 public:
     StringValueWithCode();
 

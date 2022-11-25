@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.1.1.8 ClassTypeInfo
 
-class QNRBF_API ClassTypeInfo {
+class QNRBF_INTERNAL ClassTypeInfo {
 public:
     ClassTypeInfo();
 

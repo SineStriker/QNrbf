@@ -5,6 +5,7 @@ QNRBF_BEGIN_NAMESPACE
 AbstractObject::AbstractObject(Type type) : t(type) {
 }
 
-AbstractObject::~AbstractObject() = default;
+AbstractObject::~AbstractObject() {
+}
 
 QNRBF_END_NAMESPACE

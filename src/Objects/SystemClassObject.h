@@ -6,7 +6,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API SystemClassObject : public ClassMemberObject {
+class QNRBF_INTERNAL SystemClassObject : public ClassMemberObject {
 public:
     SystemClassObject();
     SystemClassObject(const SystemClassWithMembers &record);

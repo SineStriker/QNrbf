@@ -11,7 +11,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.2.2.1 PrimitiveValue
 
-class QNRBF_API PrimitiveValue {
+class QNRBF_INTERNAL PrimitiveValue {
 public:
     bool toBool() const;
     quint8 toByte() const;

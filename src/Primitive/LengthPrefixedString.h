@@ -11,9 +11,9 @@ QNRBF_BEGIN_NAMESPACE
 
 namespace Parser {
 
-    QNRBF_API bool readLengthPrefix(quint32 &size, QDataStream &in);
+    QNRBF_INTERNAL bool readLengthPrefix(quint32 &size, QDataStream &in);
 
-    QNRBF_API bool readString(QString &out, QDataStream &in);
+    QNRBF_INTERNAL bool readString(QString &out, QDataStream &in);
 
 }; // namespace Parser
 

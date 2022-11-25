@@ -33,7 +33,7 @@ enum class PrimitiveTypeEnumeration : quint8 {
 
 namespace Parser {
 
-    QNRBF_API bool readPrimitiveTypeEnum(PrimitiveTypeEnumeration &out, QDataStream &in);
+    QNRBF_INTERNAL bool readPrimitiveTypeEnum(PrimitiveTypeEnumeration &out, QDataStream &in);
 
 };
 

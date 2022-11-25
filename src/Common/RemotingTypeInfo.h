@@ -9,7 +9,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API RemotingTypeInfo {
+class QNRBF_INTERNAL RemotingTypeInfo {
 public:
     PrimitiveTypeEnumeration toPrimitiveTypeEnum() const;
     QString toString() const;

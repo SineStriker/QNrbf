@@ -7,7 +7,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.4.3.2 ArraySingleObject
 
-class QNRBF_API ArraySingleObject {
+class QNRBF_INTERNAL ArraySingleObject {
 public:
     ArrayInfo arrayInfo;
 

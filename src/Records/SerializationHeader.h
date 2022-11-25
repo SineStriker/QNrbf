@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.6.1 SerializationHeaderRecord
 
-class QNRBF_API SerializationHeader {
+class QNRBF_INTERNAL SerializationHeader {
 public:
     SerializationHeader();
 

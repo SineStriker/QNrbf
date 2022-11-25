@@ -10,7 +10,7 @@ QNRBF_BEGIN_NAMESPACE
 // 2.5.5 ObjectNullMultiple
 // 2.5.6 ObjectNullMultiple256
 
-class QNRBF_API ObjectNullMultiple {
+class QNRBF_INTERNAL ObjectNullMultiple {
 public:
     ObjectNullMultiple();
 

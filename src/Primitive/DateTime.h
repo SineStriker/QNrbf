@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.1.1.5 DateTime
 
-class QNRBF_API DateTime {
+class QNRBF_INTERNAL DateTime {
 public:
     DateTime();
 

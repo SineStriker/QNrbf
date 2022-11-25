@@ -7,7 +7,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.2.2.3 ArrayOfValueWithCode
 
-class QNRBF_API ArrayOfValueWithCode {
+class QNRBF_INTERNAL ArrayOfValueWithCode {
 public:
     QList<ValueWithCode> values;
 

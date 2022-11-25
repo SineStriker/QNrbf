@@ -8,7 +8,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API AbstractObject {
+class QNRBF_INTERNAL AbstractObject {
 public:
     enum Type {
         Binary,

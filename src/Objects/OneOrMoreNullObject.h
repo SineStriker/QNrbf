@@ -5,7 +5,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API OneOrMoreNullObject : public AbstractObject {
+class QNRBF_INTERNAL OneOrMoreNullObject : public AbstractObject {
 public:
     OneOrMoreNullObject();
     explicit OneOrMoreNullObject(qint32 nullCount);

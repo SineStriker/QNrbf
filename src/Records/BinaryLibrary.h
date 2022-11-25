@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.6.2 BinaryLibrary
 
-class QNRBF_API BinaryLibrary {
+class QNRBF_INTERNAL BinaryLibrary {
 public:
     BinaryLibrary();
 

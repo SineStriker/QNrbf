@@ -20,12 +20,37 @@
 #include "Records/SystemClassWithMembers.h"
 #include "Records/SystemClassWithMembersAndTypes.h"
 
+#include "Enums/RecordTypeEnumeration.h"
+
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API ReadHelper {
+class QNRBF_INTERNAL ReadHelper {
 public:
     explicit ReadHelper(QDataStream *stream);
     ~ReadHelper();
+
+    enum Status {
+        Normal = 1,
+        ReachEnd = 3,
+        Failed = 4,
+        MultipleHead = 6,
+        UnsupportedRecord = 8,
+    };
+
+    Status status() const;
+
+    bool read();
+
+    void reset();
+
+protected:
+    bool readRecord(BinaryObjectRef &out);
+
+    bool readMembers(BinaryObject &acceptor, const QStringList &memberNames,
+                     const MemberTypeInfo &memberTypeInfo);
+
+    bool readUntypedMembers(BinaryObject &acceptor, const QString &className,
+                            const QStringList &memberNames);
 
     bool onClassWithId(ClassWithId &in, ObjectRef &out);
 
@@ -57,18 +82,17 @@ public:
 
     bool onArraySingleString(ArraySingleString &in, ObjectRef &out);
 
+    // Caches
     QHash<qint32, ObjectRef> objects;
 
     QHash<qint32, QString> libraries;
 
-protected:
-    bool readMembers(BinaryObject &acceptor, const QStringList &memberNames,
-                     const MemberTypeInfo &memberTypeInfo);
+    bool hasHead;
 
-    bool readUntypedMembers(BinaryObject &acceptor, const QString &className,
-                            const QStringList &memberNames);
-
+    // Properties
     QDataStream *stream;
+
+    Status _status;
 };
 
 QNRBF_END_NAMESPACE

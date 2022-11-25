@@ -7,7 +7,7 @@
 QNRBF_BEGIN_NAMESPACE
 
 // 2.4.3.3 ArraySinglePrimitive
-class QNRBF_API ArraySinglePrimitive {
+class QNRBF_INTERNAL ArraySinglePrimitive {
 public:
     ArraySinglePrimitive();
 

@@ -10,7 +10,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.4.3.1 BinaryArray
 
-class QNRBF_API BinaryArray {
+class QNRBF_INTERNAL BinaryArray {
 public:
     BinaryArray();
 

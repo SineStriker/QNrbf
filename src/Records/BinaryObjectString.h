@@ -8,7 +8,7 @@
 QNRBF_BEGIN_NAMESPACE
 
 // 2.5.7 BinaryObjectString
-class QNRBF_API BinaryObjectString {
+class QNRBF_INTERNAL BinaryObjectString {
 public:
     BinaryObjectString();
 

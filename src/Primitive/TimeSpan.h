@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.1.1.4 TimeSpan
 
-class QNRBF_API TimeSpan {
+class QNRBF_INTERNAL TimeSpan {
 public:
     TimeSpan();
 

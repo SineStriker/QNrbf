@@ -8,7 +8,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.2.3.1 BinaryMethodCall
 
-class QNRBF_API BinaryMethodCall {
+class QNRBF_INTERNAL BinaryMethodCall {
 public:
     BinaryMethodCall();
 

@@ -6,7 +6,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API UserClassTypeObject : public ClassMemberObject {
+class QNRBF_INTERNAL UserClassTypeObject : public ClassMemberObject {
 public:
     UserClassTypeObject();
     UserClassTypeObject(const ClassWithMembersAndTypes &record);

@@ -9,7 +9,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API ClassMemberObject : public AbstractObject {
+class QNRBF_INTERNAL ClassMemberObject : public AbstractObject {
 public:
     enum ClassType {
         User = 1,
@@ -33,8 +33,6 @@ public:
 protected:
     ClassType ct;
 };
-
-using BinaryObjectRef = QSharedPointer<BinaryObject>;
 
 QNRBF_END_NAMESPACE
 

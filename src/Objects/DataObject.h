@@ -7,10 +7,10 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API DataObject : public AbstractObject {
+class QNRBF_INTERNAL DataObject : public AbstractObject {
 public:
-    DataObject(const QVariant &data) : data(data) {
-    }
+    explicit DataObject(const QVariant &data);
+
     QVariant data;
 };
 

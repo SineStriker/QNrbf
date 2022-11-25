@@ -8,7 +8,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.5.1 MemberPrimitiveTyped
 
-class QNRBF_API MemberPrimitiveTyped {
+class QNRBF_INTERNAL MemberPrimitiveTyped {
 public:
     MemberPrimitiveTyped();
 

@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.5.3 MemberReference
 
-class QNRBF_API MemberReference {
+class QNRBF_INTERNAL MemberReference {
 public:
     MemberReference();
 

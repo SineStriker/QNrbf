@@ -34,9 +34,11 @@ enum class RecordTypeEnumeration : quint8 {
 
 namespace Parser {
 
+    QNRBF_INTERNAL QString strRecordTypeEnum(RecordTypeEnumeration type);
+
     QNRBF_INTERNAL bool readRecordTypeEnum(RecordTypeEnumeration &out, QDataStream &in);
 
-};
+}; // namespace Parser
 
 QNRBF_END_NAMESPACE
 

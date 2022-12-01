@@ -3,7 +3,7 @@
 
 #include <QDataStream>
 
-#include <qnrbfobject.h>
+#include "qnrbfobject.h"
 
 class QNRBF_API QNrbfStream : public QDataStream {
 public:

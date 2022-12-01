@@ -7,9 +7,9 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class BinaryObject : public AbstractObject {
+class MappingObject : public AbstractObject {
 public:
-    BinaryObject();
+    MappingObject();
 
     QString typeName;
     QString assemblyName;
@@ -17,7 +17,7 @@ public:
     QMap<QString, ObjectRef> members;
 };
 
-using BinaryObjectRef = QSharedPointer<BinaryObject>;
+using BinaryObjectRef = QSharedPointer<MappingObject>;
 
 QNRBF_END_NAMESPACE
 

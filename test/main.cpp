@@ -4,6 +4,8 @@
 
 #include <QNrbfStream>
 
+#include <iostream>
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         qDebug() << "No nrbf-file argument.";
@@ -34,6 +36,9 @@ int main(int argc, char *argv[]) {
 
     // Read content
     in >> obj;
+
+    fflush(stdout);
+    fflush(stderr);
 
     if (in.status() != QDataStream::Ok) {
         qDebug() << "Failed to read nrbf record";

@@ -77,7 +77,7 @@ bool Parser::readString(QString &out, QDataStream &in) {
     out = QString::fromUtf8(buf, (int) size);
     delete[] buf;
 
-    qDebug() << out;
+    // qDebug() << out;
 
     return true;
 }

@@ -3,20 +3,46 @@
 
 #include "Enums/PrimitiveTypeEnumeration.h"
 #include "Primitive/DateTime.h"
+#include "Primitive/Decimal.h"
 #include "Primitive/TimeSpan.h"
 
-#include <QVariant>
+#include <QSharedDataPointer>
 
 QNRBF_BEGIN_NAMESPACE
 
-// 2.2.2.1 PrimitiveValue
+class PrimitiveValueData;
 
 class QNRBF_INTERNAL PrimitiveValue {
 public:
+    PrimitiveValue();
+    PrimitiveValue(const PrimitiveValue &other);
+    PrimitiveValue &operator=(const PrimitiveValue &other);
+    ~PrimitiveValue();
+
+    PrimitiveValue(bool b);
+    PrimitiveValue(quint8 uc);
+    PrimitiveValue(const QChar &ch);
+    PrimitiveValue(const Decimal &dec);
+    PrimitiveValue(double d);
+    PrimitiveValue(qint16 s);
+    PrimitiveValue(qint32 i);
+    PrimitiveValue(qint64 l);
+    PrimitiveValue(qint8 c);
+    PrimitiveValue(float f);
+    PrimitiveValue(const TimeSpan &ts);
+    PrimitiveValue(const DateTime &dt);
+    PrimitiveValue(quint16 us);
+    PrimitiveValue(quint32 u);
+    PrimitiveValue(quint64 ul);
+    PrimitiveValue(const QString &str);
+
+    bool isValid() const;
+    PrimitiveTypeEnumeration type() const;
+
     bool toBool() const;
     quint8 toByte() const;
     QChar toChar() const;
-    QString toDecimal() const;
+    Decimal toDecimal() const;
     double toDouble() const;
     qint16 toInt16() const;
     qint32 toInt32() const;
@@ -30,9 +56,11 @@ public:
     quint64 toUInt64() const;
     QString toString() const;
 
-    QVariant _data;
-
+    bool read(QDataStream &in);
     bool read(QDataStream &in, PrimitiveTypeEnumeration primitiveTypeEnum);
+
+protected:
+    QSharedDataPointer<PrimitiveValueData> d;
 };
 
 QNRBF_END_NAMESPACE

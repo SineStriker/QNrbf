@@ -19,7 +19,8 @@ enum class BinaryArrayTypeEnumeration : quint8 {
 
 namespace Parser {
 
-    QNRBF_INTERNAL bool readBinaryArrayTypeEnum(QNrbf::BinaryArrayTypeEnumeration &out, QDataStream &in);
+    QNRBF_INTERNAL bool readBinaryArrayTypeEnum(QNrbf::BinaryArrayTypeEnumeration &out,
+                                                QDataStream &in);
 
 };
 

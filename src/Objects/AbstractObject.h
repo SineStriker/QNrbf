@@ -2,6 +2,7 @@
 #define QNRBF_ABSTRACTOBJECT_H
 
 #include <QDataStream>
+#include <QSet>
 #include <QSharedPointer>
 
 #include "qnrbf_global.h"
@@ -11,12 +12,14 @@ QNRBF_BEGIN_NAMESPACE
 class QNRBF_INTERNAL AbstractObject {
 public:
     enum Type {
-        Binary,
+        Mapping,
         ClassMember,
         Data,
         DeferredReference,
         MemberPrimitive,
         Null,
+        DataList,
+        ObjectList,
     };
 
     AbstractObject(Type type);
@@ -28,6 +31,9 @@ public:
 
 protected:
     Type t;
+
+private:
+    QSet<AbstractObject *> insts;
 };
 
 using ObjectRef = QSharedPointer<AbstractObject>;

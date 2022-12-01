@@ -1,5 +1,7 @@
 #include "qnrbfobject.h"
 
+#include <thread>
+
 QNrbfObject::QNrbfObject() {
 }
 

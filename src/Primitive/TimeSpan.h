@@ -12,6 +12,13 @@ QNRBF_BEGIN_NAMESPACE
 class QNRBF_INTERNAL TimeSpan {
 public:
     TimeSpan();
+    explicit TimeSpan(quint64 data);
+
+    TimeSpan(const TimeSpan &other);
+    TimeSpan(TimeSpan &&other) noexcept;
+
+    TimeSpan &operator=(const TimeSpan &other);
+    TimeSpan &operator=(TimeSpan &&other) noexcept;
 
     quint64 _data;
 
@@ -19,7 +26,5 @@ public:
 };
 
 QNRBF_END_NAMESPACE
-
-Q_DECLARE_METATYPE(QNrbf::TimeSpan);
 
 #endif // QNRBF_TIMESPAN_H

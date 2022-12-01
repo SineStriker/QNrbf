@@ -3,8 +3,6 @@
 
 // Private part
 
-#include "Objects/BinaryObject.h"
-
 #include "Records/ArraySingleObject.h"
 #include "Records/ArraySinglePrimitive.h"
 #include "Records/ArraySingleString.h"
@@ -17,9 +15,14 @@
 #include "Records/MemberPrimitiveTyped.h"
 #include "Records/MemberReference.h"
 #include "Records/ObjectNullMultiple.h"
+#include "Records/SerializationHeader.h"
 #include "Records/SystemClassWithMembers.h"
 #include "Records/SystemClassWithMembersAndTypes.h"
 
+#include "Objects/AbstractListObject.h"
+#include "Objects/ClassMemberObject.h"
+
+#include "DeferredItem.h"
 #include "Enums/RecordTypeEnumeration.h"
 
 QNRBF_BEGIN_NAMESPACE
@@ -43,17 +46,20 @@ public:
 
     void reset();
 
-protected:
-    bool readRecord(BinaryObjectRef &out);
+    bool finish(ObjectRef *out = nullptr);
 
-    bool readMembers(BinaryObject &acceptor, const QStringList &memberNames,
+protected:
+    /* Read record of structure */
+    bool readRecord(ObjectRef *out = nullptr);
+
+    /* Read series of class members in stream */
+    bool readMembers(const BinaryObjectRef &acceptor, const QStringList &memberNames,
                      const MemberTypeInfo &memberTypeInfo);
 
-    bool readUntypedMembers(BinaryObject &acceptor, const QString &className,
+    bool readUntypedMembers(const BinaryObjectRef &acceptor, const QString &className,
                             const QStringList &memberNames);
 
-    bool onClassWithId(ClassWithId &in, ObjectRef &out);
-
+    /* Subsequent work after reading a certain record */
     bool onSystemClassWithMembers(SystemClassWithMembers &in, ObjectRef &out);
 
     bool onClassWithMembers(ClassWithMembers &in, ObjectRef &out);
@@ -61,6 +67,8 @@ protected:
     bool onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes &in, ObjectRef &out);
 
     bool onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, ObjectRef &out);
+
+    bool onClassWithId(ClassWithId &in, ObjectRef &out);
 
     bool onBinaryObjectString(BinaryObjectString &in, ObjectRef &out);
 
@@ -82,12 +90,29 @@ protected:
 
     bool onArraySingleString(ArraySingleString &in, ObjectRef &out);
 
-    // Caches
-    QHash<qint32, ObjectRef> objects;
+    /* Reusable reading method */
+    bool readPrimitives(QList<PrimitiveValue> &arr, PrimitiveTypeEnumeration primitiveTypeEnum);
 
+    bool readStrings(QStringList &arr);
+
+    bool readObjects(QList<ObjectRef> &arr, const QSharedPointer<AbstractListObject> &parent);
+
+    /* Call after reaching message end, when all reference are collected */
+    void resolveDeferredItems();
+
+    ObjectRef findReference(qint32 id);
+
+    // Defined references
+    QHash<qint32, ObjectRef> objectsById;
+
+    QHash<qint32, ClassRef> classesById;
+
+    QSharedPointer<SerializationHeader> header;
+
+    // Libraries
     QHash<qint32, QString> libraries;
 
-    bool hasHead;
+    QList<DeferredItem> deferredItems;
 
     // Properties
     QDataStream *stream;

@@ -45,22 +45,33 @@ QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
     ReadHelper reader(this);
 
     bool over = false;
-    while (!over) {
+    bool failed = false;
+    while (!over && !failed) {
         reader.read();
 
+        qDebug().noquote() << QString::number(device()->pos(), 16).toUpper()
+                           << "read_over";
+
         switch (reader.status()) {
-            case ReadHelper::ReachEnd:
-                over = true;
+            case ReadHelper::ReachEnd: {
+                if (!reader.finish()) {
+                    failed = true;
+                } else {
+                    over = true;
+                }
                 break;
+            }
             case ReadHelper::Normal:
                 break;
-            default:
-                if (status() == QDataStream::Ok) {
-                    setStatus(QDataStream::ReadCorruptData);
-                }
-                over = true;
+            default: {
+                failed = true;
                 break;
+            }
         }
+    }
+
+    if (failed && status() == QDataStream::Ok) {
+        setStatus(QDataStream::ReadCorruptData);
     }
 
     return *this;

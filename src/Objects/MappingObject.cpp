@@ -1,8 +1,8 @@
-#include "BinaryObject.h"
+#include "MappingObject.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-BinaryObject::BinaryObject() : AbstractObject(Binary) {
+MappingObject::MappingObject() : AbstractObject(Mapping) {
 }
 
 QNRBF_END_NAMESPACE

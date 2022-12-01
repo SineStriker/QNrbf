@@ -33,12 +33,12 @@ enum class PrimitiveTypeEnumeration : quint8 {
 
 namespace Parser {
 
+    QNRBF_INTERNAL QString strPrimitiveTypeEnum(PrimitiveTypeEnumeration type);
+
     QNRBF_INTERNAL bool readPrimitiveTypeEnum(PrimitiveTypeEnumeration &out, QDataStream &in);
 
-};
+}; // namespace Parser
 
 QNRBF_END_NAMESPACE
-
-Q_DECLARE_METATYPE(QNrbf::PrimitiveTypeEnumeration);
 
 #endif // QNRBF_PRIMITIVETYPEENUMERATION_H

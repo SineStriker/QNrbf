@@ -1,7 +1,7 @@
 #ifndef QNRBF_CLASSMEMBEROBJECT_H
 #define QNRBF_CLASSMEMBEROBJECT_H
 
-#include "BinaryObject.h"
+#include "MappingObject.h"
 #include "Structures/ClassInfo.h"
 #include "Structures/MemberTypeInfo.h"
 
@@ -23,7 +23,7 @@ public:
 
     ClassInfo classInfo;
     MemberTypeInfo memberTypeInfo;
-    QSharedPointer<BinaryObject> value;
+    QSharedPointer<MappingObject> value;
     qint32 libraryId;
 
     inline ClassType classType() const {
@@ -33,6 +33,8 @@ public:
 protected:
     ClassType ct;
 };
+
+using ClassRef = QSharedPointer<ClassMemberObject>;
 
 QNRBF_END_NAMESPACE
 

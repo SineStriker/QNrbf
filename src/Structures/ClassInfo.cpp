@@ -20,6 +20,7 @@ bool ClassInfo::read(QDataStream &in) {
         if (!Parser::readString(str, in)) {
             return false;
         }
+        memberNames.append(str);
     }
     return true;
 }

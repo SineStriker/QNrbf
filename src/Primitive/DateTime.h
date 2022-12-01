@@ -12,6 +12,13 @@ QNRBF_BEGIN_NAMESPACE
 class QNRBF_INTERNAL DateTime {
 public:
     DateTime();
+    explicit DateTime(quint64 data);
+
+    DateTime(const DateTime &other);
+    DateTime(DateTime &&other) noexcept;
+
+    DateTime &operator=(const DateTime &other);
+    DateTime &operator=(DateTime &&other) noexcept;
 
     int tick() const;
     int kind() const;
@@ -22,7 +29,5 @@ public:
 };
 
 QNRBF_END_NAMESPACE
-
-Q_DECLARE_METATYPE(QNrbf::DateTime);
 
 #endif // QNRBF_DATETIME_H

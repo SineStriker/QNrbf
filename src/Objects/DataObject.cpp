@@ -2,6 +2,10 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-QNrbf::DataObject::DataObject(const QVariant &data) : AbstractObject(Data), data(data) {
+DataObject::DataObject() : AbstractObject(Data) {
 }
+
+DataObject::DataObject(const PrimitiveValue &data) : AbstractObject(Data), data(data) {
+}
+
 QNRBF_END_NAMESPACE

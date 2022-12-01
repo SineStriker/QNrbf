@@ -12,7 +12,6 @@ class QNRBF_INTERNAL ValueWithCode {
 public:
     ValueWithCode();
 
-    PrimitiveTypeEnumeration primitiveTypeEnum;
     PrimitiveValue value;
 
     bool read(QDataStream &in);

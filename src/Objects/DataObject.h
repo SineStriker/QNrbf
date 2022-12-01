@@ -2,16 +2,17 @@
 #define QNRBF_DATARECORD_H
 
 #include "AbstractObject.h"
-
-#include <QVariant>
+#include "Common/PrimitiveValue.h"
 
 QNRBF_BEGIN_NAMESPACE
 
 class QNRBF_INTERNAL DataObject : public AbstractObject {
 public:
-    explicit DataObject(const QVariant &data);
+    DataObject();
+    explicit DataObject(const PrimitiveValue &data);
 
-    QVariant data;
+public:
+    PrimitiveValue data;
 };
 
 QNRBF_END_NAMESPACE

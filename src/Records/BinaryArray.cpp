@@ -23,7 +23,7 @@ bool BinaryArray::read(QDataStream &in) {
     for (qint32 i = 0; i < rank; ++i) {
         qint32 num;
         in >> num;
-        if (in.status() != QDataStream::Ok) {
+        if (in.status() != QDataStream::Ok || num < 0) {
             return false;
         }
         lengths.append(num);

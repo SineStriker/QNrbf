@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.17)
 
 project(QNrbfFormat LANGUAGES CXX VERSION 0.0.1.0)
 
-option(QNRBF_BUILD_STATIC off "Build QNrbf as a static library")
-option(QNRBF_BUILD_TEST on "Build test targets")
+option(QNRBF_BUILD_STATIC "Build QNrbf as a static library" OFF)
+option(QNRBF_BUILD_TEST "Build test targets" ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

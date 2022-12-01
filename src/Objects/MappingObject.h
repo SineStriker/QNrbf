@@ -3,6 +3,8 @@
 
 #include "AbstractObject.h"
 
+#include <QMap>
+
 QNRBF_BEGIN_NAMESPACE
 
 class BinaryObject : public AbstractObject {
@@ -11,6 +13,8 @@ public:
 
     QString typeName;
     QString assemblyName;
+
+    QMap<QString, ObjectRef> members;
 };
 
 using BinaryObjectRef = QSharedPointer<BinaryObject>;

@@ -2,8 +2,9 @@
 #define QNRBF_QNRBFSTREAM_H
 
 #include <QDataStream>
+#include <QJsonObject>
 
-#include "qnrbfobject.h"
+#include "QNrbfObject.h"
 
 class QNRBF_API QNrbfStream : public QDataStream {
 public:
@@ -15,7 +16,7 @@ public:
 
 public:
     QDataStream &operator>>(QString &str);
-    QDataStream &operator>>(QNrbfObject &obj);
+    QDataStream &operator>>(QNrbfObject &cls);
 };
 
 #endif // QNRBF_QNRBFSTREAM_H

@@ -14,11 +14,12 @@ public:
     enum Type {
         Mapping,
         ClassMember,
-        Data,
         DeferredReference,
-        MemberPrimitive,
+        Primitive,
+        String,
         Null,
-        DataList,
+        PrimitiveList,
+        StringList,
         ObjectList,
     };
 

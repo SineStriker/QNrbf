@@ -10,7 +10,7 @@ class QNRBF_INTERNAL UserClassTypeObject : public ClassMemberObject {
 public:
     UserClassTypeObject();
     UserClassTypeObject(const ClassWithMembersAndTypes &record);
-    UserClassTypeObject(const ClassWithMembersAndTypes &record, const BinaryObjectRef &value);
+    UserClassTypeObject(const ClassWithMembersAndTypes &record, const MappingRef &value);
 
     void fromRecord(const ClassWithMembersAndTypes &record);
 };

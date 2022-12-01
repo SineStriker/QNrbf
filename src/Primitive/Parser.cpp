@@ -1,12 +1,12 @@
-#include "LengthPrefixedString.h"
+#include "Parser.h"
 
 #include <QDebug>
-
-QNRBF_BEGIN_NAMESPACE
 
 static const quint8 mask_high1 = 0b10000000;
 static const quint8 mask_low7 = 0b01111111;
 static const quint8 mask_low3 = 0b00000111;
+
+using namespace QNrbf;
 
 bool Parser::readLengthPrefix(quint32 &size, QDataStream &in) {
     size = 0;
@@ -100,5 +100,24 @@ bool Parser::readUtf8Char(QChar &out, QDataStream &in) {
     out = QChar(value);
     return true;
 }
+bool Parser::readDateTime(DateTime &out, QDataStream &in) {
+    quint64 data;
+    in >> data;
+    if (in.status() != QDataStream::Ok)
+        return false;
+    out = DateTime(data);
+    return true;
+}
 
-QNRBF_END_NAMESPACE
+bool Parser::readDecimal(Decimal &out, QDataStream &in) {
+    return readString(out._data, in);
+}
+
+bool Parser::readTimeSpan(TimeSpan &out, QDataStream &in) {
+    quint64 data;
+    in >> data;
+    if (in.status() != QDataStream::Ok)
+        return false;
+    out = TimeSpan(data);
+    return true;
+}

@@ -1,5 +1,5 @@
-#ifndef QNRBFFORMAT_MEMBERPRIMITIVEOBJECT_H
-#define QNRBFFORMAT_MEMBERPRIMITIVEOBJECT_H
+#ifndef QNRBFFORMAT_PRIMITIVEOBJECT_H
+#define QNRBFFORMAT_PRIMITIVEOBJECT_H
 
 #include "AbstractObject.h"
 #include "Common/PrimitiveValue.h"
@@ -7,9 +7,9 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_INTERNAL MemberPrimitiveObject : public AbstractObject {
+class QNRBF_INTERNAL PrimitiveObject : public AbstractObject {
 public:
-    explicit MemberPrimitiveObject(const PrimitiveValue &val);
+    explicit PrimitiveObject(const PrimitiveValue &val);
 
     PrimitiveValue value;
 };
@@ -17,4 +17,4 @@ public:
 QNRBF_END_NAMESPACE
 
 
-#endif // QNRBFFORMAT_MEMBERPRIMITIVEOBJECT_H
+#endif // QNRBFFORMAT_PRIMITIVEOBJECT_H

@@ -1,6 +1,6 @@
 #include "PrimitiveValue.h"
 
-#include "Primitive/LengthPrefixedString.h"
+#include "Primitive/Parser.h"
 
 #include "private/PrimitiveValueData.h"
 
@@ -20,6 +20,11 @@ PrimitiveValue &PrimitiveValue::operator=(const PrimitiveValue &other) {
 }
 
 PrimitiveValue::~PrimitiveValue() {
+}
+
+PrimitiveValue::PrimitiveValue(PrimitiveTypeEnumeration nullType) : d(new PrimitiveValueData()) {
+    Q_ASSERT(nullType == PrimitiveTypeEnumeration::Null);
+    d->type = PrimitiveTypeEnumeration::Null;
 }
 
 PrimitiveValue::PrimitiveValue(bool b) : d(new PrimitiveValueData()) {
@@ -199,24 +204,12 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             break;
         }
         case PrimitiveTypeEnumeration::Char: {
-            quint8 head;
-            in >> head;
-            if (in.status() != QDataStream::Ok) {
+            QChar val;
+            if (!Parser::readUtf8Char(val, in)) {
                 return false;
             }
-            int size = (head & 0xD0) != 0 ? 4 : (head & 0xC0) != 0 ? 3 : (head & 0x80) != 0 ? 2 : 1;
-            char buf[4];
-            if (in.readRawData(buf, size) < 0) {
-                return false;
-            }
-            quint16 value = (head & 0xD0) != 0 ? ((head & 0x3F) << 18) + ((buf[0] & 0x3F) << 12) +
-                                                     ((buf[1] & 0x3F) << 6) + (buf[0] & 0x3F)
-                            : (head & 0xC0) != 0
-                                ? ((head & 0x3F) << 12) + ((buf[0] & 0x3F) << 6) + (buf[1] & 0x3F)
-                            : (head & 0x80) != 0 ? ((head & 0x3F) << 6) + (buf[0] & 0x3F)
-                                                 : (head & 0x3F);
             d->type = primitiveTypeEnum;
-            d->data.ch = new QChar(value);
+            d->data.ch = new QChar(std::move(val));
             break;
         }
         case PrimitiveTypeEnumeration::Double: {
@@ -280,9 +273,8 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             break;
         }
         case PrimitiveTypeEnumeration::TimeSpan: {
-            quint64 val;
-            in >> val;
-            if (in.status() != QDataStream::Ok) {
+            TimeSpan val;
+            if (Parser::readTimeSpan(val, in)) {
                 return false;
             }
             d->type = primitiveTypeEnum;
@@ -290,9 +282,8 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             break;
         }
         case PrimitiveTypeEnumeration::DateTime: {
-            quint64 val;
-            in >> val;
-            if (in.status() != QDataStream::Ok) {
+            DateTime val;
+            if (Parser::readDateTime(val, in)) {
                 return false;
             }
             d->type = primitiveTypeEnum;
@@ -330,21 +321,21 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             break;
         }
         case PrimitiveTypeEnumeration::Decimal: {
-            QString str;
-            if (!Parser::readString(str, in)) {
+            Decimal val;
+            if (!Parser::readDecimal(val, in)) {
                 return false;
             }
             d->type = primitiveTypeEnum;
-            d->data.dec = new Decimal(std::move(str));
+            d->data.dec = new Decimal(std::move(val));
             break;
         }
         case PrimitiveTypeEnumeration::String: {
-            QString str;
-            if (!Parser::readString(str, in)) {
+            QString val;
+            if (!Parser::readString(val, in)) {
                 return false;
             }
             d->type = primitiveTypeEnum;
-            d->data.str = new QString(std::move(str));
+            d->data.str = new QString(std::move(val));
             break;
         }
         default: {

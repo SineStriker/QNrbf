@@ -1,15 +1,15 @@
-#include "ArrayObject.h"
+#include "ObjectListObject.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-ArrayObject::ArrayObject() : AbstractObject(ObjectList) {
+ObjectListObject::ObjectListObject() : AbstractObject(ObjectList) {
 }
 
-ArrayObject::ArrayObject(const QList<ObjectRef> values)
+ObjectListObject::ObjectListObject(const QList<ObjectRef> values)
     : AbstractObject(ObjectList), values(values) {
 }
 
-ArrayObject::ArrayObject(QList<ObjectRef> &&values) noexcept
+ObjectListObject::ObjectListObject(QList<ObjectRef> &&values) noexcept
     : AbstractObject(ObjectList), values(values) {
 }
 

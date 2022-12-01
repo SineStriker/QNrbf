@@ -12,8 +12,6 @@ class QNRBF_INTERNAL MemberPrimitiveTyped {
 public:
     MemberPrimitiveTyped();
 
-    PrimitiveTypeEnumeration primitiveTypeEnum;
-
     PrimitiveValue value;
 
     bool read(QDataStream &in);

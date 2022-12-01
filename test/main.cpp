@@ -2,9 +2,9 @@
 #include <QDebug>
 #include <QFile>
 
-#include <QNrbfStream>
-
 #include <iostream>
+
+#include "QNrbfStream.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {

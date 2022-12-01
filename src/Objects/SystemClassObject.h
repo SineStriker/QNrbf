@@ -10,7 +10,7 @@ class QNRBF_INTERNAL SystemClassObject : public ClassMemberObject {
 public:
     SystemClassObject();
     SystemClassObject(const SystemClassWithMembers &record);
-    SystemClassObject(const SystemClassWithMembers &record, const BinaryObjectRef &value);
+    SystemClassObject(const SystemClassWithMembers &record, const MappingRef &value);
 
     void fromRecord(const SystemClassWithMembers &record);
 };

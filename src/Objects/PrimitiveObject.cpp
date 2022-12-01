@@ -1,8 +1,8 @@
-#include "MemberPrimitiveObject.h"
+#include "PrimitiveObject.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-MemberPrimitiveObject::MemberPrimitiveObject(const PrimitiveValue &val)
+PrimitiveObject::PrimitiveObject(const PrimitiveValue &val)
     : AbstractObject(Primitive), value(val) {
 }
 

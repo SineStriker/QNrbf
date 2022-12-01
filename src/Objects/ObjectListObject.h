@@ -1,15 +1,15 @@
-#ifndef QNRBFFORMAT_ARRAYOBJECT_H
-#define QNRBFFORMAT_ARRAYOBJECT_H
+#ifndef QNRBFFORMAT_OBJECTLISTOBJECT_H
+#define QNRBFFORMAT_OBJECTLISTOBJECT_H
 
 #include "AbstractObject.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_INTERNAL ArrayObject : public AbstractObject {
+class QNRBF_INTERNAL ObjectListObject : public AbstractObject {
 public:
-    ArrayObject();
-    explicit ArrayObject(const QList<ObjectRef> values);
-    explicit ArrayObject(QList<ObjectRef> &&values) noexcept;
+    ObjectListObject();
+    explicit ObjectListObject(const QList<ObjectRef> values);
+    explicit ObjectListObject(QList<ObjectRef> &&values) noexcept;
 
     QList<ObjectRef> values;
     QList<int> lengths;
@@ -19,4 +19,4 @@ public:
 QNRBF_END_NAMESPACE
 
 
-#endif // QNRBFFORMAT_ARRAYOBJECT_H
+#endif // QNRBFFORMAT_OBJECTLISTOBJECT_H

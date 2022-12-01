@@ -1,6 +1,6 @@
 #include "RemotingTypeInfo.h"
 
-#include "Primitive/LengthPrefixedString.h"
+#include "Primitive/Parser.h"
 
 #include "private/RemotingTypeInfoData.h"
 

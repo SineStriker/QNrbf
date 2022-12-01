@@ -1,9 +1,7 @@
-#include "qnrbfobject.h"
+#include "QNrbfObject.h"
 
-#include <thread>
 
-QNrbfObject::QNrbfObject() {
-}
+QNRBF_BEGIN_NAMESPACE
 
-QNrbfObject::~QNrbfObject() {
-}
+
+QNRBF_END_NAMESPACE

@@ -21,9 +21,6 @@ public:
     TimeSpan &operator=(TimeSpan &&other) noexcept;
 
     quint64 _data;
-    
-protected:
-    friend class QNrbfParserPrivate;
 };
 
 QNRBF_END_NAMESPACE

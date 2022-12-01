@@ -9,7 +9,7 @@ UserClassObject::UserClassObject(const ClassWithMembers &record) : UserClassObje
     fromRecord(record);
 }
 
-UserClassObject::UserClassObject(const ClassWithMembers &record, const BinaryObjectRef &value)
+UserClassObject::UserClassObject(const ClassWithMembers &record, const MappingRef &value)
     : UserClassObject(record) {
     this->value = value;
 }

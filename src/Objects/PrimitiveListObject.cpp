@@ -1,8 +1,8 @@
-#include "DataListObject.h"
+#include "PrimitiveListObject.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-DataListObject::DataListObject() : AbstractObject(DataList) {
+PrimitiveListObject::PrimitiveListObject() : AbstractObject(PrimitiveList) {
 }
 
 QNRBF_END_NAMESPACE

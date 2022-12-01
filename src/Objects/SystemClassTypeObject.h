@@ -11,7 +11,7 @@ public:
     SystemClassTypeObject();
     SystemClassTypeObject(const SystemClassWithMembersAndTypes &record);
     SystemClassTypeObject(const SystemClassWithMembersAndTypes &record,
-                          const BinaryObjectRef &value);
+                          const MappingRef &value);
 
     void fromRecord(const SystemClassWithMembersAndTypes &record);
 };

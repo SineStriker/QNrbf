@@ -3,11 +3,11 @@
 
 #include <QDataStream>
 
-#include "qnrbf_global.h"
+#include "Primitive/DateTime.h"
+#include "Primitive/Decimal.h"
+#include "Primitive/TimeSpan.h"
 
 QNRBF_BEGIN_NAMESPACE
-
-// 2.1.1.6 LengthPrefixedString
 
 namespace Parser {
 
@@ -16,6 +16,12 @@ namespace Parser {
     QNRBF_INTERNAL bool readString(QString &out, QDataStream &in);
 
     QNRBF_INTERNAL bool readUtf8Char(QChar &out, QDataStream &in);
+
+    QNRBF_INTERNAL bool readDateTime(QNrbf::DateTime &out, QDataStream &in);
+
+    QNRBF_INTERNAL bool readDecimal(QNrbf::Decimal &out, QDataStream &in);
+
+    QNRBF_INTERNAL bool readTimeSpan(QNrbf::TimeSpan &out, QDataStream &in);
 
 }; // namespace Parser
 

@@ -1,6 +1,4 @@
-#include "Decimal.h"
-
-#include "LengthPrefixedString.h"
+#include "Primitive/Decimal.h"
 
 QNRBF_BEGIN_NAMESPACE
 
@@ -29,10 +27,6 @@ Decimal &Decimal::operator=(const Decimal &other) {
 Decimal &Decimal::operator=(Decimal &&other) noexcept {
     _data = std::move(other._data);
     return *this;
-}
-
-bool Decimal::read(QDataStream &in) {
-    return Parser::readString(_data, in);
 }
 
 QNRBF_END_NAMESPACE

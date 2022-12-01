@@ -22,9 +22,6 @@ public:
     Decimal &operator=(Decimal &&other) noexcept;
 
     QString _data;
-
-protected:
-    friend class QNrbfParserPrivate;
 };
 
 QNRBF_END_NAMESPACE

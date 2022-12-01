@@ -1,21 +1,21 @@
-#ifndef QNRBFFORMAT_DATALISTOBJECT_H
-#define QNRBFFORMAT_DATALISTOBJECT_H
+#ifndef QNRBFFORMAT_PRIMITIVELISTOBJECT_H
+#define QNRBFFORMAT_PRIMITIVELISTOBJECT_H
 
 #include "AbstractObject.h"
 #include "Common/PrimitiveValueArray.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_INTERNAL DataListObject : public AbstractObject {
+class QNRBF_INTERNAL PrimitiveListObject : public AbstractObject {
 public:
-    DataListObject();
+    PrimitiveListObject();
 
-    DataListObject(const PrimitiveValueArray &arr) : DataListObject() {
+    PrimitiveListObject(const PrimitiveValueArray &arr) : PrimitiveListObject() {
         values = arr;
     }
 
     template <class T>
-    explicit DataListObject(const QList<T> &list) : DataListObject() {
+    explicit PrimitiveListObject(const QList<T> &list) : PrimitiveListObject() {
         values = PrimitiveValueArray(list);
     }
 
@@ -27,4 +27,4 @@ public:
 QNRBF_END_NAMESPACE
 
 
-#endif // QNRBFFORMAT_DATALISTOBJECT_H
+#endif // QNRBFFORMAT_PRIMITIVELISTOBJECT_H

@@ -11,7 +11,7 @@ SystemClassTypeObject::SystemClassTypeObject(const SystemClassWithMembersAndType
 }
 
 SystemClassTypeObject::SystemClassTypeObject(const SystemClassWithMembersAndTypes &record,
-                                             const BinaryObjectRef &value)
+                                             const MappingRef &value)
     : SystemClassTypeObject(record) {
     this->value = value;
 }

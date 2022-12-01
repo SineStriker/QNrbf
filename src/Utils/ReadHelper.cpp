@@ -2,19 +2,20 @@
 
 #include <QDebug>
 
-#include "Objects/DataListObject.h"
-#include "Objects/DataObject.h"
 #include "Objects/DeferredReferenceObject.h"
-#include "Objects/MemberPrimitiveObject.h"
 #include "Objects/OneOrMoreNullObject.h"
+#include "Objects/PrimitiveListObject.h"
+#include "Objects/PrimitiveObject.h"
 #include "Objects/SystemClassObject.h"
 #include "Objects/SystemClassTypeObject.h"
 #include "Objects/UserClassObject.h"
 #include "Objects/UserClassTypeObject.h"
 
-#include "Primitive/LengthPrefixedString.h"
+#include "Primitive/Parser.h"
 
-#include "Objects/AbstractListObject.h"
+#include "Objects/ObjectListObject.h"
+#include "Objects/StringListObject.h"
+#include "Objects/StringObject.h"
 #include "Records/BinaryMethodCall.h"
 #include "Records/BinaryMethodReturn.h"
 #include "Records/SerializationHeader.h"
@@ -83,10 +84,6 @@ bool ReadHelper::readRecord(ObjectRef *out) {
     // Read record type enum
     quint8 recordType;
     in >> recordType;
-
-    qDebug().noquote() << QString::number(startPos, 16).toUpper()
-                       << Parser::strRecordTypeEnum(RecordTypeEnumeration(recordType))
-                       << "read_def_start";
 
     QSharedPointer<AbstractObject> obj;
     switch (recordType) {
@@ -265,7 +262,7 @@ bool ReadHelper::readRecord(ObjectRef *out) {
     return success;
 }
 
-bool ReadHelper::readMembers(const BinaryObjectRef &acceptor, const QStringList &memberNames,
+bool ReadHelper::readMembers(const MappingRef &acceptor, const QStringList &memberNames,
                              const MemberTypeInfo &memberTypeInfo) {
     QDataStream &in = *stream;
     for (int i = 0; i < memberNames.size(); i++) {
@@ -274,7 +271,7 @@ bool ReadHelper::readMembers(const BinaryObjectRef &acceptor, const QStringList 
             if (!value.read(in, memberTypeInfo.additionalInfos[i].toPrimitiveTypeEnum())) {
                 return false;
             }
-            acceptor->members.insert(memberNames[i], ObjectRef(new DataObject(value)));
+            acceptor->members.insert(memberNames[i], ObjectRef(new PrimitiveObject(value)));
         } else {
             ObjectRef memberClass;
             if (!readRecord(&memberClass)) {
@@ -305,9 +302,11 @@ bool ReadHelper::readMembers(const BinaryObjectRef &acceptor, const QStringList 
     return true;
 }
 
-bool ReadHelper::readUntypedMembers(const BinaryObjectRef &acceptor, const QString &className,
+bool ReadHelper::readUntypedMembers(const MappingRef &acceptor, const QString &className,
                                     const QStringList &memberNames) {
     QDataStream &in = *stream;
+
+    qDebug() << "read untyped members" << memberNames;
 
 #define ADD_MEMBER(KEY, TYPE)                                                                      \
     {                                                                                              \
@@ -315,7 +314,7 @@ bool ReadHelper::readUntypedMembers(const BinaryObjectRef &acceptor, const QStri
         in >> val_##TYPE;                                                                          \
         if (in.status() != QDataStream::Ok)                                                        \
             return false;                                                                          \
-        acceptor->members.insert(KEY, ObjectRef(new DataObject(val_##TYPE)));                      \
+        acceptor->members.insert(KEY, ObjectRef(new PrimitiveObject(val_##TYPE)));                 \
     }
 
     if (className == "System.Guid" && memberNames.size() == 11) {
@@ -418,7 +417,7 @@ bool ReadHelper::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, Object
 }
 
 bool ReadHelper::onClassWithId(ClassWithId &in, ObjectRef &out) {
-    // This class has been defined and we use the saved one
+    // This class has been defined, and we use the saved one
     auto classRef = dynamic_cast<ClassMemberObject *>(classesById[in.metadataId].data());
     if (!classRef) {
         return false;
@@ -451,7 +450,7 @@ bool ReadHelper::onClassWithId(ClassWithId &in, ObjectRef &out) {
 }
 
 bool ReadHelper::onBinaryObjectString(BinaryObjectString &in, ObjectRef &out) {
-    auto obj = ObjectRef(new DataObject(in.value));
+    auto obj = ObjectRef(new StringObject(in.value));
     if (in.objectId != 0) {
         objectsById[in.objectId] = obj;
     }
@@ -468,11 +467,11 @@ bool ReadHelper::onBinaryArray(BinaryArray &in, ObjectRef &out) {
     QSharedPointer<AbstractObject> obj;
     switch (in.additionInfo.type()) {
         case RemotingTypeInfo::PrimitiveType: {
-            QList<PrimitiveValue> arr;
-            if (!readPrimitives(arr, in.additionInfo.toPrimitiveTypeEnum())) {
+            PrimitiveValueArray arr;
+            if (!arr.read(*stream, production, in.additionInfo.toPrimitiveTypeEnum())) {
                 return false;
             }
-            auto listObj = new DataListObject(std::move(arr));
+            auto listObj = new PrimitiveListObject(arr);
             listObj->lengths = in.lengths;
             listObj->lowerBounds = in.lowerBounds;
             obj = ObjectRef(listObj);
@@ -480,17 +479,18 @@ bool ReadHelper::onBinaryArray(BinaryArray &in, ObjectRef &out) {
         }
         case RemotingTypeInfo::String: {
             QStringList arr;
+            resizeList(arr, production);
             if (!readStrings(arr)) {
                 return false;
             }
-            auto listObj = new DataListObject(arr);
+            auto listObj = new StringListObject(arr);
             listObj->lengths = in.lengths;
             listObj->lowerBounds = in.lowerBounds;
             obj = ObjectRef(listObj);
             break;
         }
         default: {
-            QSharedPointer<AbstractListObject> listObj(new AbstractListObject());
+            QSharedPointer<ObjectListObject> listObj(new ObjectListObject());
             resizeList(listObj->values, production);
             if (!readObjects(listObj->values, listObj)) {
                 return false;
@@ -512,7 +512,7 @@ bool ReadHelper::onBinaryArray(BinaryArray &in, ObjectRef &out) {
 
 bool ReadHelper::onMemberPrimitiveTyped(MemberPrimitiveTyped &in, ObjectRef &out) {
     Q_UNUSED(this);
-    out = ObjectRef(new MemberPrimitiveObject(in));
+    out = ObjectRef(new PrimitiveObject(in.value));
     return true;
 }
 
@@ -548,14 +548,11 @@ bool ReadHelper::onObjectNullMultiple(ObjectNullMultiple &in, ObjectRef &out) {
 }
 
 bool ReadHelper::onArraySinglePrimitive(ArraySinglePrimitive &in, ObjectRef &out) {
-    QList<PrimitiveValue> arr;
-    resizeList(arr, in.arrayInfo.length);
-
-    if (!readPrimitives(arr, in.primitiveTypeEnum)) {
+    PrimitiveValueArray arr;
+    if (!arr.read(*stream, in.arrayInfo.length, in.primitiveTypeEnum)) {
         return false;
     }
-
-    auto obj = ObjectRef(new DataListObject(std::move(arr)));
+    auto obj = ObjectRef(new PrimitiveListObject(arr));
     if (in.arrayInfo.objectId != 0) {
         objectsById[in.arrayInfo.objectId] = obj;
     }
@@ -566,7 +563,7 @@ bool ReadHelper::onArraySinglePrimitive(ArraySinglePrimitive &in, ObjectRef &out
 
 bool ReadHelper::onArraySingleObject(ArraySingleObject &in, ObjectRef &out) {
     // Allocate first because the read function needs it
-    auto obj = QSharedPointer<AbstractListObject>::create();
+    auto obj = QSharedPointer<ObjectListObject>::create();
     resizeList(obj->values, in.arrayInfo.length);
     if (!readObjects(obj->values, obj)) {
         return false;
@@ -588,27 +585,12 @@ bool ReadHelper::onArraySingleString(ArraySingleString &in, ObjectRef &out) {
         return false;
     }
 
-    auto obj = ObjectRef(new DataListObject(arr));
+    auto obj = ObjectRef(new PrimitiveListObject(arr));
     if (in.arrayInfo.objectId != 0) {
         objectsById[in.arrayInfo.objectId] = obj;
     }
     out = obj;
 
-    return true;
-}
-
-bool ReadHelper::readPrimitives(QList<PrimitiveValue> &arr,
-                                PrimitiveTypeEnumeration primitiveTypeEnum) {
-    for (int i = 0; i < arr.size(); ++i) {
-        // Read next primitive
-        PrimitiveValue val;
-        if (!val.read(*stream, primitiveTypeEnum)) {
-            return false;
-        }
-
-        // Save
-        arr[i] = val;
-    }
     return true;
 }
 
@@ -624,12 +606,8 @@ bool ReadHelper::readStrings(QStringList &arr) {
                 i += dynamic_cast<OneOrMoreNullObject *>(value.data())->nullCount - 1;
                 break;
             }
-            case AbstractObject::Data: {
-                auto objRef = dynamic_cast<DataObject *>(value.data());
-                const PrimitiveValue &var = objRef->data;
-                if (var.type() == PrimitiveTypeEnumeration::String) {
-                    arr[i] = var.toString();
-                }
+            case AbstractObject::String: {
+                arr[i] = dynamic_cast<StringObject *>(value.data())->value;
                 break;
             }
             default: {
@@ -642,8 +620,7 @@ bool ReadHelper::readStrings(QStringList &arr) {
     return true;
 }
 
-bool ReadHelper::readObjects(QList<ObjectRef> &arr,
-                             const QSharedPointer<AbstractListObject> &parent) {
+bool ReadHelper::readObjects(QList<ObjectRef> &arr, const QSharedPointer<ObjectListObject> &parent) {
     for (int i = 0; i < arr.size(); i++) {
         // Read next object
         QSharedPointer<AbstractObject> value;
@@ -654,11 +631,12 @@ bool ReadHelper::readObjects(QList<ObjectRef> &arr,
         // Save according to type
         switch (value->type()) {
             case AbstractObject::DeferredReference: {
+
                 // Action: set the element of object by the given index
                 struct Action : DeferredItem::Action {
                     int index;
-                    QSharedPointer<AbstractListObject> parent;
-                    Action(int index, const QSharedPointer<AbstractListObject> &parent)
+                    QSharedPointer<ObjectListObject> parent;
+                    Action(int index, const QSharedPointer<ObjectListObject> &parent)
                         : index(index), parent(parent) {
                     }
                     void Invoke(const ObjectRef &obj) override {
@@ -675,7 +653,8 @@ bool ReadHelper::readObjects(QList<ObjectRef> &arr,
                 i += dynamic_cast<OneOrMoreNullObject *>(value.data())->nullCount - 1;
                 break;
             }
-            case AbstractObject::Data: {
+            case AbstractObject::Primitive:
+            case AbstractObject::String: {
                 arr[i] = value;
                 break;
             }

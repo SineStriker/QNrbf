@@ -24,11 +24,6 @@ public:
     int kind() const;
 
     quint64 _data;
-
-    bool read(QDataStream &in);
-
-protected:
-    friend class QNrbfParserPrivate;
 };
 
 QNRBF_END_NAMESPACE

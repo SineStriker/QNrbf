@@ -1,8 +1,8 @@
-#include "qnrbfstream.h"
+#include "QNrbfStream.h"
 
 #include <QDebug>
 
-#include "Primitive/LengthPrefixedString.h"
+#include "Primitive/Parser.h"
 
 #include "Utils/ReadHelper.h"
 
@@ -41,7 +41,7 @@ QDataStream &QNrbfStream::operator>>(QString &str) {
     return *this;
 }
 
-QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
+QDataStream &QNrbfStream::operator>>(QNrbfObject &cls) {
     ReadHelper reader(this);
 
     bool over = false;
@@ -49,20 +49,20 @@ QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
     while (!over && !failed) {
         reader.read();
 
-        qDebug().noquote() << QString::number(device()->pos(), 16).toUpper()
-                           << "read_over";
-
         switch (reader.status()) {
             case ReadHelper::ReachEnd: {
-                if (!reader.finish()) {
+                ObjectRef obj;
+                if (!reader.finish(&obj)) {
                     failed = true;
                 } else {
                     over = true;
                 }
                 break;
             }
+
             case ReadHelper::Normal:
                 break;
+
             default: {
                 failed = true;
                 break;
@@ -70,8 +70,10 @@ QDataStream &QNrbfStream::operator>>(QNrbfObject &obj) {
         }
     }
 
-    if (failed && status() == QDataStream::Ok) {
-        setStatus(QDataStream::ReadCorruptData);
+    if (failed) {
+        if (status() == QDataStream::Ok) {
+            setStatus(QDataStream::ReadCorruptData);
+        }
     }
 
     return *this;

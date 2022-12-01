@@ -1,6 +1,6 @@
 #include "ClassTypeInfo.h"
 
-#include "Primitive/LengthPrefixedString.h"
+#include "Primitive/Parser.h"
 
 QNRBF_BEGIN_NAMESPACE
 

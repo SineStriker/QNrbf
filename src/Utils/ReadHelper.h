@@ -19,8 +19,8 @@
 #include "Records/SystemClassWithMembers.h"
 #include "Records/SystemClassWithMembersAndTypes.h"
 
-#include "Objects/AbstractListObject.h"
 #include "Objects/ClassMemberObject.h"
+#include "Objects/ObjectListObject.h"
 
 #include "DeferredItem.h"
 #include "Enums/RecordTypeEnumeration.h"
@@ -53,10 +53,10 @@ protected:
     bool readRecord(ObjectRef *out = nullptr);
 
     /* Read series of class members in stream */
-    bool readMembers(const BinaryObjectRef &acceptor, const QStringList &memberNames,
+    bool readMembers(const MappingRef &acceptor, const QStringList &memberNames,
                      const MemberTypeInfo &memberTypeInfo);
 
-    bool readUntypedMembers(const BinaryObjectRef &acceptor, const QString &className,
+    bool readUntypedMembers(const MappingRef &acceptor, const QString &className,
                             const QStringList &memberNames);
 
     /* Subsequent work after reading a certain record */
@@ -91,11 +91,9 @@ protected:
     bool onArraySingleString(ArraySingleString &in, ObjectRef &out);
 
     /* Reusable reading method */
-    bool readPrimitives(QList<PrimitiveValue> &arr, PrimitiveTypeEnumeration primitiveTypeEnum);
-
     bool readStrings(QStringList &arr);
 
-    bool readObjects(QList<ObjectRef> &arr, const QSharedPointer<AbstractListObject> &parent);
+    bool readObjects(QList<ObjectRef> &arr, const QSharedPointer<ObjectListObject> &parent);
 
     /* Call after reaching message end, when all reference are collected */
     void resolveDeferredItems();

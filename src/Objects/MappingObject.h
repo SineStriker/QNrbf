@@ -7,7 +7,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class MappingObject : public AbstractObject {
+class QNRBF_INTERNAL MappingObject : public AbstractObject {
 public:
     MappingObject();
 
@@ -17,7 +17,7 @@ public:
     QMap<QString, ObjectRef> members;
 };
 
-using BinaryObjectRef = QSharedPointer<MappingObject>;
+using MappingRef = QSharedPointer<MappingObject>;
 
 QNRBF_END_NAMESPACE
 

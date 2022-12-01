@@ -1,14 +1,15 @@
-#ifndef QNRBF_QNRBFOBJECT_H
-#define QNRBF_QNRBFOBJECT_H
+#ifndef QNRBFFORMAT_QNRBFOBJECT_H
+#define QNRBFFORMAT_QNRBFOBJECT_H
 
-#include <QHash>
+#include <QMap>
 
-#include "qnrbf_global.h"
+#include "QNrbfValue.h"
 
 class QNRBF_API QNrbfObject {
 public:
-    QNrbfObject();
-    ~QNrbfObject();
+    QString libraryId; // Leave empty if it's system class
+
+    QMap<QString, QNrbfValue> members;
 };
 
-#endif // QNRBF_QNRBFOBJECT_H
+#endif // QNRBFFORMAT_QNRBFOBJECT_H

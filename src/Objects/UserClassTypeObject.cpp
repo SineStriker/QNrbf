@@ -11,7 +11,7 @@ UserClassTypeObject::UserClassTypeObject(const ClassWithMembersAndTypes &record)
 }
 
 UserClassTypeObject::UserClassTypeObject(const ClassWithMembersAndTypes &record,
-                                         const BinaryObjectRef &value)
+                                         const MappingRef &value)
     : UserClassTypeObject(record) {
     this->value = value;
 }

@@ -10,7 +10,7 @@ SystemClassObject::SystemClassObject(const SystemClassWithMembers &record) : Sys
 }
 
 SystemClassObject::SystemClassObject(const SystemClassWithMembers &record,
-                                     const BinaryObjectRef &value)
+                                     const MappingRef &value)
     : SystemClassObject(record) {
     this->value = value;
 }

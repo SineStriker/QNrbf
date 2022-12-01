@@ -19,6 +19,7 @@ public:
     PrimitiveValue &operator=(const PrimitiveValue &other);
     ~PrimitiveValue();
 
+    PrimitiveValue(PrimitiveTypeEnumeration nullType);
     PrimitiveValue(bool b);
     PrimitiveValue(quint8 uc);
     PrimitiveValue(const QChar &ch);

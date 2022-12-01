@@ -1,4 +1,4 @@
-#include "TimeSpan.h"
+#include "Primitive/TimeSpan.h"
 
 QNRBF_BEGIN_NAMESPACE
 
@@ -24,13 +24,6 @@ TimeSpan &TimeSpan::operator=(const TimeSpan &other) {
 TimeSpan &TimeSpan::operator=(TimeSpan &&other) noexcept {
     _data = std::move(other._data);
     return *this;
-}
-
-bool TimeSpan::read(QDataStream &in) {
-    in >> _data;
-    if (in.status() != QDataStream::Ok)
-        return false;
-    return true;
 }
 
 QNRBF_END_NAMESPACE

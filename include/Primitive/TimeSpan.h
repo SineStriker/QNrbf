@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.1.1.4 TimeSpan
 
-class QNRBF_INTERNAL TimeSpan {
+class QNRBF_API TimeSpan {
 public:
     TimeSpan();
     explicit TimeSpan(quint64 data);
@@ -21,8 +21,9 @@ public:
     TimeSpan &operator=(TimeSpan &&other) noexcept;
 
     quint64 _data;
-
-    bool read(QDataStream &in);
+    
+protected:
+    friend class QNrbfParserPrivate;
 };
 
 QNRBF_END_NAMESPACE

@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.1.1.7 Decimal
 
-class QNRBF_INTERNAL Decimal {
+class QNRBF_API Decimal {
 public:
     Decimal();
     explicit Decimal(const QString &data);
@@ -23,7 +23,8 @@ public:
 
     QString _data;
 
-    bool read(QDataStream &in);
+protected:
+    friend class QNrbfParserPrivate;
 };
 
 QNRBF_END_NAMESPACE

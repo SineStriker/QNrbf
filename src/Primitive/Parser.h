@@ -15,6 +15,8 @@ namespace Parser {
 
     QNRBF_INTERNAL bool readString(QString &out, QDataStream &in);
 
+    QNRBF_INTERNAL bool readUtf8Char(QChar &out, QDataStream &in);
+
 }; // namespace Parser
 
 QNRBF_END_NAMESPACE

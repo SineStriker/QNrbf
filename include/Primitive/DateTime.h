@@ -9,7 +9,7 @@ QNRBF_BEGIN_NAMESPACE
 
 // 2.1.1.5 DateTime
 
-class QNRBF_INTERNAL DateTime {
+class QNRBF_API DateTime {
 public:
     DateTime();
     explicit DateTime(quint64 data);
@@ -26,6 +26,9 @@ public:
     quint64 _data;
 
     bool read(QDataStream &in);
+
+protected:
+    friend class QNrbfParserPrivate;
 };
 
 QNRBF_END_NAMESPACE

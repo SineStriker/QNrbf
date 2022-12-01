@@ -77,8 +77,27 @@ bool Parser::readString(QString &out, QDataStream &in) {
     out = QString::fromUtf8(buf, (int) size);
     delete[] buf;
 
-    // qDebug() << out;
+    return true;
+}
 
+bool Parser::readUtf8Char(QChar &out, QDataStream &in) {
+    quint8 head;
+    in >> head;
+    if (in.status() != QDataStream::Ok) {
+        return false;
+    }
+    int size = (head & 0xD0) != 0 ? 4 : (head & 0xC0) != 0 ? 3 : (head & 0x80) != 0 ? 2 : 1;
+    char buf[4];
+    if (in.readRawData(buf, size) < 0) {
+        return false;
+    }
+    quint16 value = (head & 0xD0) != 0 ? ((head & 0x3F) << 18) + ((buf[0] & 0x3F) << 12) +
+                                             ((buf[1] & 0x3F) << 6) + (buf[0] & 0x3F)
+                    : (head & 0xC0) != 0
+                        ? ((head & 0x3F) << 12) + ((buf[0] & 0x3F) << 6) + (buf[1] & 0x3F)
+                    : (head & 0x80) != 0 ? ((head & 0x3F) << 6) + (buf[0] & 0x3F)
+                                         : (head & 0x3F);
+    out = QChar(value);
     return true;
 }
 

@@ -42,11 +42,9 @@ public:
 
     Status status() const;
 
-    bool read();
+    ObjectRef read();
 
     void reset();
-
-    bool finish(ObjectRef *out = nullptr);
 
 protected:
     /* Read record of structure */

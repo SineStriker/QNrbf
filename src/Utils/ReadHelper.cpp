@@ -3,9 +3,12 @@
 #include <QDebug>
 
 #include "Objects/DeferredReferenceObject.h"
+#include "Objects/ObjectListObject.h"
 #include "Objects/OneOrMoreNullObject.h"
 #include "Objects/PrimitiveListObject.h"
 #include "Objects/PrimitiveObject.h"
+#include "Objects/StringListObject.h"
+#include "Objects/StringObject.h"
 #include "Objects/SystemClassObject.h"
 #include "Objects/SystemClassTypeObject.h"
 #include "Objects/UserClassObject.h"
@@ -13,9 +16,6 @@
 
 #include "Primitive/Parser.h"
 
-#include "Objects/ObjectListObject.h"
-#include "Objects/StringListObject.h"
-#include "Objects/StringObject.h"
 #include "Records/BinaryMethodCall.h"
 #include "Records/BinaryMethodReturn.h"
 #include "Records/SerializationHeader.h"
@@ -52,8 +52,33 @@ ReadHelper::Status ReadHelper::status() const {
     return _status;
 }
 
-bool ReadHelper::read() {
-    return readRecord();
+ObjectRef ReadHelper::read() {
+    bool over = false;
+    bool failed = false;
+    ObjectRef obj;
+
+    while (!over && !failed) {
+        readRecord();
+
+        switch (_status) {
+            case ReachEnd: {
+                resolveDeferredItems();
+                obj = findReference(header->rootId);
+                over = true;
+                break;
+            }
+
+            case Normal:
+                break;
+
+            default: {
+                failed = true;
+                break;
+            }
+        }
+    }
+
+    return obj;
 }
 
 void ReadHelper::reset() {
@@ -64,14 +89,6 @@ void ReadHelper::reset() {
 
     header.clear();
     _status = Normal;
-}
-
-bool ReadHelper::finish(ObjectRef *out) {
-    resolveDeferredItems();
-    if (out) {
-        *out = findReference(header->rootId);
-    }
-    return true;
 }
 
 bool ReadHelper::readRecord(ObjectRef *out) {
@@ -352,6 +369,9 @@ bool ReadHelper::onSystemClassWithMembers(SystemClassWithMembers &in, ObjectRef 
         classesById[in.classInfo.objectId] = ClassRef(new SystemClassObject(in, obj));
     }
 
+    qDebug() << "System class" << obj->typeName;
+    qDebug() << "Member names" << in.classInfo.memberNames;
+
     // Read members
     if (!readUntypedMembers(obj, in.classInfo.name, in.classInfo.memberNames)) {
         return false;
@@ -371,6 +391,9 @@ bool ReadHelper::onClassWithMembers(ClassWithMembers &in, ObjectRef &out) {
         classesById[in.classInfo.objectId] = ClassRef(new UserClassObject(in, obj));
     }
 
+    qDebug() << "User class" << obj->typeName;
+    qDebug() << "Member names" << in.classInfo.memberNames;
+
     // Read members
     if (!readUntypedMembers(obj, in.classInfo.name, in.classInfo.memberNames)) {
         return false;
@@ -389,6 +412,9 @@ bool ReadHelper::onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes
         classesById[in.classInfo.objectId] = ClassRef(new SystemClassTypeObject(in, obj));
     }
 
+    qDebug() << "System class t" << obj->typeName;
+    qDebug() << "Member names" << in.classInfo.memberNames;
+
     // Read members
     if (!readMembers(obj, in.classInfo.memberNames, in.memberTypeInfo)) {
         return false;
@@ -406,6 +432,9 @@ bool ReadHelper::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, Object
     if (in.classInfo.objectId != 0) {
         classesById[in.classInfo.objectId] = ClassRef(new UserClassTypeObject(in, obj));
     }
+
+    qDebug() << "User class t" << obj->typeName;
+    qDebug() << "Member names" << in.classInfo.memberNames;
 
     // Read members
     if (!readMembers(obj, in.classInfo.memberNames, in.memberTypeInfo)) {
@@ -428,6 +457,9 @@ bool ReadHelper::onClassWithId(ClassWithId &in, ObjectRef &out) {
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = objRef->typeName;
     obj->assemblyName = objRef->assemblyName;
+
+    //    qDebug() << "Class with id" << in.metadataId << obj->typeName;
+    //    qDebug() << "Member names" << classRef->classInfo.memberNames;
 
     // Save object reference
     if (in.objectId != 0) {
@@ -620,7 +652,8 @@ bool ReadHelper::readStrings(QStringList &arr) {
     return true;
 }
 
-bool ReadHelper::readObjects(QList<ObjectRef> &arr, const QSharedPointer<ObjectListObject> &parent) {
+bool ReadHelper::readObjects(QList<ObjectRef> &arr,
+                             const QSharedPointer<ObjectListObject> &parent) {
     for (int i = 0; i < arr.size(); i++) {
         // Read next object
         QSharedPointer<AbstractObject> value;

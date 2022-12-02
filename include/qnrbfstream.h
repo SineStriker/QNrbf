@@ -4,7 +4,9 @@
 #include <QDataStream>
 #include <QJsonObject>
 
-#include "QNrbfObject.h"
+#include "XStudio/XSAppModel.h"
+
+class QNrbfStreamPrivate;
 
 class QNRBF_API QNrbfStream : public QDataStream {
 public:
@@ -16,7 +18,11 @@ public:
 
 public:
     QDataStream &operator>>(QString &str);
-    QDataStream &operator>>(QNrbfObject &cls);
+    QDataStream &operator>>(QJsonObject &obj);
+    QDataStream &operator>>(QNrbf::XSAppModel &svip);
+
+protected:
+    QScopedPointer<QNrbfStreamPrivate> d;
 };
 
 #endif // QNRBF_QNRBFSTREAM_H

@@ -8,6 +8,8 @@
 
 #include <QSharedDataPointer>
 
+#include<QDateTime>
+
 QNRBF_BEGIN_NAMESPACE
 
 class PrimitiveValueData;
@@ -56,6 +58,8 @@ public:
     quint32 toUInt32() const;
     quint64 toUInt64() const;
     QString toString() const;
+
+    QString asString() const;
 
     bool read(QDataStream &in);
     bool read(QDataStream &in, PrimitiveTypeEnumeration primitiveTypeEnum);

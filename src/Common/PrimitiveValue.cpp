@@ -182,6 +182,81 @@ QString PrimitiveValue::toString() const {
     return *d->data.str;
 }
 
+QString PrimitiveValue::asString() const {
+    QString res;
+    switch (d->type) {
+        case PrimitiveTypeEnumeration::Boolean: {
+            bool b = toBool();
+            res = b ? "true" : "false";
+            break;
+        }
+        case PrimitiveTypeEnumeration::Byte: {
+            res = QString::number(toByte());
+            break;
+        }
+        case PrimitiveTypeEnumeration::Char: {
+            res = toChar();
+            break;
+        }
+        case PrimitiveTypeEnumeration::Double: {
+            res = QString::number(toDouble());
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int16: {
+            res = QString::number(toInt16());
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int32: {
+            res = QString::number(toInt32());
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int64: {
+            res = QString::number(toInt64());
+            break;
+        }
+        case PrimitiveTypeEnumeration::SByte: {
+            res = QString::number(toSByte());
+            break;
+        }
+        case PrimitiveTypeEnumeration::Single: {
+            res = QString::number(toSingle());
+            break;
+        }
+        case PrimitiveTypeEnumeration::TimeSpan: {
+            res = QString::number(toTimeSpan()._data);
+            break;
+        }
+        case PrimitiveTypeEnumeration::DateTime: {
+            res = QString::number(toDateTime()._data);
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt16: {
+            res = QString::number(toUInt16());
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt32: {
+            res = QString::number(toUInt32());
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt64: {
+            res = QString::number(toUInt64());
+            break;
+        }
+        case PrimitiveTypeEnumeration::Decimal: {
+            res = toDecimal()._data;
+            break;
+        }
+        case PrimitiveTypeEnumeration::String: {
+            res = toString();
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    return res;
+}
+
 bool PrimitiveValue::read(QDataStream &in) {
     PrimitiveTypeEnumeration primitiveTypeEnum;
     if (!Parser::readPrimitiveTypeEnum(primitiveTypeEnum, in)) {

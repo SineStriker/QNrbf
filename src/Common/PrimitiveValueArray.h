@@ -58,6 +58,8 @@ public:
     QList<quint64> toUInt64List() const;
     QStringList toStringList() const;
 
+    QStringList asStringList() const;
+
     bool read(QDataStream &in, int size);
     bool read(QDataStream &in, int size, PrimitiveTypeEnumeration primitiveTypeEnum);
 

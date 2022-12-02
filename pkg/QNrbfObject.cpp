@@ -1,6 +1,5 @@
 #include "QNrbfObject.h"
 
-
 QNRBF_BEGIN_NAMESPACE
 
 

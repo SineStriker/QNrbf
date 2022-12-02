@@ -1,5 +1,7 @@
 #include "MemberReference.h"
 
+#include <QDebug>
+
 QNRBF_BEGIN_NAMESPACE
 
 QNrbf::MemberReference::MemberReference() {

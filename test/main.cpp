@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
+#include <QJsonDocument>
 
 #include <iostream>
 
@@ -13,22 +14,24 @@ int main(int argc, char *argv[]) {
     }
 
     QCoreApplication a(argc, argv);
+    QStringList args = a.arguments();
 
-    QString filename = QString::fromLocal8Bit(argv[1]);
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Failed to load nrbf file";
-        return -1;
+    QByteArray data;
+    {
+        QFile file(args.at(1));
+        if (!file.open(QIODevice::ReadOnly)) {
+            qDebug() << "Failed to load nrbf file";
+            return -1;
+        }
+
+        data = file.readAll();
+        file.close();
     }
-
-    QByteArray data = file.readAll();
-    file.close();
-
     QNrbfStream in(&data, QIODevice::ReadOnly);
 
     QString name;
     QString ver;
-    QNrbfObject obj;
+    QJsonObject obj;
 
     // Read file head
     in >> name;
@@ -37,14 +40,29 @@ int main(int argc, char *argv[]) {
     // Read content
     in >> obj;
 
-    fflush(stdout);
-    fflush(stderr);
-
     if (in.status() != QDataStream::Ok) {
         qDebug() << "Failed to read nrbf record";
         return -1;
     }
     qDebug() << "Successfully load nrbf file";
+
+    if (argc < 3) {
+        qDebug() << "No output file argument.";
+        return 0;
+    }
+
+    QJsonDocument doc;
+    doc.setObject(obj);
+    {
+        QFile file(args.at(2));
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            qDebug() << "Failed to create output file";
+            return -1;
+        }
+        file.write(doc.toJson());
+        file.close();
+    }
+    qDebug() << "Successfully output to json file";
 
     return 0;
 }

@@ -203,6 +203,125 @@ QStringList PrimitiveValueArray::toStringList() const {
     return res;
 }
 
+QStringList PrimitiveValueArray::asStringList() const {
+    QStringList res;
+    switch (d->type) {
+        case PrimitiveTypeEnumeration::Boolean: {
+            auto list = toBoolList();
+            for (const auto &item : qAsConst(list)) {
+                res.append(item ? "true" : "false");
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Byte: {
+            auto list = toByteList();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Char: {
+            auto list = toCharList();
+            for (const auto &item : qAsConst(list)) {
+                res.append(item);
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Double: {
+            auto list = toDoubleList();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int16: {
+            auto list = toInt16List();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int32: {
+            auto list = toInt32List();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int64: {
+            auto list = toInt64List();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::SByte: {
+            auto list = toSByteList();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Single: {
+            auto list = toSingleList();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::TimeSpan: {
+            auto list = toTimeSpanList();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item._data));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::DateTime: {
+            auto list = toDateTimeList();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item._data));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt16: {
+            auto list = toUInt16List();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt32: {
+            auto list = toUInt32List();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt64: {
+            auto list = toUInt64List();
+            for (const auto &item : qAsConst(list)) {
+                res.append(QString::number(item));
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Decimal: {
+            auto list = toDecimalList();
+            for (const auto &item : qAsConst(list)) {
+                res.append(item._data);
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::String: {
+            res = toStringList();
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    return res;
+}
+
 #undef COPY
 
 bool PrimitiveValueArray::read(QDataStream &in, int size) {

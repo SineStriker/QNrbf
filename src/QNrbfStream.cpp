@@ -1,31 +1,61 @@
 #include "QNrbfStream.h"
 
 #include <QDebug>
+#include <QJsonArray>
 
+#include "Formats/JsonFormat.h"
+#include "Formats/SvipFormat.h"
 #include "Primitive/Parser.h"
-
 #include "Utils/ReadHelper.h"
 
 QNRBF_USING_NAMESPACE
 
-static void init(QNrbfStream *stream) {
-    stream->setByteOrder(QDataStream::LittleEndian);
+class QNrbfStreamPrivate {
+public:
+    explicit QNrbfStreamPrivate(QNrbfStream *q) : q(q) {
+    }
+
+    void init();
+
+    ObjectRef deserialize();
+
+    QNrbfStream *q;
+};
+
+void QNrbfStreamPrivate::init() {
+    Q_UNUSED(this);
+
+    q->setByteOrder(QDataStream::LittleEndian);
 }
 
-QNrbfStream::QNrbfStream() {
-    init(this);
+ObjectRef QNrbfStreamPrivate::deserialize() {
+    Q_UNUSED(this);
+
+    ReadHelper reader(q);
+    auto binObj = reader.read();
+    if (reader.status() != ReadHelper::ReachEnd) {
+        q->setStatus(QDataStream::ReadCorruptData);
+    }
+    return binObj;
 }
 
-QNrbfStream::QNrbfStream(QIODevice *dev) : QDataStream(dev) {
-    init(this);
+// ------------------------------------------------------------------------------------------------
+
+QNrbfStream::QNrbfStream() : d(new QNrbfStreamPrivate(this)) {
+    d->init();
 }
 
-QNrbfStream::QNrbfStream(QByteArray *in, QIODevice::OpenMode flags) : QDataStream(in, flags) {
-    init(this);
+QNrbfStream::QNrbfStream(QIODevice *dev) : QDataStream(dev), d(new QNrbfStreamPrivate(this)) {
+    d->init();
 }
 
-QNrbfStream::QNrbfStream(const QByteArray &in) : QDataStream(in) {
-    init(this);
+QNrbfStream::QNrbfStream(QByteArray *in, QIODevice::OpenMode flags)
+    : QDataStream(in, flags), d(new QNrbfStreamPrivate(this)) {
+    d->init();
+}
+
+QNrbfStream::QNrbfStream(const QByteArray &in) : QDataStream(in), d(new QNrbfStreamPrivate(this)) {
+    d->init();
 }
 
 QNrbfStream::~QNrbfStream() {
@@ -41,40 +71,28 @@ QDataStream &QNrbfStream::operator>>(QString &str) {
     return *this;
 }
 
-QDataStream &QNrbfStream::operator>>(QNrbfObject &cls) {
-    ReadHelper reader(this);
-
-    bool over = false;
-    bool failed = false;
-    while (!over && !failed) {
-        reader.read();
-
-        switch (reader.status()) {
-            case ReadHelper::ReachEnd: {
-                ObjectRef obj;
-                if (!reader.finish(&obj)) {
-                    failed = true;
-                } else {
-                    over = true;
-                }
-                break;
-            }
-
-            case ReadHelper::Normal:
-                break;
-
-            default: {
-                failed = true;
-                break;
-            }
-        }
-    }
-
-    if (failed) {
-        if (status() == QDataStream::Ok) {
+QDataStream &QNrbfStream::operator>>(QJsonObject &obj) {
+    auto binObj = d->deserialize();
+    if (status() == Ok) {
+        JsonFormat fmt;
+        if (!fmt.load(binObj)) {
             setStatus(QDataStream::ReadCorruptData);
+        } else {
+            obj = fmt.jsonObj;
         }
     }
+    return *this;
+}
 
+QDataStream &QNrbfStream::operator>>(XSAppModel &svip) {
+    auto binObj = d->deserialize();
+    if (status() == Ok) {
+        SvipFormat fmt;
+        if (!fmt.load(binObj)) {
+            setStatus(QDataStream::ReadCorruptData);
+        } else {
+            svip = fmt.appModel;
+        }
+    }
     return *this;
 }

@@ -7,8 +7,7 @@
 #include "Primitive/TimeSpan.h"
 
 #include <QSharedDataPointer>
-
-#include<QDateTime>
+#include <QVariant>
 
 QNRBF_BEGIN_NAMESPACE
 
@@ -58,6 +57,10 @@ public:
     quint32 toUInt32() const;
     quint64 toUInt64() const;
     QString toString() const;
+
+    void *data();
+    const void *constData() const;
+    inline const void *data() const { return constData(); }
 
     QString asString() const;
 

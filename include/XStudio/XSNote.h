@@ -1,6 +1,7 @@
 #ifndef QNRBFFORMAT_XSNOTE_H
 #define QNRBFFORMAT_XSNOTE_H
 
+#include "XSOverlappable.h"
 #include "XSVibrato.h"
 
 QNRBF_BEGIN_NAMESPACE
@@ -24,17 +25,17 @@ public:
 };
 
 // SingingTool.Model.Note
-class QNRBF_API XSNote {
+class QNRBF_API XSNote : public XSIOverlappable {
 public:
     XSNote() : VibratoPercent(0), startPos(0), widthPos(480), keyIndex(60), headTag(NoTag) {
     }
 
     /* Properties */
-    XSNotePhoneInfo NotePhoneInfo;
+    QSharedPointer<XSNotePhoneInfo> NotePhoneInfo;
 
     int VibratoPercent;
-    XSVibratoStyle Vibrato;
-    XSVibratoPercentInfo VibratoPercentInfo;
+    QSharedPointer<XSVibratoStyle> Vibrato;
+    QSharedPointer<XSVibratoPercentInfo> VibratoPercentInfo;
 
     /* Members */
     int startPos;

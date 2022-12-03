@@ -182,6 +182,42 @@ QString PrimitiveValue::toString() const {
     return *d->data.str;
 }
 
+void *PrimitiveValue::data() {
+    void *res;
+    switch (d->type) {
+        case PrimitiveTypeEnumeration::Char:
+        case PrimitiveTypeEnumeration::Decimal:
+        case PrimitiveTypeEnumeration::String:
+        case PrimitiveTypeEnumeration::DateTime:
+        case PrimitiveTypeEnumeration::TimeSpan: {
+            res = d->data.ptr;
+            break;
+        }
+        default:
+            res = &d->data;
+            break;
+    }
+    return res;
+}
+
+const void *PrimitiveValue::constData() const {
+    const void *res;
+    switch (d->type) {
+        case PrimitiveTypeEnumeration::Char:
+        case PrimitiveTypeEnumeration::Decimal:
+        case PrimitiveTypeEnumeration::String:
+        case PrimitiveTypeEnumeration::DateTime:
+        case PrimitiveTypeEnumeration::TimeSpan: {
+            res = d->data.ptr;
+            break;
+        }
+        default:
+            res = &d->data;
+            break;
+    }
+    return res;
+}
+
 QString PrimitiveValue::asString() const {
     QString res;
     switch (d->type) {

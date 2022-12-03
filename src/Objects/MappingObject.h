@@ -1,5 +1,5 @@
-#ifndef QNRBF_BINARYOBJECT_H
-#define QNRBF_BINARYOBJECT_H
+#ifndef QNRBF_MAPPINGOBJECT_H
+#define QNRBF_MAPPINGOBJECT_H
 
 #include "AbstractObject.h"
 
@@ -21,4 +21,4 @@ using MappingRef = QSharedPointer<MappingObject>;
 
 QNRBF_END_NAMESPACE
 
-#endif // QNRBF_BINARYOBJECT_H
+#endif // QNRBF_MAPPINGOBJECT_H

@@ -6,7 +6,7 @@
 QNRBF_BEGIN_NAMESPACE
 
 // SingingTool.Model.SingingGeneralConcept.SongTempo
-class QNRBF_API XSSongTempo : public XSOverlappable {
+class QNRBF_API XSSongTempo : public XSIOverlappable {
 public:
     XSSongTempo() : pos(0), tempo(120) {
     }

@@ -1,6 +1,8 @@
 #include "PrimitiveValueArray.h"
 #include "private/PrimitiveValueArrayData.h"
 
+#include <QDebug>
+
 #include "Primitive/Parser.h"
 
 QNRBF_BEGIN_NAMESPACE
@@ -201,6 +203,14 @@ QStringList PrimitiveValueArray::toStringList() const {
         res.append(d->data.str[i]);
     }
     return res;
+}
+
+void *PrimitiveValueArray::data() {
+    return d->data.ptr;
+}
+
+const void *PrimitiveValueArray::constData() const {
+    return d->data.ptr;
 }
 
 QStringList PrimitiveValueArray::asStringList() const {

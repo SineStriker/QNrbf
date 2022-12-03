@@ -1,4 +1,4 @@
-#include "ReadHelper.h"
+#include "NrbfReader.h"
 
 #include <QDebug>
 
@@ -41,18 +41,18 @@ static void resizeList(QList<T> &list, int size) {
     }
 }
 
-ReadHelper::ReadHelper(QDataStream *stream) : stream(stream) {
+NrbfReader::NrbfReader(QDataStream *stream) : stream(stream) {
     _status = Normal;
 }
 
-ReadHelper::~ReadHelper() {
+NrbfReader::~NrbfReader() {
 }
 
-ReadHelper::Status ReadHelper::status() const {
+NrbfReader::Status NrbfReader::status() const {
     return _status;
 }
 
-ObjectRef ReadHelper::read() {
+ObjectRef NrbfReader::read() {
     bool over = false;
     bool failed = false;
     ObjectRef obj;
@@ -81,7 +81,7 @@ ObjectRef ReadHelper::read() {
     return obj;
 }
 
-void ReadHelper::reset() {
+void NrbfReader::reset() {
     objectsById.clear();
     classesById.clear();
     libraries.clear();
@@ -91,7 +91,7 @@ void ReadHelper::reset() {
     _status = Normal;
 }
 
-bool ReadHelper::readRecord(ObjectRef *out) {
+bool NrbfReader::readRecord(ObjectRef *out) {
     QDataStream &in = *stream;
     QIODevice *dev = in.device();
 
@@ -279,7 +279,7 @@ bool ReadHelper::readRecord(ObjectRef *out) {
     return success;
 }
 
-bool ReadHelper::readMembers(const MappingRef &acceptor, const QStringList &memberNames,
+bool NrbfReader::readMembers(const MappingRef &acceptor, const QStringList &memberNames,
                              const MemberTypeInfo &memberTypeInfo) {
     QDataStream &in = *stream;
     for (int i = 0; i < memberNames.size(); i++) {
@@ -319,11 +319,9 @@ bool ReadHelper::readMembers(const MappingRef &acceptor, const QStringList &memb
     return true;
 }
 
-bool ReadHelper::readUntypedMembers(const MappingRef &acceptor, const QString &className,
+bool NrbfReader::readUntypedMembers(const MappingRef &acceptor, const QString &className,
                                     const QStringList &memberNames) {
     QDataStream &in = *stream;
-
-    qDebug() << "read untyped members" << memberNames;
 
 #define ADD_MEMBER(KEY, TYPE)                                                                      \
     {                                                                                              \
@@ -360,7 +358,7 @@ bool ReadHelper::readUntypedMembers(const MappingRef &acceptor, const QString &c
 #undef ADD_MEMBER
 }
 
-bool ReadHelper::onSystemClassWithMembers(SystemClassWithMembers &in, ObjectRef &out) {
+bool NrbfReader::onSystemClassWithMembers(SystemClassWithMembers &in, ObjectRef &out) {
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = in.classInfo.name;
 
@@ -369,9 +367,6 @@ bool ReadHelper::onSystemClassWithMembers(SystemClassWithMembers &in, ObjectRef 
         classesById[in.classInfo.objectId] = ClassRef(new SystemClassObject(in, obj));
     }
 
-    qDebug() << "System class" << obj->typeName;
-    qDebug() << "Member names" << in.classInfo.memberNames;
-
     // Read members
     if (!readUntypedMembers(obj, in.classInfo.name, in.classInfo.memberNames)) {
         return false;
@@ -381,19 +376,26 @@ bool ReadHelper::onSystemClassWithMembers(SystemClassWithMembers &in, ObjectRef 
     return true;
 }
 
-bool ReadHelper::onClassWithMembers(ClassWithMembers &in, ObjectRef &out) {
+bool NrbfReader::onClassWithMembers(ClassWithMembers &in, ObjectRef &out) {
+    // Find library name
+    QString library;
+    {
+        auto it = libraries.find(in.libraryId);
+        if (it == libraries.end()) {
+            return false;
+        }
+        library = it.value();
+    }
+
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = in.classInfo.name;
-    obj->assemblyName = libraries[in.libraryId];
+    obj->assemblyName = library;
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
         classesById[in.classInfo.objectId] = ClassRef(new UserClassObject(in, obj));
     }
 
-    qDebug() << "User class" << obj->typeName;
-    qDebug() << "Member names" << in.classInfo.memberNames;
-
     // Read members
     if (!readUntypedMembers(obj, in.classInfo.name, in.classInfo.memberNames)) {
         return false;
@@ -402,7 +404,7 @@ bool ReadHelper::onClassWithMembers(ClassWithMembers &in, ObjectRef &out) {
     out = obj;
     return true;
 }
-bool ReadHelper::onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes &in,
+bool NrbfReader::onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes &in,
                                                   ObjectRef &out) {
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = in.classInfo.name;
@@ -412,9 +414,6 @@ bool ReadHelper::onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes
         classesById[in.classInfo.objectId] = ClassRef(new SystemClassTypeObject(in, obj));
     }
 
-    qDebug() << "System class t" << obj->typeName;
-    qDebug() << "Member names" << in.classInfo.memberNames;
-
     // Read members
     if (!readMembers(obj, in.classInfo.memberNames, in.memberTypeInfo)) {
         return false;
@@ -423,19 +422,26 @@ bool ReadHelper::onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes
     out = obj;
     return true;
 }
-bool ReadHelper::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, ObjectRef &out) {
+bool NrbfReader::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, ObjectRef &out) {
+    // Find library name
+    QString library;
+    {
+        auto it = libraries.find(in.libraryId);
+        if (it == libraries.end()) {
+            return false;
+        }
+        library = it.value();
+    }
+
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = in.classInfo.name;
-    obj->assemblyName = libraries[in.libraryId];
+    obj->assemblyName = library;
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
         classesById[in.classInfo.objectId] = ClassRef(new UserClassTypeObject(in, obj));
     }
 
-    qDebug() << "User class t" << obj->typeName;
-    qDebug() << "Member names" << in.classInfo.memberNames;
-
     // Read members
     if (!readMembers(obj, in.classInfo.memberNames, in.memberTypeInfo)) {
         return false;
@@ -445,9 +451,15 @@ bool ReadHelper::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, Object
     return true;
 }
 
-bool ReadHelper::onClassWithId(ClassWithId &in, ObjectRef &out) {
+bool NrbfReader::onClassWithId(ClassWithId &in, ObjectRef &out) {
+    // Find saved class
+    auto it = classesById.find(in.metadataId);
+    if (it == classesById.end()) {
+        return false;
+    }
+
     // This class has been defined, and we use the saved one
-    auto classRef = dynamic_cast<ClassMemberObject *>(classesById[in.metadataId].data());
+    auto classRef = dynamic_cast<ClassMemberObject *>(it.value().data());
     if (!classRef) {
         return false;
     }
@@ -457,9 +469,6 @@ bool ReadHelper::onClassWithId(ClassWithId &in, ObjectRef &out) {
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = objRef->typeName;
     obj->assemblyName = objRef->assemblyName;
-
-    //    qDebug() << "Class with id" << in.metadataId << obj->typeName;
-    //    qDebug() << "Member names" << classRef->classInfo.memberNames;
 
     // Save object reference
     if (in.objectId != 0) {
@@ -481,7 +490,7 @@ bool ReadHelper::onClassWithId(ClassWithId &in, ObjectRef &out) {
     return true;
 }
 
-bool ReadHelper::onBinaryObjectString(BinaryObjectString &in, ObjectRef &out) {
+bool NrbfReader::onBinaryObjectString(BinaryObjectString &in, ObjectRef &out) {
     auto obj = ObjectRef(new StringObject(in.value));
     if (in.objectId != 0) {
         objectsById[in.objectId] = obj;
@@ -490,7 +499,7 @@ bool ReadHelper::onBinaryObjectString(BinaryObjectString &in, ObjectRef &out) {
     return true;
 }
 
-bool ReadHelper::onBinaryArray(BinaryArray &in, ObjectRef &out) {
+bool NrbfReader::onBinaryArray(BinaryArray &in, ObjectRef &out) {
     int production = 1;
     for (int num : qAsConst(in.lengths)) {
         production *= num;
@@ -542,13 +551,13 @@ bool ReadHelper::onBinaryArray(BinaryArray &in, ObjectRef &out) {
     return true;
 }
 
-bool ReadHelper::onMemberPrimitiveTyped(MemberPrimitiveTyped &in, ObjectRef &out) {
+bool NrbfReader::onMemberPrimitiveTyped(MemberPrimitiveTyped &in, ObjectRef &out) {
     Q_UNUSED(this);
     out = ObjectRef(new PrimitiveObject(in.value));
     return true;
 }
 
-bool ReadHelper::onMemberReference(MemberReference &in, ObjectRef &out) {
+bool NrbfReader::onMemberReference(MemberReference &in, ObjectRef &out) {
     auto searchObj = findReference(in.idRef);
     if (searchObj) {
         out = searchObj;
@@ -561,25 +570,25 @@ bool ReadHelper::onMemberReference(MemberReference &in, ObjectRef &out) {
     return true;
 }
 
-bool ReadHelper::onBinaryLibrary(BinaryLibrary &in, ObjectRef &out) {
+bool NrbfReader::onBinaryLibrary(BinaryLibrary &in, ObjectRef &out) {
     Q_UNUSED(out);
     libraries[in.libraryId] = in.libraryName;
     return true;
 }
 
-bool ReadHelper::onObjectNull(ObjectRef &out) {
+bool NrbfReader::onObjectNull(ObjectRef &out) {
     Q_UNUSED(this);
     out = ObjectRef(new OneOrMoreNullObject());
     return true;
 }
 
-bool ReadHelper::onObjectNullMultiple(ObjectNullMultiple &in, ObjectRef &out) {
+bool NrbfReader::onObjectNullMultiple(ObjectNullMultiple &in, ObjectRef &out) {
     Q_UNUSED(this);
     out = ObjectRef(new OneOrMoreNullObject(in.nullCount));
     return true;
 }
 
-bool ReadHelper::onArraySinglePrimitive(ArraySinglePrimitive &in, ObjectRef &out) {
+bool NrbfReader::onArraySinglePrimitive(ArraySinglePrimitive &in, ObjectRef &out) {
     PrimitiveValueArray arr;
     if (!arr.read(*stream, in.arrayInfo.length, in.primitiveTypeEnum)) {
         return false;
@@ -593,7 +602,7 @@ bool ReadHelper::onArraySinglePrimitive(ArraySinglePrimitive &in, ObjectRef &out
     return true;
 }
 
-bool ReadHelper::onArraySingleObject(ArraySingleObject &in, ObjectRef &out) {
+bool NrbfReader::onArraySingleObject(ArraySingleObject &in, ObjectRef &out) {
     // Allocate first because the read function needs it
     auto obj = QSharedPointer<ObjectListObject>::create();
     resizeList(obj->values, in.arrayInfo.length);
@@ -609,7 +618,7 @@ bool ReadHelper::onArraySingleObject(ArraySingleObject &in, ObjectRef &out) {
     return true;
 }
 
-bool ReadHelper::onArraySingleString(ArraySingleString &in, ObjectRef &out) {
+bool NrbfReader::onArraySingleString(ArraySingleString &in, ObjectRef &out) {
     QStringList arr;
     resizeList(arr, in.arrayInfo.length);
 
@@ -626,7 +635,7 @@ bool ReadHelper::onArraySingleString(ArraySingleString &in, ObjectRef &out) {
     return true;
 }
 
-bool ReadHelper::readStrings(QStringList &arr) {
+bool NrbfReader::readStrings(QStringList &arr) {
     for (int i = 0; i < arr.size(); ++i) {
         // Read next object
         QSharedPointer<AbstractObject> value;
@@ -652,7 +661,7 @@ bool ReadHelper::readStrings(QStringList &arr) {
     return true;
 }
 
-bool ReadHelper::readObjects(QList<ObjectRef> &arr,
+bool NrbfReader::readObjects(QList<ObjectRef> &arr,
                              const QSharedPointer<ObjectListObject> &parent) {
     for (int i = 0; i < arr.size(); i++) {
         // Read next object
@@ -701,14 +710,14 @@ bool ReadHelper::readObjects(QList<ObjectRef> &arr,
     return true;
 }
 
-void ReadHelper::resolveDeferredItems() {
+void NrbfReader::resolveDeferredItems() {
     for (auto &item : deferredItems) {
         auto refItem = findReference(item.id);
         item.deferredAction->Invoke(refItem);
     }
 }
 
-ObjectRef ReadHelper::findReference(qint32 id) {
+ObjectRef NrbfReader::findReference(qint32 id) {
     // Search class
     {
         auto it = classesById.find(id);

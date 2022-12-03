@@ -9,12 +9,36 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-// SingingTool.Model.SingingTrack
-class QNRBF_API XSSingingTrack {
+class QNRBF_API XSITrack {
 public:
-    XSSingingTrack()
-        : needRefreshBaseMetadataFlag(false), reverbPreset(NONE), volume(0.7), pan(0.7),
-          mute(false), solo(false) {
+    XSITrack() : XSITrack(1) {
+    }
+    explicit XSITrack(double volume) : volume(volume), pan(0), mute(false), solo(false) {
+    }
+
+    enum Type {
+        Singing,
+        Instrument,
+    };
+
+    virtual Type type() const = 0;
+
+    /* Members */
+    double volume;
+    double pan;
+    QString name;
+    bool mute;
+    bool solo;
+};
+
+// SingingTool.Model.SingingTrack
+class QNRBF_API XSSingingTrack : public XSITrack {
+public:
+    XSSingingTrack() : XSITrack(0.7), needRefreshBaseMetadataFlag(false), reverbPreset(NONE) {
+    }
+
+    inline Type type() const override {
+        return Singing;
     }
 
     /* Properties */
@@ -25,26 +49,24 @@ public:
 
     bool needRefreshBaseMetadataFlag;
 
-    XSLineParam editedPitchLine;
-    XSLineParam editedVolumeLine;
-    XSLineParam editedBreathLine;
-    XSLineParam editedGenderLine;
+    QSharedPointer<XSLineParam> editedPitchLine;
+    QSharedPointer<XSLineParam> editedVolumeLine;
+    QSharedPointer<XSLineParam> editedBreathLine;
+    QSharedPointer<XSLineParam> editedGenderLine;
+    QSharedPointer<XSLineParam> editedPowerLine;
 
     XSReverbPreset reverbPreset;
-
-    double volume;
-    double pan;
-    QString name;
-    bool mute;
-    bool solo;
 };
 
 // SingingTool.Model.InstrumentTrack
-class QNRBF_API XSInstrumentTrack {
+class QNRBF_API XSInstrumentTrack : public XSITrack {
 public:
     XSInstrumentTrack()
-        : SampleRate(0), SampleCount(0), ChannelCount(0), OffsetInPos(0), volume(0.3), pan(0),
-          mute(false), solo(false) {
+        : XSITrack(0.3), SampleRate(0), SampleCount(0), ChannelCount(0), OffsetInPos(0) {
+    }
+
+    inline Type type() const override {
+        return Instrument;
     }
 
     /* Properties */
@@ -53,13 +75,6 @@ public:
     int ChannelCount;
     int OffsetInPos;
     QString InstrumentFilePath;
-
-    /* Members */
-    double volume;
-    double pan;
-    QString name;
-    bool mute;
-    bool solo;
 };
 
 QNRBF_END_NAMESPACE

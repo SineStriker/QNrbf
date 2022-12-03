@@ -2,7 +2,6 @@
 
 #include <QJsonArray>
 
-#include "Objects/DeferredReferenceObject.h"
 #include "Objects/ObjectListObject.h"
 #include "Objects/OneOrMoreNullObject.h"
 #include "Objects/PrimitiveListObject.h"
@@ -10,9 +9,6 @@
 #include "Objects/StringListObject.h"
 #include "Objects/StringObject.h"
 #include "Objects/SystemClassObject.h"
-#include "Objects/SystemClassTypeObject.h"
-#include "Objects/UserClassObject.h"
-#include "Objects/UserClassTypeObject.h"
 
 QNRBF_BEGIN_NAMESPACE
 
@@ -53,21 +49,24 @@ QJsonValue JsonFormat::dfs(const ObjectRef &binObj) {
             break;
         }
         case AbstractObject::Primitive: {
-            auto primitive = dynamic_cast<PrimitiveObject *>(binObj.data());
-            switch (primitive->value.type()) {
+            auto val = dynamic_cast<PrimitiveObject *>(binObj.data());
+            switch (val->value.type()) {
                 case PrimitiveTypeEnumeration::Byte:
                 case PrimitiveTypeEnumeration::SByte:
                 case PrimitiveTypeEnumeration::UInt16:
                 case PrimitiveTypeEnumeration::Int16:
                 case PrimitiveTypeEnumeration::Int32:
-                    res = primitive->value.asString().toInt();
+                    res = QJsonObject({{"type", Parser::strPrimitiveTypeEnum(val->value.type())},
+                                       {"value", val->value.asString().toInt()}});
                     break;
                 case PrimitiveTypeEnumeration::Double:
                 case PrimitiveTypeEnumeration::Single:
-                    res = primitive->value.asString().toDouble();
+                    res = QJsonObject({{"type", Parser::strPrimitiveTypeEnum(val->value.type())},
+                                       {"value", val->value.asString().toDouble()}});
                     break;
                 default:
-                    res = primitive->value.asString();
+                    res = QJsonObject({{"type", Parser::strPrimitiveTypeEnum(val->value.type())},
+                                       {"value", val->value.asString()}});
                     break;
             }
             break;
@@ -91,33 +90,37 @@ QJsonValue JsonFormat::dfs(const ObjectRef &binObj) {
             break;
         }
         case AbstractObject::PrimitiveList: {
-            auto list = dynamic_cast<PrimitiveListObject *>(binObj.data());
-            switch (list->values.type()) {
+            auto val = dynamic_cast<PrimitiveListObject *>(binObj.data());
+            switch (val->values.type()) {
                 case PrimitiveTypeEnumeration::Byte:
                 case PrimitiveTypeEnumeration::SByte:
                 case PrimitiveTypeEnumeration::UInt16:
                 case PrimitiveTypeEnumeration::Int16:
                 case PrimitiveTypeEnumeration::Int32: {
-                    QStringList strs = list->values.asStringList();
+                    QStringList strs = val->values.asStringList();
                     QJsonArray arr;
                     for (const QString &item : qAsConst(strs)) {
                         arr.append(item.toInt());
                     }
-                    res = arr;
+                    res = QJsonObject({{"type", Parser::strPrimitiveTypeEnum(val->values.type())},
+                                       {"value", arr}});
                     break;
                 }
                 case PrimitiveTypeEnumeration::Double:
                 case PrimitiveTypeEnumeration::Single: {
-                    QStringList strs = list->values.asStringList();
+                    QStringList strs = val->values.asStringList();
                     QJsonArray arr;
                     for (const QString &item : qAsConst(strs)) {
                         arr.append(item.toDouble());
                     }
-                    res = arr;
+                    res = QJsonObject({{"type", Parser::strPrimitiveTypeEnum(val->values.type())},
+                                       {"value", arr}});
                     break;
                 }
                 default:
-                    res = QJsonArray::fromStringList(list->values.asStringList());
+                    res = QJsonObject(
+                        {{"type", Parser::strPrimitiveTypeEnum(val->values.type())},
+                         {"value", QJsonArray::fromStringList(val->values.asStringList())}});
                     break;
             }
 

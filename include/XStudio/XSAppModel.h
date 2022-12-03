@@ -1,6 +1,8 @@
 #ifndef QNRBFFORMAT_XSAPPMODEL_H
 #define QNRBFFORMAT_XSAPPMODEL_H
 
+#include <QSharedPointer>
+
 #include "XSSongBeat.h"
 #include "XSSongTempo.h"
 #include "XSTrack.h"
@@ -11,8 +13,7 @@ QNRBF_BEGIN_NAMESPACE
 class QNRBF_API XSAppModel {
 public:
     XSAppModel()
-        : quantize(8), isTriplet(false), isNumericalKeyName(false),
-          firstNumericalKeyNameAtIndex(0) {
+        : quantize(8), isTriplet(false), isNumericalKeyName(true), firstNumericalKeyNameAtIndex(0) {
     }
 
     /* Properties */
@@ -22,13 +23,11 @@ public:
     QList<XSSongTempo> tempoList;
     QList<XSSongBeat> beatList;
 
-    /* Split the abstract class list into two derived class lists */
-    QList<XSSingingTrack> singingTrackList;
-    QList<XSInstrumentTrack> instrumentTrackList;
+    QList<QSharedPointer<XSITrack>> trackList;
 
     int quantize;
     bool isTriplet;
-    bool isNumericalKeyName; // The word was misspelled in the original code
+    bool isNumericalKeyName;          // The word was misspelled in the original code
     int firstNumericalKeyNameAtIndex; // The word was misspelled in the original code
 };
 

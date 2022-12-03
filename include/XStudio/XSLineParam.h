@@ -7,6 +7,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
+// SingingTool.Model.Line.LineParamNode
 class QNRBF_API XSLineParamNode {
 public:
     XSLineParamNode() : Pos(0), Value(0) {

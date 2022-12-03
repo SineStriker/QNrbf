@@ -1,5 +1,5 @@
-#ifndef __ARRAYINFO_H__
-#define __ARRAYINFO_H__
+#ifndef QNRBF_ARRAYINFO_H
+#define QNRBF_ARRAYINFO_H
 
 #include <QDataStream>
 
@@ -21,4 +21,4 @@ public:
 
 QNRBF_END_NAMESPACE
 
-#endif // __ARRAYINFO_H__
+#endif // QNRBF_ARRAYINFO_H

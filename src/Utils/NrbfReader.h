@@ -1,5 +1,5 @@
-#ifndef QNRBF_READHELPER_H
-#define QNRBF_READHELPER_H
+#ifndef QNRBF_NRBFREADER_H
+#define QNRBF_NRBFREADER_H
 
 // Private part
 
@@ -27,10 +27,10 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_INTERNAL ReadHelper {
+class QNRBF_INTERNAL NrbfReader {
 public:
-    explicit ReadHelper(QDataStream *stream);
-    ~ReadHelper();
+    explicit NrbfReader(QDataStream *stream);
+    ~NrbfReader();
 
     enum Status {
         Normal = 1,
@@ -118,4 +118,4 @@ protected:
 
 QNRBF_END_NAMESPACE
 
-#endif // QNRBF_READHELPER_H
+#endif // QNRBF_NRBFREADER_H

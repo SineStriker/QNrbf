@@ -1,5 +1,5 @@
-#ifndef QNRBF_LENGTHPREFIXEDSTRING_H
-#define QNRBF_LENGTHPREFIXEDSTRING_H
+#ifndef QNRBF_PARSER_H
+#define QNRBF_PARSER_H
 
 #include <QDataStream>
 
@@ -27,4 +27,4 @@ namespace Parser {
 
 QNRBF_END_NAMESPACE
 
-#endif // QNRBF_LENGTHPREFIXEDSTRING_H
+#endif // QNRBF_PARSER_H

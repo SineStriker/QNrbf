@@ -6,9 +6,9 @@
 QNRBF_BEGIN_NAMESPACE
 
 // SingingTool.Library.Overlapable
-class QNRBF_API XSOverlappable {
+class QNRBF_API XSIOverlappable {
 public:
-    XSOverlappable() : Overlapped(false) {
+    XSIOverlappable() : Overlapped(false) {
     }
 
     /* Properties */

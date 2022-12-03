@@ -1,5 +1,5 @@
-#ifndef QNRBFFORMAT_PrimitiveValueArrayARRAY_H
-#define QNRBFFORMAT_PrimitiveValueArrayARRAY_H
+#ifndef QNRBFFORMAT_PRIMITIVEVALUEARRAY_H
+#define QNRBFFORMAT_PRIMITIVEVALUEARRAY_H
 
 #include "Enums/PrimitiveTypeEnumeration.h"
 #include "Primitive/DateTime.h"
@@ -58,6 +58,10 @@ public:
     QList<quint64> toUInt64List() const;
     QStringList toStringList() const;
 
+    void *data();
+    const void *constData() const;
+    inline const void *data() const { return constData(); }
+
     QStringList asStringList() const;
 
     bool read(QDataStream &in, int size);
@@ -70,4 +74,4 @@ protected:
 QNRBF_END_NAMESPACE
 
 
-#endif // QNRBFFORMAT_PrimitiveValueArrayARRAY_H
+#endif // QNRBFFORMAT_PRIMITIVEVALUEARRAY_H

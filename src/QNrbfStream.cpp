@@ -6,7 +6,7 @@
 #include "Formats/JsonFormat.h"
 #include "Formats/SvipFormat.h"
 #include "Primitive/Parser.h"
-#include "Utils/ReadHelper.h"
+#include "Utils/NrbfReader.h"
 
 QNRBF_USING_NAMESPACE
 
@@ -31,9 +31,9 @@ void QNrbfStreamPrivate::init() {
 ObjectRef QNrbfStreamPrivate::deserialize() {
     Q_UNUSED(this);
 
-    ReadHelper reader(q);
+    NrbfReader reader(q);
     auto binObj = reader.read();
-    if (reader.status() != ReadHelper::ReachEnd) {
+    if (reader.status() != NrbfReader::ReachEnd) {
         q->setStatus(QDataStream::ReadCorruptData);
     }
     return binObj;

@@ -17,7 +17,7 @@ public:
 };
 
 // SingingTool.Model.SingingGeneralConcept.SongBeat
-class QNRBF_API XSSongBeat : public XSOverlappable {
+class QNRBF_API XSSongBeat : public XSIOverlappable {
 public:
     XSSongBeat() : barIndex(0) {
     }

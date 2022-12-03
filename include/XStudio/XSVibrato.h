@@ -12,8 +12,8 @@ public:
     bool IsAntiPhase;
 
     /* Members */
-    XSLineParam ampLine;
-    XSLineParam freqLine;
+    QSharedPointer<XSLineParam> ampLine;
+    QSharedPointer<XSLineParam> freqLine;
 };
 
 // SingingTool.Model.VibratoPercentInfo

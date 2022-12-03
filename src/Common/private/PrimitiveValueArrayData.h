@@ -29,6 +29,7 @@ public:
         Decimal *dec;
         DateTime *dt;
         TimeSpan *ts;
+        void *ptr;
     } data;
 
     int size;

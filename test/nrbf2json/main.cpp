@@ -4,7 +4,6 @@
 #include <QJsonDocument>
 
 #include "QNrbfStream.h"
-#include "SvipUtils.h"
 
 int main(int argc, char *argv[]) {
     QStringList args;
@@ -42,7 +41,7 @@ int main(int argc, char *argv[]) {
 
     QString name;
     QString ver;
-    QNrbf::XSAppModel svip;
+    QJsonObject obj;
 
     // Read name and version
     in >> name;
@@ -54,19 +53,12 @@ int main(int argc, char *argv[]) {
     }
 
     // Read content
-    in >> svip;
+    in >> obj;
     if (in.status() != QDataStream::Ok) {
         qDebug() << "Failed to load nrbf file.";
         return -1;
     }
     qDebug() << "Successfully load nrbf file.";
-
-    // Convert to OpenSVIP model
-    QSvipModel model;
-    if (!SvipUtils::bin2Json(svip, name + ver, model)) {
-        qDebug() << "Failed to convert to OpenSVIP model.";
-        return -1;
-    }
 
     // Save model
     {
@@ -74,18 +66,18 @@ int main(int argc, char *argv[]) {
         if (args.size() >= 3) {
             outputFilename = args.at(2);
         } else {
-            outputFilename = QFileInfo(filename).baseName() + "_svip.json";
+            outputFilename = QFileInfo(filename).baseName() + "_nrbf.json";
         }
         QFile file(outputFilename);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
             qDebug() << "Failed to create output file.";
             return -1;
         }
-        file.write(QJsonDocument(model.toJsonObject()).toJson());
+        file.write(QJsonDocument(obj).toJson());
         file.close();
     }
 
-    qDebug() << "Successfully save OpenSVIP json file.";
+    qDebug() << "Successfully save json file.";
 
     return 0;
 }

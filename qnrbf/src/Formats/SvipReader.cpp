@@ -1,12 +1,10 @@
-#include "SvipFormat.h"
+#include "SvipReader.h"
 
 #include <QDebug>
 
 #include "Objects/ClassMemberObject.h"
 #include "Objects/PrimitiveListObject.h"
 #include "Objects/StringListObject.h"
-
-#include "Utils/NrbfFinder.h"
 
 QNRBF_BEGIN_NAMESPACE
 
@@ -167,44 +165,57 @@ static const char KEY_NAME_NOTE_WIDTH_POS[] = "_widthPos";
     CHECK_IF_OBJECT_NULL(OBJECT, NAME)                                                             \
     CHECK_OBJECT_TYPE(OBJECT, TYPE, NAME)
 
-bool SvipFormat::load(const ObjectRef &in) {
-    // Check not null
-    CHECK_NONNULL_OBJECT_TYPE(in, Mapping, "AppModel");
+// Config of checking assembly
+#ifndef QNRBF_CHECK_ASSEMBLY
+#undef CHECK_CLASS_NAME
+#define CHECK_CLASS_NAME(MAPPING, LONG_NAME, NAME)
 
-    auto mapping = in.dynamicCast<MappingObject>();
+#undef CHECK_OBJECT_TYPE
+#define CHECK_OBJECT_TYPE(OBJECT, TYPE, NAME)
+#endif
+
+SvipReader::SvipReader(const NrbfRegistry &reg) : reg(reg) {
+}
+
+bool SvipReader::load() {
+    auto root = reg.findReference(reg.header->rootId);
+
+    // Check not null
+    CHECK_NONNULL_OBJECT_TYPE(root, Mapping, "AppModel");
+
+    auto mapping = root.dynamicCast<MappingObject>();
     CHECK_CLASS_NAME(mapping, ASSEMBLY_NAME_APP_MODEL, "AppModel");
 
+    // Start reading
     XSAppModel svip;
     const auto &rootMembers = mapping->members;
 
     // Read basic information
     {
         // ProjectFilePath <Property>
-        if (!NrbfFinder::findString(rootMembers,
-                                    NrbfFinder::toBackingField(KEY_NAME_PROJECT_FILE_PATH),
-                                    svip.ProjectFilePath)) {
+        if (!reg.findString(rootMembers, NrbfRegistry::toBackingField(KEY_NAME_PROJECT_FILE_PATH),
+                            svip.ProjectFilePath)) {
             ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_PROJECT_FILE_PATH);
         }
         // quantize
-        if (!NrbfFinder::findPrimitive(rootMembers, KEY_NAME_QUANTIZE,
-                                       PrimitiveTypeEnumeration::Int32, svip.quantize)) {
+        if (!reg.findPrimitive(rootMembers, KEY_NAME_QUANTIZE, PrimitiveTypeEnumeration::Int32,
+                               svip.quantize)) {
             ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_QUANTIZE);
         }
         // isTriplet
-        if (!NrbfFinder::findPrimitive(rootMembers, KEY_NAME_IS_TRIPLET,
-                                       PrimitiveTypeEnumeration::Boolean, svip.isTriplet)) {
+        if (!reg.findPrimitive(rootMembers, KEY_NAME_IS_TRIPLET, PrimitiveTypeEnumeration::Boolean,
+                               svip.isTriplet)) {
             ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_IS_TRIPLET);
         }
         // isNumericalKeyName
-        if (!NrbfFinder::findPrimitive(rootMembers, KEY_NAME_IS_NUMERICAL,
-                                       PrimitiveTypeEnumeration::Boolean,
-                                       svip.isNumericalKeyName)) {
+        if (!reg.findPrimitive(rootMembers, KEY_NAME_IS_NUMERICAL,
+                               PrimitiveTypeEnumeration::Boolean, svip.isNumericalKeyName)) {
             ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_IS_NUMERICAL);
         }
         // firstNumericalKeyNameAtIndex
-        if (!NrbfFinder::findPrimitive(rootMembers, KEY_NAME_FIRST_NUMERICAL,
-                                       PrimitiveTypeEnumeration::Int32,
-                                       svip.firstNumericalKeyNameAtIndex)) {
+        if (!reg.findPrimitive(rootMembers, KEY_NAME_FIRST_NUMERICAL,
+                               PrimitiveTypeEnumeration::Int32,
+                               svip.firstNumericalKeyNameAtIndex)) {
             ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_FIRST_NUMERICAL);
         }
     }
@@ -217,7 +228,8 @@ bool SvipFormat::load(const ObjectRef &in) {
                                   ASSEMBLY_NAME_BEAT_LIST_BUF, "List<SongBeat>", beatObjects)) {
             return false;
         }
-        for (const auto &obj : qAsConst(beatObjects)) {
+        for (auto obj : qAsConst(beatObjects)) {
+            obj = reg.resolveReference(obj);
             if (obj.isNull()) {
                 continue;
             }
@@ -243,7 +255,8 @@ bool SvipFormat::load(const ObjectRef &in) {
                                   ASSEMBLY_NAME_TEMPO_LIST_BUF, "List<SongTempo>", tempoObjects)) {
             return false;
         }
-        for (const auto &obj : qAsConst(tempoObjects)) {
+        for (auto obj : qAsConst(tempoObjects)) {
+            obj = reg.resolveReference(obj);
             if (obj.isNull()) {
                 continue;
             }
@@ -263,7 +276,7 @@ bool SvipFormat::load(const ObjectRef &in) {
     // Read tracks
     {
         MappingRef trackList;
-        if (!NrbfFinder::findObject(rootMembers, KEY_NAME_TRACK_LIST, trackList)) {
+        if (!reg.findObject(rootMembers, KEY_NAME_TRACK_LIST, trackList)) {
             ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_TRACK_LIST);
         }
 
@@ -271,11 +284,12 @@ bool SvipFormat::load(const ObjectRef &in) {
         CHECK_NONNULL_CLASS_NAME(trackList, ASSEMBLY_NAME_TRACK_LIST, "List<ITrack>");
 
         QList<ObjectRef> trackObjects;
-        if (!NrbfFinder::findObjectList(trackList->members, KEY_NAME_LIST_ITEMS, trackObjects)) {
+        if (!reg.findObjectList(trackList->members, KEY_NAME_LIST_ITEMS, trackObjects)) {
             ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_LIST_ITEMS);
         }
 
-        for (const auto &obj : qAsConst(trackObjects)) {
+        for (auto obj : qAsConst(trackObjects)) {
+            obj = reg.resolveReference(obj);
             if (obj.isNull()) {
                 continue;
             }
@@ -293,15 +307,15 @@ bool SvipFormat::load(const ObjectRef &in) {
                 }
 
                 // AISingerId <Property>
-                if (!NrbfFinder::findString(trackMembers,
-                                            NrbfFinder::toBackingField(KEY_NAME_AI_SINGER_ID),
-                                            track.AISingerId)) {
+                if (!reg.findString(trackMembers,
+                                    NrbfRegistry::toBackingField(KEY_NAME_AI_SINGER_ID),
+                                    track.AISingerId)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_AI_SINGER_ID);
                 }
                 // needRefreshBaseMetadataFlag
-                if (!NrbfFinder::findPrimitive(trackMembers, KEY_NAME_NEED_REFRESH_FLAG,
-                                               PrimitiveTypeEnumeration::Boolean,
-                                               track.needRefreshBaseMetadataFlag)) {
+                if (!reg.findPrimitive(trackMembers, KEY_NAME_NEED_REFRESH_FLAG,
+                                       PrimitiveTypeEnumeration::Boolean,
+                                       track.needRefreshBaseMetadataFlag)) {
                     ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_NEED_REFRESH_FLAG);
                 }
                 // reverbPreset
@@ -322,8 +336,7 @@ bool SvipFormat::load(const ObjectRef &in) {
                 // Breath
                 {
                     MappingRef breath;
-                    if (!NrbfFinder::findObject(trackMembers, KEY_NAME_EDITED_BREATH_LINE,
-                                                breath)) {
+                    if (!reg.findObject(trackMembers, KEY_NAME_EDITED_BREATH_LINE, breath)) {
                         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_EDITED_BREATH_LINE);
                     }
                     if (!breath.isNull()) {
@@ -340,8 +353,7 @@ bool SvipFormat::load(const ObjectRef &in) {
                 // Gender
                 {
                     MappingRef gender;
-                    if (!NrbfFinder::findObject(trackMembers, KEY_NAME_EDITED_GENDER_LINE,
-                                                gender)) {
+                    if (!reg.findObject(trackMembers, KEY_NAME_EDITED_GENDER_LINE, gender)) {
                         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_EDITED_GENDER_LINE);
                     }
                     if (!gender.isNull()) {
@@ -358,7 +370,7 @@ bool SvipFormat::load(const ObjectRef &in) {
                 // Pitch
                 {
                     MappingRef pitch;
-                    if (!NrbfFinder::findObject(trackMembers, KEY_NAME_EDITED_PITCH_LINE, pitch)) {
+                    if (!reg.findObject(trackMembers, KEY_NAME_EDITED_PITCH_LINE, pitch)) {
                         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_EDITED_PITCH_LINE);
                     }
                     if (!pitch.isNull()) {
@@ -375,8 +387,7 @@ bool SvipFormat::load(const ObjectRef &in) {
                 // Volume
                 {
                     MappingRef volume;
-                    if (!NrbfFinder::findObject(trackMembers, KEY_NAME_EDITED_VOLUME_LINE,
-                                                volume)) {
+                    if (!reg.findObject(trackMembers, KEY_NAME_EDITED_VOLUME_LINE, volume)) {
                         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_EDITED_VOLUME_LINE);
                     }
                     if (!volume.isNull()) {
@@ -393,7 +404,7 @@ bool SvipFormat::load(const ObjectRef &in) {
                 // Power
                 {
                     MappingRef power;
-                    if (!NrbfFinder::findObject(trackMembers, KEY_NAME_EDITED_POWER_LINE, power)) {
+                    if (!reg.findObject(trackMembers, KEY_NAME_EDITED_POWER_LINE, power)) {
                         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_EDITED_POWER_LINE);
                     }
                     if (!power.isNull()) {
@@ -418,7 +429,8 @@ bool SvipFormat::load(const ObjectRef &in) {
                         return false;
                     }
 
-                    for (const auto &noteObj : qAsConst(noteList)) {
+                    for (auto noteObj : qAsConst(noteList)) {
+                        noteObj = reg.resolveReference(noteObj);
                         if (noteObj.isNull()) {
                             continue;
                         }
@@ -447,33 +459,33 @@ bool SvipFormat::load(const ObjectRef &in) {
                 }
 
                 // SampleRate <Property>
-                if (!NrbfFinder::findPrimitive(
-                        trackMembers, NrbfFinder::toBackingField(KEY_NAME_SAMPLE_RATE),
-                        PrimitiveTypeEnumeration::Double, track.SampleRate)) {
+                if (!reg.findPrimitive(trackMembers,
+                                       NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_RATE),
+                                       PrimitiveTypeEnumeration::Double, track.SampleRate)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_SAMPLE_RATE);
                 }
                 // SampleCount <Property>
-                if (!NrbfFinder::findPrimitive(
-                        trackMembers, NrbfFinder::toBackingField(KEY_NAME_SAMPLE_COUNT),
-                        PrimitiveTypeEnumeration::Int32, track.SampleCount)) {
+                if (!reg.findPrimitive(trackMembers,
+                                       NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_COUNT),
+                                       PrimitiveTypeEnumeration::Int32, track.SampleCount)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_SAMPLE_COUNT);
                 }
                 // ChannelCount <Property>
-                if (!NrbfFinder::findPrimitive(
-                        trackMembers, NrbfFinder::toBackingField(KEY_NAME_CHANNEL_COUNT),
-                        PrimitiveTypeEnumeration::Int32, track.ChannelCount)) {
+                if (!reg.findPrimitive(trackMembers,
+                                       NrbfRegistry::toBackingField(KEY_NAME_CHANNEL_COUNT),
+                                       PrimitiveTypeEnumeration::Int32, track.ChannelCount)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_CHANNEL_COUNT);
                 }
                 // OffsetInPos <Property>
-                if (!NrbfFinder::findPrimitive(
-                        trackMembers, NrbfFinder::toBackingField(KEY_NAME_OFFSET_IN_POS),
-                        PrimitiveTypeEnumeration::Int32, track.OffsetInPos)) {
+                if (!reg.findPrimitive(trackMembers,
+                                       NrbfRegistry::toBackingField(KEY_NAME_OFFSET_IN_POS),
+                                       PrimitiveTypeEnumeration::Int32, track.OffsetInPos)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_OFFSET_IN_POS);
                 }
                 // InstrumentFilePath <Property>
-                if (!NrbfFinder::findString(
-                        trackMembers, NrbfFinder::toBackingField(KEY_NAME_INSTRUMENT_FILE_PATH),
-                        track.InstrumentFilePath)) {
+                if (!reg.findString(trackMembers,
+                                    NrbfRegistry::toBackingField(KEY_NAME_INSTRUMENT_FILE_PATH),
+                                    track.InstrumentFilePath)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_INSTRUMENT_FILE_PATH);
                 }
                 svip.trackList.append(QSharedPointer<XSInstrumentTrack>::create(std::move(track)));
@@ -487,25 +499,21 @@ bool SvipFormat::load(const ObjectRef &in) {
     return true;
 }
 
-bool SvipFormat::save(ObjectRef &out) {
-    return false;
-}
-
-bool SvipFormat::readBeat(const QMap<QString, ObjectRef> &members, XSSongBeat &out) {
+bool SvipReader::readBeat(const QMap<QString, ObjectRef> &members, XSSongBeat &out) {
     // Overlapped <Property>
-    if (!NrbfFinder::findPrimitive(members, NrbfFinder::toBackingField(KEY_NAME_OVERLAPPED),
-                                   PrimitiveTypeEnumeration::Boolean, out.Overlapped)) {
+    if (!reg.findPrimitive(members, NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+                           PrimitiveTypeEnumeration::Boolean, out.Overlapped)) {
         ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_OVERLAPPED);
     }
     // barIndex
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_BAR_INDEX, PrimitiveTypeEnumeration::Int32,
-                                   out.barIndex)) {
+    if (!reg.findPrimitive(members, KEY_NAME_BAR_INDEX, PrimitiveTypeEnumeration::Int32,
+                           out.barIndex)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_BAR_INDEX);
     }
 
     // beatSize
     MappingRef beatSizeObj;
-    if (!NrbfFinder::findObject(members, KEY_NAME_BEAT_SIZE, beatSizeObj)) {
+    if (!reg.findObject(members, KEY_NAME_BEAT_SIZE, beatSizeObj)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_BEAT_SIZE);
     }
     if (!beatSizeObj.isNull()) {
@@ -513,13 +521,13 @@ bool SvipFormat::readBeat(const QMap<QString, ObjectRef> &members, XSSongBeat &o
         {
             const auto &beatSizeMembers = beatSizeObj->members;
             // x
-            if (!NrbfFinder::findPrimitive(beatSizeMembers, KEY_NAME_BEAT_SIZE_X,
-                                           PrimitiveTypeEnumeration::Int32, out.beatSize.x)) {
+            if (!reg.findPrimitive(beatSizeMembers, KEY_NAME_BEAT_SIZE_X,
+                                   PrimitiveTypeEnumeration::Int32, out.beatSize.x)) {
                 ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_BEAT_SIZE_X);
             }
             // y
-            if (!NrbfFinder::findPrimitive(beatSizeMembers, KEY_NAME_BEAT_SIZE_Y,
-                                           PrimitiveTypeEnumeration::Int32, out.beatSize.y)) {
+            if (!reg.findPrimitive(beatSizeMembers, KEY_NAME_BEAT_SIZE_Y,
+                                   PrimitiveTypeEnumeration::Int32, out.beatSize.y)) {
                 ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_BEAT_SIZE_Y);
             }
         }
@@ -527,59 +535,63 @@ bool SvipFormat::readBeat(const QMap<QString, ObjectRef> &members, XSSongBeat &o
     return true;
 }
 
-bool SvipFormat::readTempo(const QMap<QString, ObjectRef> &members, XSSongTempo &out) {
+bool SvipReader::readTempo(const QMap<QString, ObjectRef> &members, XSSongTempo &out) {
     // Overlapped <Property>
-    if (!NrbfFinder::findPrimitive(members, NrbfFinder::toBackingField(KEY_NAME_OVERLAPPED),
-                                   PrimitiveTypeEnumeration::Boolean, out.Overlapped)) {
+    if (!reg.findPrimitive(members, NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+                           PrimitiveTypeEnumeration::Boolean, out.Overlapped)) {
         ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_OVERLAPPED);
     }
     // pos
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_TEMPO_POS, PrimitiveTypeEnumeration::Int32,
-                                   out.pos)) {
+    if (!reg.findPrimitive(members, KEY_NAME_TEMPO_POS, PrimitiveTypeEnumeration::Int32, out.pos)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_TEMPO_POS);
     }
     // tempo
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_TEMPO, PrimitiveTypeEnumeration::Int32,
-                                   out.tempo)) {
+    if (!reg.findPrimitive(members, KEY_NAME_TEMPO, PrimitiveTypeEnumeration::Int32, out.tempo)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_TEMPO);
     }
     return true;
 }
 
-bool SvipFormat::readITrack(const QMap<QString, ObjectRef> &members, XSITrack &out) {
+bool SvipReader::readITrack(const QMap<QString, ObjectRef> &members, XSITrack &out) {
     // volume
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_TRACK_VOLUME, PrimitiveTypeEnumeration::Double,
-                                   out.volume)) {
+    if (!reg.findPrimitive(members, KEY_NAME_TRACK_VOLUME, PrimitiveTypeEnumeration::Double,
+                           out.volume)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_TRACK_VOLUME);
     }
     // pan
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_TRACK_PAN, PrimitiveTypeEnumeration::Double,
-                                   out.pan)) {
+    if (!reg.findPrimitive(members, KEY_NAME_TRACK_PAN, PrimitiveTypeEnumeration::Double,
+                           out.pan)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_TRACK_PAN);
     }
     // name
-    if (!NrbfFinder::findString(members, KEY_NAME_TRACK_NAME, out.name)) {
+    if (!reg.findString(members, KEY_NAME_TRACK_NAME, out.name)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_INSTRUMENT_FILE_PATH);
     }
     // mute
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_TRACK_MUTE, PrimitiveTypeEnumeration::Boolean,
-                                   out.mute)) {
+    if (!reg.findPrimitive(members, KEY_NAME_TRACK_MUTE, PrimitiveTypeEnumeration::Boolean,
+                           out.mute)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_TRACK_MUTE);
     }
     // solo
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_TRACK_SOLO, PrimitiveTypeEnumeration::Boolean,
-                                   out.solo)) {
+    if (!reg.findPrimitive(members, KEY_NAME_TRACK_SOLO, PrimitiveTypeEnumeration::Boolean,
+                           out.solo)) {
+        auto it = members.find(KEY_NAME_TRACK_SOLO);
+        if (it != members.end()) {
+            qDebug() << it.value()->type();
+        } else {
+            qDebug() << "NF";
+        }
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_TRACK_SOLO);
     }
     return true;
 }
 
-bool SvipFormat::readLineParam(const QMap<QString, ObjectRef> &members, XSLineParam &out) {
+bool SvipReader::readLineParam(const QMap<QString, ObjectRef> &members, XSLineParam &out) {
     /* Use custom deserialization strategy */
 
     QList<qint8> bytes;
-    if (!NrbfFinder::findPrimitiveList(members, KEY_NAME_LINE_PARAM, PrimitiveTypeEnumeration::Byte,
-                                       bytes)) {
+    if (!reg.findPrimitiveList(members, KEY_NAME_LINE_PARAM, PrimitiveTypeEnumeration::Byte,
+                               bytes)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_LINE_PARAM);
     }
 
@@ -620,40 +632,39 @@ failed:
     return false;
 }
 
-bool SvipFormat::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) {
+bool SvipReader::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) {
     // startPos
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_NOTE_START_POS,
-                                   PrimitiveTypeEnumeration::Int32, out.startPos)) {
+    if (!reg.findPrimitive(members, KEY_NAME_NOTE_START_POS, PrimitiveTypeEnumeration::Int32,
+                           out.startPos)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_NOTE_KEY_INDEX);
     }
     // widthPos
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_NOTE_WIDTH_POS,
-                                   PrimitiveTypeEnumeration::Int32, out.widthPos)) {
+    if (!reg.findPrimitive(members, KEY_NAME_NOTE_WIDTH_POS, PrimitiveTypeEnumeration::Int32,
+                           out.widthPos)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_NOTE_KEY_INDEX);
     }
     // keyIndex
-    if (!NrbfFinder::findPrimitive(members, KEY_NAME_NOTE_KEY_INDEX,
-                                   PrimitiveTypeEnumeration::Int32, out.keyIndex)) {
+    if (!reg.findPrimitive(members, KEY_NAME_NOTE_KEY_INDEX, PrimitiveTypeEnumeration::Int32,
+                           out.keyIndex)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_NOTE_KEY_INDEX);
     }
     // lyric
-    if (!NrbfFinder::findString(members, KEY_NAME_NOTE_LYRIC, out.lyric)) {
+    if (!reg.findString(members, KEY_NAME_NOTE_LYRIC, out.lyric)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_NOTE_LYRIC);
     }
     // pronouncing
-    if (!NrbfFinder::findString(members, KEY_NAME_NOTE_PRONOUNCING, out.pronouncing)) {
+    if (!reg.findString(members, KEY_NAME_NOTE_PRONOUNCING, out.pronouncing)) {
         qDebug() << out.lyric;
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_NOTE_PRONOUNCING);
     }
     // Overlapped <Property>
-    if (!NrbfFinder::findPrimitive(members, NrbfFinder::toBackingField(KEY_NAME_OVERLAPPED),
-                                   PrimitiveTypeEnumeration::Boolean, out.Overlapped)) {
+    if (!reg.findPrimitive(members, NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+                           PrimitiveTypeEnumeration::Boolean, out.Overlapped)) {
         ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_OVERLAPPED);
     }
     // VibratoPercent <Property>
-    if (!NrbfFinder::findPrimitive(members,
-                                   NrbfFinder::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT),
-                                   PrimitiveTypeEnumeration::Int32, out.VibratoPercent)) {
+    if (!reg.findPrimitive(members, NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT),
+                           PrimitiveTypeEnumeration::Int32, out.VibratoPercent)) {
         ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_NOTE_VIBRATO_PERCENT);
     }
 
@@ -674,8 +685,9 @@ bool SvipFormat::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
     // VibratoPercentInfo <Property>
     {
         MappingRef infoObj;
-        if (!NrbfFinder::findObject(
-                members, NrbfFinder::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO), infoObj)) {
+        if (!reg.findObject(members,
+                            NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO),
+                            infoObj)) {
             ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO);
         }
         if (!infoObj.isNull()) {
@@ -683,14 +695,14 @@ bool SvipFormat::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
 
             out.VibratoPercentInfo = QSharedPointer<XSVibratoPercentInfo>::create();
             const auto &vibratoMembers = infoObj->members;
-            if (!NrbfFinder::findPrimitive(vibratoMembers, KEY_NAME_VIBRATO_START_PERCENT,
-                                           PrimitiveTypeEnumeration::Single,
-                                           out.VibratoPercentInfo->startPercent)) {
+            if (!reg.findPrimitive(vibratoMembers, KEY_NAME_VIBRATO_START_PERCENT,
+                                   PrimitiveTypeEnumeration::Single,
+                                   out.VibratoPercentInfo->startPercent)) {
                 ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_HEAD_PHONEME_TIME);
             }
-            if (!NrbfFinder::findPrimitive(vibratoMembers, KEY_NAME_VIBRATO_END_PERCENT,
-                                           PrimitiveTypeEnumeration::Single,
-                                           out.VibratoPercentInfo->endPercent)) {
+            if (!reg.findPrimitive(vibratoMembers, KEY_NAME_VIBRATO_END_PERCENT,
+                                   PrimitiveTypeEnumeration::Single,
+                                   out.VibratoPercentInfo->endPercent)) {
                 ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO);
             }
         }
@@ -699,8 +711,8 @@ bool SvipFormat::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
     // NotePhoneInfo <Property>
     {
         MappingRef phonemeObj;
-        if (!NrbfFinder::findObject(members, NrbfFinder::toBackingField(KEY_NAME_NOTE_PHONEME_INFO),
-                                    phonemeObj)) {
+        if (!reg.findObject(members, NrbfRegistry::toBackingField(KEY_NAME_NOTE_PHONEME_INFO),
+                            phonemeObj)) {
             ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_NOTE_PHONEME_INFO);
         }
         if (!phonemeObj.isNull()) {
@@ -710,15 +722,15 @@ bool SvipFormat::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
             const auto &phonemeMembers = phonemeObj->members;
 
             // HeadPhoneTimeInSec
-            if (!NrbfFinder::findPrimitive(
-                    phonemeMembers, NrbfFinder::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
+            if (!reg.findPrimitive(
+                    phonemeMembers, NrbfRegistry::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
                     PrimitiveTypeEnumeration::Single, out.NotePhoneInfo->HeadPhoneTimeInSec)) {
                 ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_HEAD_PHONEME_TIME);
             }
             // MidPartOverTailPartRatio
-            if (!NrbfFinder::findPrimitive(
+            if (!reg.findPrimitive(
                     phonemeMembers,
-                    NrbfFinder::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),
+                    NrbfRegistry::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),
                     PrimitiveTypeEnumeration::Single,
                     out.NotePhoneInfo->MidPartOverTailPartRatio)) {
                 ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO);
@@ -729,8 +741,8 @@ bool SvipFormat::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
     // Vibrato <Property>
     {
         MappingRef styleObj;
-        if (!NrbfFinder::findObject(members, NrbfFinder::toBackingField(KEY_NAME_NOTE_VIBRATO),
-                                    styleObj)) {
+        if (!reg.findObject(members, NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO),
+                            styleObj)) {
             ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_NOTE_VIBRATO);
         }
         if (!styleObj.isNull()) {
@@ -740,16 +752,16 @@ bool SvipFormat::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
             const auto &styleMembers = styleObj->members;
 
             // IsAntiPhase <Property>
-            if (!NrbfFinder::findPrimitive(
-                    styleMembers, NrbfFinder::toBackingField(KEY_NAME_VIBRATO_ANTI_PHASE),
-                    PrimitiveTypeEnumeration::Boolean, out.Vibrato->IsAntiPhase)) {
+            if (!reg.findPrimitive(styleMembers,
+                                   NrbfRegistry::toBackingField(KEY_NAME_VIBRATO_ANTI_PHASE),
+                                   PrimitiveTypeEnumeration::Boolean, out.Vibrato->IsAntiPhase)) {
                 ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_VIBRATO_ANTI_PHASE);
             }
 
             // ampLine
             {
                 MappingRef amp;
-                if (!NrbfFinder::findObject(styleMembers, KEY_NAME_VIBRATO_AMP_LINE, amp)) {
+                if (!reg.findObject(styleMembers, KEY_NAME_VIBRATO_AMP_LINE, amp)) {
                     ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_VIBRATO_AMP_LINE);
                 }
                 if (!amp.isNull()) {
@@ -765,7 +777,7 @@ bool SvipFormat::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
             // freqLine
             {
                 MappingRef freq;
-                if (!NrbfFinder::findObject(styleMembers, KEY_NAME_VIBRATO_FREQ_LINE, freq)) {
+                if (!reg.findObject(styleMembers, KEY_NAME_VIBRATO_FREQ_LINE, freq)) {
                     ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_VIBRATO_FREQ_LINE);
                 }
                 if (!freq.isNull()) {
@@ -783,12 +795,12 @@ bool SvipFormat::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
     return true;
 }
 
-bool SvipFormat::readSerialObjectList(const QMap<QString, ObjectRef> &members, const QString &key,
+bool SvipReader::readSerialObjectList(const QMap<QString, ObjectRef> &members, const QString &key,
                                       const QString &assembly1, const QString &name1,
                                       const QString &assembly2, const QString &name2,
                                       QList<ObjectRef> &out) {
     MappingRef list;
-    if (!NrbfFinder::findObject(members, key, list)) {
+    if (!reg.findObject(members, key, list)) {
         ERROR_ON_MEMBER_NOT_FOUND(key);
     }
     if (list.isNull()) {
@@ -797,30 +809,30 @@ bool SvipFormat::readSerialObjectList(const QMap<QString, ObjectRef> &members, c
     CHECK_CLASS_NAME(list, assembly1, name1);
 
     MappingRef buf;
-    if (!NrbfFinder::findObject(list->members, KEY_NAME_SERIAL_LIST_BUF, buf)) {
+    if (!reg.findObject(list->members, KEY_NAME_SERIAL_LIST_BUF, buf)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_SERIAL_LIST_BUF);
     }
     CHECK_NONNULL_CLASS_NAME(buf, assembly2, name2);
 
-    if (!NrbfFinder::findObjectList(buf->members, KEY_NAME_LIST_ITEMS, out)) {
+    if (!reg.findObjectList(buf->members, KEY_NAME_LIST_ITEMS, out)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_LIST_ITEMS);
     }
 
     return true;
 }
 
-bool SvipFormat::readEnum(const QMap<QString, ObjectRef> &members, const QString &key,
+bool SvipReader::readEnum(const QMap<QString, ObjectRef> &members, const QString &key,
                           const QString &assembly, const QString &name, qint32 &out) {
     MappingRef obj;
-    if (!NrbfFinder::findObject(members, key, obj)) {
+    if (!reg.findObject(members, key, obj)) {
         ERROR_ON_MEMBER_NOT_FOUND(key);
     }
     if (obj.isNull()) {
         return true;
     }
     CHECK_CLASS_NAME(obj, assembly, name);
-    if (!NrbfFinder::findPrimitive(obj->members, KEY_NAME_ENUM_VALUE,
-                                   PrimitiveTypeEnumeration::Int32, out)) {
+    if (!reg.findPrimitive(obj->members, KEY_NAME_ENUM_VALUE, PrimitiveTypeEnumeration::Int32,
+                           out)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_ENUM_VALUE);
     }
     return true;

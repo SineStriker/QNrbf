@@ -27,11 +27,11 @@ public:
 
     class QSSVS_API Params {
     public:
-        QSharedPointer<ParamCurve> Pitch;
-        QSharedPointer<ParamCurve> Volume;
-        QSharedPointer<ParamCurve> Breath;
-        QSharedPointer<ParamCurve> Gender;
-        QSharedPointer<ParamCurve> Strength;
+        ParamCurve Pitch;
+        ParamCurve Volume;
+        ParamCurve Breath;
+        ParamCurve Gender;
+        ParamCurve Strength;
     };
 
     class QSSVS_API Vibrato {
@@ -39,8 +39,8 @@ public:
         double StartPercent = 0.0;
         double EndPercent = 0.0;
         bool IsAntiPhase = false;
-        QSharedPointer<ParamCurve> Amplitude;
-        QSharedPointer<ParamCurve> Frequency;
+        ParamCurve Amplitude;
+        ParamCurve Frequency;
     };
 
     class QSSVS_API Phones {

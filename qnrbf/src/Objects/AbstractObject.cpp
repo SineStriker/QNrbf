@@ -2,7 +2,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-AbstractObject::AbstractObject(Type type) : t(type) {
+AbstractObject::AbstractObject(Type type) : t(type), id(-1) {
     insts.insert(this);
 }
 

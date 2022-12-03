@@ -30,6 +30,8 @@ public:
         return t;
     }
 
+    int id;
+
 protected:
     Type t;
 

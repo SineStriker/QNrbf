@@ -52,18 +52,19 @@ NrbfReader::Status NrbfReader::status() const {
     return _status;
 }
 
-ObjectRef NrbfReader::read() {
+NrbfRegistry NrbfReader::read() {
+    if (_status != Normal) {
+        reset();
+    }
+
     bool over = false;
     bool failed = false;
-    ObjectRef obj;
 
     while (!over && !failed) {
         readRecord();
 
         switch (_status) {
             case ReachEnd: {
-                resolveDeferredItems();
-                obj = findReference(header->rootId);
                 over = true;
                 break;
             }
@@ -78,16 +79,12 @@ ObjectRef NrbfReader::read() {
         }
     }
 
-    return obj;
+    return reg;
 }
 
 void NrbfReader::reset() {
-    objectsById.clear();
-    classesById.clear();
-    libraries.clear();
-    deferredItems.clear();
+    reg.reset();
 
-    header.clear();
     _status = Normal;
 }
 
@@ -105,10 +102,11 @@ bool NrbfReader::readRecord(ObjectRef *out) {
     QSharedPointer<AbstractObject> obj;
     switch (recordType) {
         case (quint8) RecordTypeEnumeration::SerializedStreamHeader: {
-            if (header.isNull()) {
-                header = QSharedPointer<SerializationHeader>::create();
-                if (!header->read(in)) {
-                    header.clear();
+            if (reg.header.isNull()) {
+                SerializationHeader header;
+                if (header.read(in)) {
+                    reg.header = QSharedPointer<SerializationHeader>::create(header);
+                } else {
                     _status = Failed;
                 }
             } else {
@@ -294,26 +292,7 @@ bool NrbfReader::readMembers(const MappingRef &acceptor, const QStringList &memb
             if (!readRecord(&memberClass)) {
                 return false;
             }
-            if (memberClass->type() == AbstractObject::DeferredReference) {
-
-                // Action: insert a key-value-like member to object
-                struct Action : DeferredItem::Action {
-                    QSharedPointer<MappingObject> parent;
-                    QString member;
-                    Action(const QSharedPointer<MappingObject> &parent, const QString &member)
-                        : parent(parent), member(member) {
-                    }
-                    void Invoke(const ObjectRef &obj) override {
-                        parent->members.insert(member, obj);
-                    }
-                };
-
-                deferredItems.append(
-                    DeferredItem(new Action(acceptor, memberNames[i]),
-                                 dynamic_cast<DeferredReferenceObject *>(memberClass.data())->id));
-            } else {
-                acceptor->members.insert(memberNames[i], memberClass);
-            }
+            acceptor->members.insert(memberNames[i], memberClass);
         }
     }
     return true;
@@ -364,7 +343,8 @@ bool NrbfReader::onSystemClassWithMembers(SystemClassWithMembers &in, ObjectRef 
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
-        classesById[in.classInfo.objectId] = ClassRef(new SystemClassObject(in, obj));
+        obj->id = in.classInfo.objectId;
+        reg.classesById[in.classInfo.objectId] = ClassRef(new SystemClassObject(in, obj));
     }
 
     // Read members
@@ -380,8 +360,8 @@ bool NrbfReader::onClassWithMembers(ClassWithMembers &in, ObjectRef &out) {
     // Find library name
     QString library;
     {
-        auto it = libraries.find(in.libraryId);
-        if (it == libraries.end()) {
+        auto it = reg.libraries.find(in.libraryId);
+        if (it == reg.libraries.end()) {
             return false;
         }
         library = it.value();
@@ -393,7 +373,8 @@ bool NrbfReader::onClassWithMembers(ClassWithMembers &in, ObjectRef &out) {
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
-        classesById[in.classInfo.objectId] = ClassRef(new UserClassObject(in, obj));
+        obj->id = in.classInfo.objectId;
+        reg.classesById[in.classInfo.objectId] = ClassRef(new UserClassObject(in, obj));
     }
 
     // Read members
@@ -411,7 +392,8 @@ bool NrbfReader::onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
-        classesById[in.classInfo.objectId] = ClassRef(new SystemClassTypeObject(in, obj));
+        obj->id = in.classInfo.objectId;
+        reg.classesById[in.classInfo.objectId] = ClassRef(new SystemClassTypeObject(in, obj));
     }
 
     // Read members
@@ -426,8 +408,8 @@ bool NrbfReader::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, Object
     // Find library name
     QString library;
     {
-        auto it = libraries.find(in.libraryId);
-        if (it == libraries.end()) {
+        auto it = reg.libraries.find(in.libraryId);
+        if (it == reg.libraries.end()) {
             return false;
         }
         library = it.value();
@@ -439,7 +421,8 @@ bool NrbfReader::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, Object
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
-        classesById[in.classInfo.objectId] = ClassRef(new UserClassTypeObject(in, obj));
+        obj->id = in.classInfo.objectId;
+        reg.classesById[in.classInfo.objectId] = ClassRef(new UserClassTypeObject(in, obj));
     }
 
     // Read members
@@ -453,8 +436,8 @@ bool NrbfReader::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, Object
 
 bool NrbfReader::onClassWithId(ClassWithId &in, ObjectRef &out) {
     // Find saved class
-    auto it = classesById.find(in.metadataId);
-    if (it == classesById.end()) {
+    auto it = reg.classesById.find(in.metadataId);
+    if (it == reg.classesById.end()) {
         return false;
     }
 
@@ -472,7 +455,8 @@ bool NrbfReader::onClassWithId(ClassWithId &in, ObjectRef &out) {
 
     // Save object reference
     if (in.objectId != 0) {
-        objectsById[in.objectId] = obj;
+        obj->id = in.objectId;
+        reg.objectsById[in.objectId] = obj;
     }
 
     // Read members
@@ -493,7 +477,8 @@ bool NrbfReader::onClassWithId(ClassWithId &in, ObjectRef &out) {
 bool NrbfReader::onBinaryObjectString(BinaryObjectString &in, ObjectRef &out) {
     auto obj = ObjectRef(new StringObject(in.value));
     if (in.objectId != 0) {
-        objectsById[in.objectId] = obj;
+        obj->id = in.objectId;
+        reg.objectsById[in.objectId] = obj;
     }
     out = obj;
     return true;
@@ -544,7 +529,8 @@ bool NrbfReader::onBinaryArray(BinaryArray &in, ObjectRef &out) {
     }
 
     if (in.objectId != 0) {
-        objectsById[in.objectId] = obj;
+        obj->id = in.objectId;
+        reg.objectsById[in.objectId] = obj;
     }
     out = obj;
 
@@ -558,7 +544,7 @@ bool NrbfReader::onMemberPrimitiveTyped(MemberPrimitiveTyped &in, ObjectRef &out
 }
 
 bool NrbfReader::onMemberReference(MemberReference &in, ObjectRef &out) {
-    auto searchObj = findReference(in.idRef);
+    auto searchObj = reg.findReference(in.idRef);
     if (searchObj) {
         out = searchObj;
     } else {
@@ -572,7 +558,7 @@ bool NrbfReader::onMemberReference(MemberReference &in, ObjectRef &out) {
 
 bool NrbfReader::onBinaryLibrary(BinaryLibrary &in, ObjectRef &out) {
     Q_UNUSED(out);
-    libraries[in.libraryId] = in.libraryName;
+    reg.libraries[in.libraryId] = in.libraryName;
     return true;
 }
 
@@ -595,7 +581,8 @@ bool NrbfReader::onArraySinglePrimitive(ArraySinglePrimitive &in, ObjectRef &out
     }
     auto obj = ObjectRef(new PrimitiveListObject(arr));
     if (in.arrayInfo.objectId != 0) {
-        objectsById[in.arrayInfo.objectId] = obj;
+        obj->id = in.arrayInfo.objectId;
+        reg.objectsById[in.arrayInfo.objectId] = obj;
     }
     out = obj;
 
@@ -611,7 +598,8 @@ bool NrbfReader::onArraySingleObject(ArraySingleObject &in, ObjectRef &out) {
     }
 
     if (in.arrayInfo.objectId != 0) {
-        objectsById[in.arrayInfo.objectId] = obj;
+        obj->id = in.arrayInfo.objectId;
+        reg.objectsById[in.arrayInfo.objectId] = obj;
     }
     out = obj;
 
@@ -628,7 +616,8 @@ bool NrbfReader::onArraySingleString(ArraySingleString &in, ObjectRef &out) {
 
     auto obj = ObjectRef(new PrimitiveListObject(arr));
     if (in.arrayInfo.objectId != 0) {
-        objectsById[in.arrayInfo.objectId] = obj;
+        obj->id = in.arrayInfo.objectId;
+        reg.objectsById[in.arrayInfo.objectId] = obj;
     }
     out = obj;
 
@@ -672,29 +661,11 @@ bool NrbfReader::readObjects(QList<ObjectRef> &arr,
 
         // Save according to type
         switch (value->type()) {
-            case AbstractObject::DeferredReference: {
-
-                // Action: set the element of object by the given index
-                struct Action : DeferredItem::Action {
-                    int index;
-                    QSharedPointer<ObjectListObject> parent;
-                    Action(int index, const QSharedPointer<ObjectListObject> &parent)
-                        : index(index), parent(parent) {
-                    }
-                    void Invoke(const ObjectRef &obj) override {
-                        parent->values[index] = obj;
-                    }
-                };
-
-                deferredItems.append(
-                    DeferredItem(new Action(i, parent),
-                                 dynamic_cast<DeferredReferenceObject *>(value.data())->id));
-                break;
-            }
             case AbstractObject::Null: {
                 i += dynamic_cast<OneOrMoreNullObject *>(value.data())->nullCount - 1;
                 break;
             }
+            case AbstractObject::DeferredReference:
             case AbstractObject::Primitive:
             case AbstractObject::String: {
                 arr[i] = value;
@@ -708,31 +679,6 @@ bool NrbfReader::readObjects(QList<ObjectRef> &arr,
         }
     }
     return true;
-}
-
-void NrbfReader::resolveDeferredItems() {
-    for (auto &item : deferredItems) {
-        auto refItem = findReference(item.id);
-        item.deferredAction->Invoke(refItem);
-    }
-}
-
-ObjectRef NrbfReader::findReference(qint32 id) {
-    // Search class
-    {
-        auto it = classesById.find(id);
-        if (it != classesById.end()) {
-            return dynamic_cast<ClassMemberObject *>(it.value().data())->value;
-        }
-    }
-    // Search object
-    {
-        auto it = objectsById.find(id);
-        if (it != objectsById.end()) {
-            return it.value();
-        }
-    }
-    return nullptr;
 }
 
 QNRBF_END_NAMESPACE

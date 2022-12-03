@@ -22,8 +22,9 @@
 #include "Objects/ClassMemberObject.h"
 #include "Objects/ObjectListObject.h"
 
-#include "DeferredItem.h"
 #include "Enums/RecordTypeEnumeration.h"
+
+#include "NrbfRegistry.h"
 
 QNRBF_BEGIN_NAMESPACE
 
@@ -42,7 +43,7 @@ public:
 
     Status status() const;
 
-    ObjectRef read();
+    NrbfRegistry read();
 
     void reset();
 
@@ -93,22 +94,8 @@ protected:
 
     bool readObjects(QList<ObjectRef> &arr, const QSharedPointer<ObjectListObject> &parent);
 
-    /* Call after reaching message end, when all reference are collected */
-    void resolveDeferredItems();
-
-    ObjectRef findReference(qint32 id);
-
-    // Defined references
-    QHash<qint32, ObjectRef> objectsById;
-
-    QHash<qint32, ClassRef> classesById;
-
-    QSharedPointer<SerializationHeader> header;
-
-    // Libraries
-    QHash<qint32, QString> libraries;
-
-    QList<DeferredItem> deferredItems;
+    // Registry
+    NrbfRegistry reg;
 
     // Properties
     QDataStream *stream;

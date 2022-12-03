@@ -88,37 +88,22 @@ QJsonObject QSvipModel::toJsonObject() const {
                         "Vibrato",
                         note.Vibrato.isNull()
                             ? QJsonValue(QJsonValue::Null)
-                            : QJsonObject(
-                                  {{"StartPercent", note.Vibrato->StartPercent},
-                                   {"StartPercent", note.Vibrato->StartPercent},
-                                   {"EndPercent", note.Vibrato->EndPercent},
-                                   {"Amplitude", note.Vibrato->Amplitude.isNull()
-                                                     ? QJsonValue(QJsonValue::Null)
-                                                     : encodeParam(*note.Vibrato->Amplitude)},
-                                   {"Frequency", note.Vibrato->Frequency.isNull()
-                                                     ? QJsonValue(QJsonValue::Null)
-                                                     : encodeParam(*note.Vibrato->Frequency)}}));
+                            : QJsonObject({{"StartPercent", note.Vibrato->StartPercent},
+                                           {"StartPercent", note.Vibrato->StartPercent},
+                                           {"EndPercent", note.Vibrato->EndPercent},
+                                           {"Amplitude", encodeParam(note.Vibrato->Amplitude)},
+                                           {"Frequency", encodeParam(note.Vibrato->Frequency)}}));
                     noteArr.append(objNote);
                 }
                 objTrack.insert("NoteList", noteArr);
 
                 objTrack.insert("EditedParams",
                                 QJsonObject({
-                                    {"Pitch", track->EditedParams.Pitch.isNull()
-                                                  ? QJsonValue(QJsonValue::Null)
-                                                  : encodeParam(*track->EditedParams.Pitch)},
-                                    {"Volume", track->EditedParams.Volume.isNull()
-                                                   ? QJsonValue(QJsonValue::Null)
-                                                   : encodeParam(*track->EditedParams.Volume)},
-                                    {"Breath", track->EditedParams.Breath.isNull()
-                                                   ? QJsonValue(QJsonValue::Null)
-                                                   : encodeParam(*track->EditedParams.Breath)},
-                                    {"Gender", track->EditedParams.Gender.isNull()
-                                                   ? QJsonValue(QJsonValue::Null)
-                                                   : encodeParam(*track->EditedParams.Gender)},
-                                    {"Strength", track->EditedParams.Strength.isNull()
-                                                     ? QJsonValue(QJsonValue::Null)
-                                                     : encodeParam(*track->EditedParams.Strength)},
+                                    {"Pitch", encodeParam(track->EditedParams.Pitch)},
+                                    {"Volume", encodeParam(track->EditedParams.Volume)},
+                                    {"Breath", encodeParam(track->EditedParams.Breath)},
+                                    {"Gender", encodeParam(track->EditedParams.Gender)},
+                                    {"Strength", encodeParam(track->EditedParams.Strength)},
                                 }));
             } else {
                 auto track = dynamic_cast<const InstrumentalTrack *>(item.data());

@@ -3,8 +3,8 @@
 #include <QDebug>
 #include <QJsonArray>
 
-#include "Formats/JsonFormat.h"
-#include "Formats/SvipFormat.h"
+#include "Formats/JsonReader.h"
+#include "Formats/SvipReader.h"
 #include "Primitive/Parser.h"
 #include "Utils/NrbfReader.h"
 
@@ -17,7 +17,7 @@ public:
 
     void init();
 
-    ObjectRef deserialize();
+    NrbfRegistry deserialize();
 
     QNrbfStream *q;
 };
@@ -28,15 +28,15 @@ void QNrbfStreamPrivate::init() {
     q->setByteOrder(QDataStream::LittleEndian);
 }
 
-ObjectRef QNrbfStreamPrivate::deserialize() {
+NrbfRegistry QNrbfStreamPrivate::deserialize() {
     Q_UNUSED(this);
 
     NrbfReader reader(q);
-    auto binObj = reader.read();
+    auto reg = reader.read();
     if (reader.status() != NrbfReader::ReachEnd) {
         q->setStatus(QDataStream::ReadCorruptData);
     }
-    return binObj;
+    return reg;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -72,26 +72,26 @@ QDataStream &QNrbfStream::operator>>(QString &str) {
 }
 
 QDataStream &QNrbfStream::operator>>(QJsonObject &obj) {
-    auto binObj = d->deserialize();
+    auto reg = d->deserialize();
     if (status() == Ok) {
-        JsonFormat fmt;
-        if (!fmt.load(binObj)) {
+        JsonReader reader(reg);
+        if (!reader.load()) {
             setStatus(QDataStream::ReadCorruptData);
         } else {
-            obj = fmt.jsonObj;
+            obj = reader.jsonObj;
         }
     }
     return *this;
 }
 
 QDataStream &QNrbfStream::operator>>(XSAppModel &svip) {
-    auto binObj = d->deserialize();
+    auto reg = d->deserialize();
     if (status() == Ok) {
-        SvipFormat fmt;
-        if (!fmt.load(binObj)) {
+        SvipReader reader(reg);
+        if (!reader.load()) {
             setStatus(QDataStream::ReadCorruptData);
         } else {
-            svip = fmt.appModel;
+            svip = reader.appModel;
         }
     }
     return *this;

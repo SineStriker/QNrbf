@@ -74,12 +74,10 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
 
                     vibrato.IsAntiPhase = noteItem.Vibrato->IsAntiPhase;
                     if (!noteItem.Vibrato->ampLine.isNull()) {
-                        vibrato.Amplitude = QSharedPointer<QSvipModel::ParamCurve>::create(
-                            decodeParam(*noteItem.Vibrato->ampLine));
+                        vibrato.Amplitude = decodeParam(*noteItem.Vibrato->ampLine);
                     }
                     if (!noteItem.Vibrato->freqLine.isNull()) {
-                        vibrato.Frequency = QSharedPointer<QSvipModel::ParamCurve>::create(
-                            decodeParam(*noteItem.Vibrato->freqLine));
+                        vibrato.Frequency = decodeParam(*noteItem.Vibrato->freqLine);
                     }
 
                     note.Vibrato = QSharedPointer<QSvipModel::Vibrato>::create(std::move(vibrato));
@@ -90,25 +88,20 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
 
             // Convert track params
             if (!singingTrack->editedBreathLine.isNull()) {
-                track.EditedParams.Breath = QSharedPointer<QSvipModel::ParamCurve>::create(
-                    decodeParam(*singingTrack->editedBreathLine));
+                track.EditedParams.Breath = decodeParam(*singingTrack->editedBreathLine);
             }
             if (!singingTrack->editedGenderLine.isNull()) {
-                track.EditedParams.Gender = QSharedPointer<QSvipModel::ParamCurve>::create(
-                    decodeParam(*singingTrack->editedGenderLine));
+                track.EditedParams.Gender = decodeParam(*singingTrack->editedGenderLine);
             }
             if (!singingTrack->editedPitchLine.isNull()) {
                 auto op = [](int x) -> int { return x > 1050 ? x - 1150 : -100; };
-                track.EditedParams.Pitch = QSharedPointer<QSvipModel::ParamCurve>::create(
-                    decodeParam(*singingTrack->editedPitchLine, op));
+                track.EditedParams.Pitch = decodeParam(*singingTrack->editedPitchLine, op);
             }
             if (!singingTrack->editedVolumeLine.isNull()) {
-                track.EditedParams.Volume = QSharedPointer<QSvipModel::ParamCurve>::create(
-                    decodeParam(*singingTrack->editedVolumeLine));
+                track.EditedParams.Volume = decodeParam(*singingTrack->editedVolumeLine);
             }
             if (!singingTrack->editedPowerLine.isNull()) {
-                track.EditedParams.Strength = QSharedPointer<QSvipModel::ParamCurve>::create(
-                    decodeParam(*singingTrack->editedPowerLine));
+                track.EditedParams.Strength = decodeParam(*singingTrack->editedPowerLine);
             }
 
             resTrack = QSharedPointer<QSvipModel::SingingTrack>::create(std::move(track));

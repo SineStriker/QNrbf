@@ -3,8 +3,8 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 
-#include "QNrbfStream.h"
 #include "SvipUtils.h"
+#include "QNrbfStream.h"
 
 int main(int argc, char *argv[]) {
     QStringList args;

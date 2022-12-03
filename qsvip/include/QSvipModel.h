@@ -4,18 +4,18 @@
 #include <QJsonObject>
 #include <QSharedPointer>
 
-#define QSSVS_API
+#include "qsvip_global.h"
 
 /**
  *  This model is a C++ implementation of OpenSVIP.Model
  */
 
-class QSSVS_API QSvipModel {
+class QSVIP_API QSvipModel {
 public:
     QSvipModel();
     ~QSvipModel();
 
-    class QSSVS_API ParamCurve {
+    class QSVIP_API ParamCurve {
     public:
         int TotalPointsCount() const {
             return PointList.size();
@@ -25,7 +25,7 @@ public:
         QList<QPair<int, int>> PointList;
     };
 
-    class QSSVS_API Params {
+    class QSVIP_API Params {
     public:
         ParamCurve Pitch;
         ParamCurve Volume;
@@ -34,7 +34,7 @@ public:
         ParamCurve Strength;
     };
 
-    class QSSVS_API Vibrato {
+    class QSVIP_API Vibrato {
     public:
         double StartPercent = 0.0;
         double EndPercent = 0.0;
@@ -43,13 +43,13 @@ public:
         ParamCurve Frequency;
     };
 
-    class QSSVS_API Phones {
+    class QSVIP_API Phones {
     public:
         double HeadLengthInSecs = -1.0;
         double MidRatioOverTail = -1.0;
     };
 
-    class QSSVS_API Note {
+    class QSVIP_API Note {
     public:
         int StartPos = 0;
         int Length = 0;
@@ -61,7 +61,7 @@ public:
         QSharedPointer<class Vibrato> Vibrato;
     };
 
-    class QSSVS_API Track {
+    class QSVIP_API Track {
     public:
         enum Type { Singing, Instrumental };
 
@@ -84,7 +84,7 @@ public:
         int t;
     };
 
-    class QSSVS_API SingingTrack : public Track {
+    class QSVIP_API SingingTrack : public Track {
     public:
         SingingTrack() : Track(Singing) {
         }
@@ -96,7 +96,7 @@ public:
         Params EditedParams;
     };
 
-    class QSSVS_API InstrumentalTrack : public Track {
+    class QSVIP_API InstrumentalTrack : public Track {
     public:
         InstrumentalTrack() : Track(Instrumental) {
         }
@@ -106,14 +106,14 @@ public:
         int Offset = 0;
     };
 
-    class QSSVS_API TimeSignature {
+    class QSVIP_API TimeSignature {
     public:
         int BarIndex = 0;
         int Numerator = 0;
         int Denominator = 0;
     };
 
-    class QSSVS_API SongTempo {
+    class QSVIP_API SongTempo {
     public:
         int Position = 0;
         double BPM = 120.0;

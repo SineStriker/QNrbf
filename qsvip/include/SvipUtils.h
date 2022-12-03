@@ -4,7 +4,7 @@
 #include "QSvipModel.h"
 #include "XStudio/XSAppModel.h"
 
-class SvipUtils {
+class QSVIP_API SvipUtils {
 public:
     static bool bin2Json(const QNrbf::XSAppModel &in, const QString &version, QSvipModel &out);
     static bool json2Bin(const QSvipModel &in, QNrbf::XSAppModel &out);

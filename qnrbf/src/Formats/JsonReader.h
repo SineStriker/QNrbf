@@ -18,10 +18,11 @@ public:
 protected:
     NrbfRegistry reg;
 
+    // Deprecated
     QSet<AbstractObject *> cachedObjs;
-
     QJsonValue dfs(const ObjectRef &binObj);
 
+    // Use this instead
     QJsonValue dfs_nonRecursive(const ObjectRef &rootObj);
 };
 

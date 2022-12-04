@@ -575,12 +575,6 @@ bool SvipReader::readITrack(const QMap<QString, ObjectRef> &members, XSITrack &o
     // solo
     if (!reg.findPrimitive(members, KEY_NAME_TRACK_SOLO, PrimitiveTypeEnumeration::Boolean,
                            out.solo)) {
-        auto it = members.find(KEY_NAME_TRACK_SOLO);
-        if (it != members.end()) {
-            qDebug() << it.value()->type();
-        } else {
-            qDebug() << "NF";
-        }
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_TRACK_SOLO);
     }
     return true;
@@ -654,7 +648,6 @@ bool SvipReader::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
     }
     // pronouncing
     if (!reg.findString(members, KEY_NAME_NOTE_PRONOUNCING, out.pronouncing)) {
-        qDebug() << out.lyric;
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_NOTE_PRONOUNCING);
     }
     // Overlapped <Property>

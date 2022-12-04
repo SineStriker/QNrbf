@@ -124,7 +124,7 @@ QJsonValue JsonReader::dfs(const ObjectRef &binObj) {
                         }
                         res =
                             QJsonObject({{"type", Parser::strPrimitiveTypeEnum(val->values.type())},
-                                         {"value", arr}});
+                                         {"values", arr}});
                         break;
                     }
                     case PrimitiveTypeEnumeration::Double:
@@ -136,13 +136,13 @@ QJsonValue JsonReader::dfs(const ObjectRef &binObj) {
                         }
                         res =
                             QJsonObject({{"type", Parser::strPrimitiveTypeEnum(val->values.type())},
-                                         {"value", arr}});
+                                         {"values", arr}});
                         break;
                     }
                     default:
                         res = QJsonObject(
                             {{"type", Parser::strPrimitiveTypeEnum(val->values.type())},
-                             {"value", QJsonArray::fromStringList(val->values.asStringList())}});
+                             {"values", QJsonArray::fromStringList(val->values.asStringList())}});
                         break;
                 }
 

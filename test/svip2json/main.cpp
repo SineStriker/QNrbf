@@ -48,8 +48,8 @@ int main(int argc, char *argv[]) {
     in >> name;
     in >> ver;
 
-    if (in.status() != QDataStream::Ok) {
-        qDebug() << "Failed to read version information.";
+    if (in.status() != QDataStream::Ok || name != "SVIP") {
+        qDebug() << "Failed to read version.";
         return -1;
     }
 

@@ -29,10 +29,7 @@ QJsonObject QSvipModel::toJsonObject() const {
     {
         QJsonArray arr;
         for (const auto &item : qAsConst(SongTempoList)) {
-            QJsonObject objItem;
-            objItem.insert("Position", item.Position);
-            objItem.insert("BPM", item.BPM);
-            arr.append(objItem);
+            arr.append(QJsonObject({{"Position", item.Position}, {"BPM", item.BPM}}));
         }
         objDoc.insert("SongTempoList", arr);
     }
@@ -41,11 +38,9 @@ QJsonObject QSvipModel::toJsonObject() const {
     {
         QJsonArray arr;
         for (const auto &item : qAsConst(TimeSignatureList)) {
-            QJsonObject objItem;
-            objItem.insert("BarIndex", item.BarIndex);
-            objItem.insert("Denominator", item.Denominator);
-            objItem.insert("Numerator", item.Numerator);
-            arr.append(objItem);
+            arr.append(QJsonObject({{"BarIndex", item.BarIndex},
+                                    {"Denominator", item.Denominator},
+                                    {"Numerator", item.Numerator}}));
         }
         objDoc.insert("TimeSignatureList", arr);
     }

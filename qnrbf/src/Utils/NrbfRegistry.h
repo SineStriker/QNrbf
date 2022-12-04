@@ -7,8 +7,10 @@
 
 #include "Common/PrimitiveValue.h"
 #include "Common/PrimitiveValueArray.h"
+
 #include "Objects/AbstractObject.h"
 #include "Objects/ClassMemberObject.h"
+
 #include "Records/SerializationHeader.h"
 
 QNRBF_BEGIN_NAMESPACE

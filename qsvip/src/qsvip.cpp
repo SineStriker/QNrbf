@@ -47,7 +47,8 @@ bool qsvip_reader_load() {
     in >> name;
     in >> ver;
 
-    if (in.status() != QDataStream::Ok) {
+    if (in.status() != QDataStream::Ok || name != "SVIP") {
+        qDebug() << "Failed to read version";
         return false;
     }
 
@@ -60,6 +61,7 @@ bool qsvip_reader_load() {
     // Convert to OpenSVIP model
     QSvipModel model;
     if (!SvipUtils::bin2Json(svip, name + ver, model)) {
+        qDebug() << "Failed to convert to OpenSVIP model";
         return false;
     }
 

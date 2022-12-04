@@ -18,10 +18,11 @@ public:
 protected:
     NrbfRegistry reg;
 
-    QSet<qint32> cachedIds;
     QSet<AbstractObject *> cachedObjs;
 
     QJsonValue dfs(const ObjectRef &binObj);
+
+    QJsonValue dfs_nonRecursive(const ObjectRef &rootObj);
 };
 
 QNRBF_END_NAMESPACE

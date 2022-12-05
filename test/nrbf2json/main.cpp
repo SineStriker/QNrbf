@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     // Read content
     in >> obj;
     if (in.status() != QDataStream::Ok) {
-        qDebug() << "Failed to load nrbf file.";
+        qDebug() << "Failed to parse nrbf content.";
         return -1;
     }
     qDebug() << "Successfully load nrbf file.";

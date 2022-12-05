@@ -1,10 +1,12 @@
 #include "SvipUtils.h"
 
+#include "QSvipConst.h"
+
 bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QSvipModel &out) {
     auto decodeParam = [](const QNrbf::XSLineParam &param,
                           int(op)(int) = nullptr) -> QSvipModel::ParamCurve {
         QSvipModel::ParamCurve res;
-        for (const auto &item : param._nodeLinkedList) {
+        for (const auto &item : param.nodeLinkedList) {
             res.PointList.append(qMakePair(item.Pos, op ? op(item.Value) : item.Value));
         }
         return res;
@@ -57,7 +59,7 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
                     ph.HeadLengthInSecs = noteItem.NotePhoneInfo->HeadPhoneTimeInSec;
                     ph.MidRatioOverTail = noteItem.NotePhoneInfo->MidPartOverTailPartRatio;
 
-                    note.EditedPhones = QSharedPointer<QSvipModel::Phones>::create(ph);
+                    note.EditedPhones = QSharedPointer<QSvipModel::Phones>::create(std::move(ph));
                 }
 
                 if (!noteItem.Vibrato.isNull()) {
@@ -143,28 +145,28 @@ QString SvipUtils::reverbPresets_index2Name(QNrbf::XSReverbPreset index) {
     QString res;
     switch (index) {
         case QNrbf::XSReverbPreset::NONE:
-            res = "None";
+            res = Q_FROM_UNICODE(ReverbPreset_Dry);
             break;
         case QNrbf::XSReverbPreset::DEFAULT:
-            res = "FloatingLight";
+            res = Q_FROM_UNICODE(ReverbPreset_FloatingLight);
             break;
         case QNrbf::XSReverbPreset::SMALLHALL1:
-            res = "Afternoon";
+            res = Q_FROM_UNICODE(ReverbPreset_Afternoon);
             break;
         case QNrbf::XSReverbPreset::MEDIUMHALL1:
-            res = "Moonlight";
+            res = Q_FROM_UNICODE(ReverbPreset_Moonlight);
             break;
         case QNrbf::XSReverbPreset::LARGEHALL1:
-            res = "Cristal";
+            res = Q_FROM_UNICODE(ReverbPreset_Cristal);
             break;
         case QNrbf::XSReverbPreset::SMALLROOM1:
-            res = "Soda";
+            res = Q_FROM_UNICODE(ReverbPreset_Soda);
             break;
         case QNrbf::XSReverbPreset::MEDIUMROOM1:
-            res = "Nightingale";
+            res = Q_FROM_UNICODE(ReverbPreset_Nightingale);
             break;
         case QNrbf::XSReverbPreset::LONGREVERB2:
-            res = "BigDream";
+            res = Q_FROM_UNICODE(ReverbPreset_BigDream);
             break;
         default:
             break;

@@ -27,7 +27,7 @@ public:
      * Using custom functions to pack or unpack data
      */
 
-    std::list<XSLineParamNode> _nodeLinkedList;
+    std::list<XSLineParamNode> nodeLinkedList;
 };
 
 QNRBF_END_NAMESPACE

@@ -2,15 +2,15 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-ObjectListObject::ObjectListObject() : AbstractObject(ObjectList) {
+ObjectListObject::ObjectListObject() : ListObject(ObjectList) {
 }
 
-ObjectListObject::ObjectListObject(const QList<ObjectRef> values)
-    : AbstractObject(ObjectList), values(values) {
+ObjectListObject::ObjectListObject(const QList<ObjectRef> &values)
+    : ListObject(ObjectList), values(values) {
 }
 
 ObjectListObject::ObjectListObject(QList<ObjectRef> &&values) noexcept
-    : AbstractObject(ObjectList), values(values) {
+    : ListObject(ObjectList), values(values) {
 }
 
 QNRBF_END_NAMESPACE

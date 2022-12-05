@@ -15,6 +15,9 @@ public:
     QString assemblyName;
 
     QMap<QString, ObjectRef> members;
+
+    // Debug usage
+    QString parentInfo;
 };
 
 using MappingRef = QSharedPointer<MappingObject>;

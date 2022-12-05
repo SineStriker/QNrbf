@@ -1,17 +1,15 @@
 #ifndef QNRBFFORMAT_STRINGLISTOBJECT_H
 #define QNRBFFORMAT_STRINGLISTOBJECT_H
 
-#include "AbstractObject.h"
+#include "ListObject.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_INTERNAL StringListObject : public AbstractObject {
+class QNRBF_INTERNAL StringListObject : public ListObject {
 public:
    explicit StringListObject(const QStringList &arr);
 
    QStringList values;
-   QList<int> lengths;
-   QList<int> lowerBounds;
 };
 
 QNRBF_END_NAMESPACE

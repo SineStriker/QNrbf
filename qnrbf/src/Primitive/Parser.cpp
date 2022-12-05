@@ -9,9 +9,8 @@ static const quint8 mask_low3 = 0b00000111;
 using namespace QNrbf;
 
 bool Parser::readLengthPrefix(quint32 &out, QDataStream &in) {
-    out = 0;
-
-    quint32 size = 0;
+    quint32 &size = out;
+    size = 0;
 
     quint8 byte;
     quint8 offset = 0;
@@ -50,8 +49,6 @@ bool Parser::readLengthPrefix(quint32 &out, QDataStream &in) {
     if (byte & (~mask_low3)) {
         return false;
     }
-
-    out = size;
 
     return true;
 }

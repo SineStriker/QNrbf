@@ -501,7 +501,7 @@ bool SvipReader::readLineParam(const QMap<QString, ObjectRef> &members, XSLinePa
         if (stream.status() != QDataStream::Ok) {
             goto failed;
         }
-        out._nodeLinkedList.emplace_back(pos, val);
+        out.nodeLinkedList.emplace_back(pos, val);
     }
 
     return true;

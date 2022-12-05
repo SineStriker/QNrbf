@@ -105,7 +105,7 @@ bool NrbfReader::readRecord(ObjectRef *out) {
             if (reg.header.isNull()) {
                 SerializationHeader header;
                 if (header.read(in)) {
-                    reg.header = QSharedPointer<SerializationHeader>::create(header);
+                    reg.header = QSharedPointer<SerializationHeader>::create(std::move(header));
                 } else {
                     _status = Failed;
                 }
@@ -340,10 +340,11 @@ bool NrbfReader::readUntypedMembers(const MappingRef &acceptor, const QString &c
 bool NrbfReader::onSystemClassWithMembers(SystemClassWithMembers &in, ObjectRef &out) {
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = in.classInfo.name;
+    obj->id = in.classInfo.objectId;
+    obj->parentInfo = "SystemClassWithMembers";
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
-        obj->id = in.classInfo.objectId;
         reg.classesById[in.classInfo.objectId] = ClassRef(new SystemClassObject(in, obj));
     }
 
@@ -370,10 +371,11 @@ bool NrbfReader::onClassWithMembers(ClassWithMembers &in, ObjectRef &out) {
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = in.classInfo.name;
     obj->assemblyName = library;
+    obj->id = in.classInfo.objectId;
+    obj->parentInfo = "ClassWithMembers";
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
-        obj->id = in.classInfo.objectId;
         reg.classesById[in.classInfo.objectId] = ClassRef(new UserClassObject(in, obj));
     }
 
@@ -389,10 +391,11 @@ bool NrbfReader::onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes
                                                   ObjectRef &out) {
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = in.classInfo.name;
+    obj->id = in.classInfo.objectId;
+    obj->parentInfo = "SystemClassWithMembersAndTypes";
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
-        obj->id = in.classInfo.objectId;
         reg.classesById[in.classInfo.objectId] = ClassRef(new SystemClassTypeObject(in, obj));
     }
 
@@ -418,10 +421,11 @@ bool NrbfReader::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, Object
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = in.classInfo.name;
     obj->assemblyName = library;
+    obj->id = in.classInfo.objectId;
+    obj->parentInfo = "ClassWithMembersAndTypes";
 
     // Save the defined class information
     if (in.classInfo.objectId != 0) {
-        obj->id = in.classInfo.objectId;
         reg.classesById[in.classInfo.objectId] = ClassRef(new UserClassTypeObject(in, obj));
     }
 
@@ -452,10 +456,11 @@ bool NrbfReader::onClassWithId(ClassWithId &in, ObjectRef &out) {
     auto obj = QSharedPointer<MappingObject>::create();
     obj->typeName = objRef->typeName;
     obj->assemblyName = objRef->assemblyName;
+    obj->id = in.objectId;
+    obj->parentInfo = QString("ClassWithId %1").arg(QString::number(in.metadataId));
 
     // Save object reference
     if (in.objectId != 0) {
-        obj->id = in.objectId;
         reg.objectsById[in.objectId] = obj;
     }
 
@@ -500,6 +505,7 @@ bool NrbfReader::onBinaryArray(BinaryArray &in, ObjectRef &out) {
             auto listObj = new PrimitiveListObject(arr);
             listObj->lengths = in.lengths;
             listObj->lowerBounds = in.lowerBounds;
+            listObj->arrayType = "BinaryArray";
             obj = ObjectRef(listObj);
             break;
         }
@@ -512,6 +518,7 @@ bool NrbfReader::onBinaryArray(BinaryArray &in, ObjectRef &out) {
             auto listObj = new StringListObject(arr);
             listObj->lengths = in.lengths;
             listObj->lowerBounds = in.lowerBounds;
+            listObj->arrayType = "BinaryArray";
             obj = ObjectRef(listObj);
             break;
         }
@@ -523,6 +530,7 @@ bool NrbfReader::onBinaryArray(BinaryArray &in, ObjectRef &out) {
             }
             listObj->lengths = in.lengths;
             listObj->lowerBounds = in.lowerBounds;
+            listObj->arrayType = "BinaryArray";
             obj = listObj;
             break;
         }
@@ -579,11 +587,14 @@ bool NrbfReader::onArraySinglePrimitive(ArraySinglePrimitive &in, ObjectRef &out
     if (!arr.read(*stream, in.arrayInfo.length, in.primitiveTypeEnum)) {
         return false;
     }
-    auto obj = ObjectRef(new PrimitiveListObject(arr));
+
+    auto obj = QSharedPointer<PrimitiveListObject>::create(arr);
     if (in.arrayInfo.objectId != 0) {
         obj->id = in.arrayInfo.objectId;
         reg.objectsById[in.arrayInfo.objectId] = obj;
     }
+
+    obj->arrayType = "ArraySinglePrimitive";
     out = obj;
 
     return true;
@@ -601,6 +612,8 @@ bool NrbfReader::onArraySingleObject(ArraySingleObject &in, ObjectRef &out) {
         obj->id = in.arrayInfo.objectId;
         reg.objectsById[in.arrayInfo.objectId] = obj;
     }
+
+    obj->arrayType = "ArraySingleObject";
     out = obj;
 
     return true;
@@ -609,16 +622,17 @@ bool NrbfReader::onArraySingleObject(ArraySingleObject &in, ObjectRef &out) {
 bool NrbfReader::onArraySingleString(ArraySingleString &in, ObjectRef &out) {
     QStringList arr;
     resizeList(arr, in.arrayInfo.length);
-
     if (!readStrings(arr)) {
         return false;
     }
 
-    auto obj = ObjectRef(new PrimitiveListObject(arr));
+    auto obj = QSharedPointer<StringListObject>::create(arr);
     if (in.arrayInfo.objectId != 0) {
         obj->id = in.arrayInfo.objectId;
         reg.objectsById[in.arrayInfo.objectId] = obj;
     }
+
+    obj->arrayType = "ArraySingleString";
     out = obj;
 
     return true;

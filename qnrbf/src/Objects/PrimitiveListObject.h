@@ -1,12 +1,12 @@
 #ifndef QNRBFFORMAT_PRIMITIVELISTOBJECT_H
 #define QNRBFFORMAT_PRIMITIVELISTOBJECT_H
 
-#include "AbstractObject.h"
+#include "ListObject.h"
 #include "Common/PrimitiveValueArray.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_INTERNAL PrimitiveListObject : public AbstractObject {
+class QNRBF_INTERNAL PrimitiveListObject : public ListObject {
 public:
     PrimitiveListObject();
 
@@ -20,8 +20,6 @@ public:
     }
 
     PrimitiveValueArray values;
-    QList<int> lengths;
-    QList<int> lowerBounds;
 };
 
 QNRBF_END_NAMESPACE

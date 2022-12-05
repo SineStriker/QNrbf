@@ -11,7 +11,8 @@ QNRBF_BEGIN_NAMESPACE
 
 namespace Parser {
 
-    QNRBF_INTERNAL bool readLengthPrefix(quint32 &size, QDataStream &in);
+    /* Read */
+    QNRBF_INTERNAL bool readLengthPrefix(quint32 &out, QDataStream &in);
 
     QNRBF_INTERNAL bool readString(QString &out, QDataStream &in);
 
@@ -22,6 +23,19 @@ namespace Parser {
     QNRBF_INTERNAL bool readDecimal(QNrbf::Decimal &out, QDataStream &in);
 
     QNRBF_INTERNAL bool readTimeSpan(QNrbf::TimeSpan &out, QDataStream &in);
+
+    /* Write */
+    QNRBF_INTERNAL bool writeLengthPrefix(quint32 size, QDataStream &out);
+
+    QNRBF_INTERNAL bool writeString(const QString &in, QDataStream &out);
+
+    QNRBF_INTERNAL bool writeUtf8Char(const QChar &in, QDataStream &out);
+
+    QNRBF_INTERNAL bool writeDateTime(const QNrbf::DateTime &in, QDataStream &out);
+
+    QNRBF_INTERNAL bool writeDecimal(const QNrbf::Decimal &in, QDataStream &out);
+
+    QNRBF_INTERNAL bool writeTimeSpan(const QNrbf::TimeSpan &in, QDataStream &out);
 
 }; // namespace Parser
 

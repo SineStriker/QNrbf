@@ -5,6 +5,7 @@
 
 #include "Formats/JsonReader.h"
 #include "Formats/SvipReader.h"
+#include "Formats/SvipWriter.h"
 #include "Primitive/Parser.h"
 #include "Utils/NrbfReader.h"
 
@@ -18,6 +19,7 @@ public:
     void init();
 
     NrbfRegistry deserialize();
+    void serialize(const NrbfRegistry &reg);
 
     QNrbfStream *q;
 };
@@ -36,7 +38,12 @@ NrbfRegistry QNrbfStreamPrivate::deserialize() {
     if (reader.status() != NrbfReader::ReachEnd) {
         q->setStatus(QDataStream::ReadCorruptData);
     }
+
     return reg;
+}
+
+void QNrbfStreamPrivate::serialize(const NrbfRegistry &reg) {
+    Q_UNUSED(this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -93,6 +100,21 @@ QDataStream &QNrbfStream::operator>>(XSAppModel &svip) {
         } else {
             svip = reader.appModel;
         }
+    }
+    return *this;
+}
+
+QDataStream &QNrbfStream::operator<<(const QString &str) {
+    Parser::writeString(str, *this);
+    return *this;
+}
+
+QDataStream &QNrbfStream::operator<<(const XSAppModel &svip) {
+    SvipWriter writer(svip);
+    if (!writer.save()) {
+        setStatus(QDataStream::ReadCorruptData);
+    } else {
+        d->serialize(writer.reg);
     }
     return *this;
 }

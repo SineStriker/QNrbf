@@ -21,6 +21,9 @@ public:
     QDataStream &operator>>(QJsonObject &obj);
     QDataStream &operator>>(QNrbf::XSAppModel &svip);
 
+    QDataStream &operator<<(const QString &str);
+    QDataStream &operator<<(const QNrbf::XSAppModel &svip);
+
 protected:
     QScopedPointer<QNrbfStreamPrivate> d;
 };

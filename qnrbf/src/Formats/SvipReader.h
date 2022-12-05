@@ -11,6 +11,7 @@ QNRBF_BEGIN_NAMESPACE
 class QNRBF_INTERNAL SvipReader {
 public:
     explicit SvipReader(const NrbfRegistry &reg);
+    ~SvipReader();
 
     bool load();
 

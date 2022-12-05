@@ -10,6 +10,7 @@ QNRBF_BEGIN_NAMESPACE
 class QNRBF_INTERNAL JsonReader {
 public:
     explicit JsonReader(const NrbfRegistry &reg);
+    ~JsonReader();
 
     bool load();
 
@@ -24,6 +25,8 @@ protected:
 
     // Use this instead
     QJsonValue dfs_nonRecursive(const ObjectRef &rootObj);
+
+    QJsonValue dfs_shallow();
 };
 
 QNRBF_END_NAMESPACE

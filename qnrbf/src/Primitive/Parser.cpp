@@ -8,8 +8,10 @@ static const quint8 mask_low3 = 0b00000111;
 
 using namespace QNrbf;
 
-bool Parser::readLengthPrefix(quint32 &size, QDataStream &in) {
-    size = 0;
+bool Parser::readLengthPrefix(quint32 &out, QDataStream &in) {
+    out = 0;
+
+    quint32 size = 0;
 
     quint8 byte;
     quint8 offset = 0;
@@ -48,6 +50,8 @@ bool Parser::readLengthPrefix(quint32 &size, QDataStream &in) {
     if (byte & (~mask_low3)) {
         return false;
     }
+
+    out = size;
 
     return true;
 }
@@ -119,5 +123,43 @@ bool Parser::readTimeSpan(TimeSpan &out, QDataStream &in) {
     if (in.status() != QDataStream::Ok)
         return false;
     out = TimeSpan(data);
+    return true;
+}
+
+bool Parser::writeLengthPrefix(quint32 size, QDataStream &out) {
+    return true;
+}
+
+bool Parser::writeString(const QString &in, QDataStream &out) {
+    if (!writeLengthPrefix(in.size(), out)) {
+        return false;
+    }
+    QByteArray data = in.toUtf8();
+    if (out.writeRawData(data.data(), data.size()) != data.size()) {
+        return false;
+    }
+    return true;
+}
+
+bool Parser::writeUtf8Char(const QChar &in, QDataStream &out) {
+    QByteArray data(QString(in).toUtf8());
+    if (out.writeRawData(data.data(), data.size()) != data.size()) {
+        return false;
+    }
+    return true;
+}
+
+bool Parser::writeDateTime(const QNrbf::DateTime &in, QDataStream &out) {
+    out << in._data;
+    return true;
+}
+
+bool Parser::writeDecimal(const QNrbf::Decimal &in, QDataStream &out) {
+    writeString(in._data, out);
+    return true;
+}
+
+bool Parser::writeTimeSpan(const QNrbf::TimeSpan &in, QDataStream &out) {
+    out << in._data;
     return true;
 }

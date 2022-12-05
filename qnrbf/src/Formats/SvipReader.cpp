@@ -6,127 +6,9 @@
 #include "Objects/PrimitiveListObject.h"
 #include "Objects/StringListObject.h"
 
+#include "Config/SvipConst.h"
+
 QNRBF_BEGIN_NAMESPACE
-
-// Class type names
-static const char ASSEMBLY_NAME_APP_MODEL[] = "SingingTool.Model.AppModel";
-static const char ASSEMBLY_NAME_BEAT_LIST[] =
-    "SingingTool.Library.SerialOverlapableItemList`1[[SingingTool.Model.SingingGeneralConcept."
-    "SongBeat, SingingTool.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]";
-static const char ASSEMBLY_NAME_BEAT_LIST_BUF[] =
-    "System.Collections.Generic.List`1[[SingingTool.Model.SingingGeneralConcept.SongBeat, "
-    "SingingTool.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]";
-static const char ASSEMBLY_NAME_TEMPO_LIST[] =
-    "SingingTool.Library.SerialOverlapableItemList`1[[SingingTool.Model.SingingGeneralConcept."
-    "SongTempo, SingingTool.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]";
-static const char ASSEMBLY_NAME_TEMPO_LIST_BUF[] =
-    "System.Collections.Generic.List`1[[SingingTool.Model.SingingGeneralConcept.SongTempo, "
-    "SingingTool.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]";
-static const char ASSEMBLY_NAME_TRACK_LIST[] =
-    "System.Collections.Generic.List`1[[SingingTool.Model.ITrack, SingingTool.Model, "
-    "Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]";
-static const char ASSEMBLY_NAME_NOTE_LIST[] =
-    "SingingTool.Library.SerialOverlapableItemList`1[[SingingTool.Model.Note, SingingTool.Model, "
-    "Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]";
-static const char ASSEMBLY_NAME_NOTE_LIST_BUF[] =
-    "System.Collections.Generic.List`1[[SingingTool.Model.Note, SingingTool.Model, "
-    "Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]";
-static const char ASSEMBLY_NAME_SONG_BEAT[] = "SingingTool.Model.SingingGeneralConcept.SongBeat";
-static const char ASSEMBLY_NAME_BEAT_SIZE[] = "SingingTool.Model.SingingGeneralConcept.BeatSize";
-static const char ASSEMBLY_NAME_SONG_TEMPO[] = "SingingTool.Model.SingingGeneralConcept.SongTempo";
-static const char ASSEMBLY_NAME_SINGING_TRACK[] = "SingingTool.Model.SingingTrack";
-static const char ASSEMBLY_NAME_INSTRUMENT_TRACK[] = "SingingTool.Model.InstrumentTrack";
-static const char ASSEMBLY_NAME_LINE_PARAM[] = "SingingTool.Model.Line.LineParam";
-static const char ASSEMBLY_NAME_REVERB_PRESET[] = "SingingTool.Library.Audio.ReverbPreset";
-static const char ASSEMBLY_NAME_NOTE[] = "SingingTool.Model.Note";
-static const char ASSEMBLY_NAME_NOTE_PHONEME_INFO[] = "SingingTool.Model.NotePhoneInfo";
-static const char ASSEMBLY_NAME_NOTE_HEAD_TAG[] = "SingingTool.Model.NoteHeadTag";
-static const char ASSEMBLY_NAME_VIBRATO_PERCENT_INFO[] = "SingingTool.Model.VibratoPercentInfo";
-static const char ASSEMBLY_NAME_VIBRATO_STYLE[] = "SingingTool.Model.VibratoStyle";
-
-// AppModel keys
-static const char KEY_NAME_PROJECT_FILE_PATH[] = "ProjectFilePath";
-static const char KEY_NAME_QUANTIZE[] = "_quantize";
-static const char KEY_NAME_IS_TRIPLET[] = "_isTriplet";
-static const char KEY_NAME_IS_NUMERICAL[] = "_isNumerialKeyName";
-static const char KEY_NAME_TEMPO_LIST[] = "_tempoList";
-static const char KEY_NAME_BEAT_LIST[] = "_beatList";
-static const char KEY_NAME_TRACK_LIST[] = "_trackList";
-static const char KEY_NAME_FIRST_NUMERICAL[] = "_firstNumerialKeyNameAtIndex";
-
-static const char KEY_NAME_SERIAL_LIST_BUF[] = "_buf";
-static const char KEY_NAME_LIST_ITEMS[] = "_items";
-
-// IOverlappable keys
-static const char KEY_NAME_OVERLAPPED[] = "Overlaped";
-
-// SongBeat keys
-static const char KEY_NAME_BAR_INDEX[] = "_barIndex";
-static const char KEY_NAME_BEAT_SIZE[] = "_beatSize";
-
-// BeatSize keys
-static const char KEY_NAME_BEAT_SIZE_X[] = "_x";
-static const char KEY_NAME_BEAT_SIZE_Y[] = "_y";
-
-// SongTempo keys
-static const char KEY_NAME_TEMPO_POS[] = "_pos";
-static const char KEY_NAME_TEMPO[] = "_tempo";
-
-// Track keys
-static const char KEY_NAME_TRACK_MUTE[] = "_mute";
-static const char KEY_NAME_TRACK_NAME[] = "_name";
-static const char KEY_NAME_TRACK_PAN[] = "_pan";
-static const char KEY_NAME_TRACK_SOLO[] = "_solo";
-static const char KEY_NAME_TRACK_VOLUME[] = "_volume";
-
-// InstrumentTrack keys
-static const char KEY_NAME_CHANNEL_COUNT[] = "ChannelCount";
-static const char KEY_NAME_OFFSET_IN_POS[] = "OffsetInPos";
-static const char KEY_NAME_SAMPLE_COUNT[] = "SampleCount";
-static const char KEY_NAME_SAMPLE_RATE[] = "SampleRate";
-static const char KEY_NAME_INSTRUMENT_FILE_PATH[] = "InstrumentFilePath";
-
-// SingingTrack keys
-static const char KEY_NAME_AI_SINGER_ID[] = "AISingerId";
-static const char KEY_NAME_NOTE_LIST[] = "_noteList";
-static const char KEY_NAME_NEED_REFRESH_FLAG[] = "_needRefreshBaseMetadataFlag";
-static const char KEY_NAME_EDITED_BREATH_LINE[] = "_editedBreathLine";
-static const char KEY_NAME_EDITED_GENDER_LINE[] = "_editedGenderLine";
-static const char KEY_NAME_EDITED_PITCH_LINE[] = "_editedPitchLine";
-static const char KEY_NAME_EDITED_VOLUME_LINE[] = "_editedVolumeLine";
-static const char KEY_NAME_EDITED_POWER_LINE[] = "_editedPowerLine";
-static const char KEY_NAME_REVERB_PRESET[] = "_reverbPreset";
-
-// LineParam keys
-static const char KEY_NAME_LINE_PARAM[] = "LineParam";
-
-// Enumeration keys
-static const char KEY_NAME_ENUM_VALUE[] = "value__";
-
-// NotePhoneInfo keys
-static const char KEY_NAME_HEAD_PHONEME_TIME[] = "HeadPhoneTimeInSec";
-static const char KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO[] = "MidPartOverTailPartRatio";
-
-// VibratoPercentInfo keys
-static const char KEY_NAME_VIBRATO_START_PERCENT[] = "_startPercent";
-static const char KEY_NAME_VIBRATO_END_PERCENT[] = "_endPercent";
-
-// VibratoStyle keys
-static const char KEY_NAME_VIBRATO_ANTI_PHASE[] = "IsAntiPhase";
-static const char KEY_NAME_VIBRATO_AMP_LINE[] = "_ampLine";
-static const char KEY_NAME_VIBRATO_FREQ_LINE[] = "_freqLine";
-
-// Note keys
-static const char KEY_NAME_NOTE_PHONEME_INFO[] = "NotePhoneInfo";
-static const char KEY_NAME_NOTE_VIBRATO[] = "Vibrato";
-static const char KEY_NAME_NOTE_VIBRATO_PERCENT[] = "VibratoPercent";
-static const char KEY_NAME_NOTE_VIBRATO_PERCENT_INFO[] = "VibratoPercentInfo";
-static const char KEY_NAME_NOTE_HEAD_TAG[] = "_headTag";
-static const char KEY_NAME_NOTE_KEY_INDEX[] = "_keyIndex";
-static const char KEY_NAME_NOTE_LYRIC[] = "_lyric";
-static const char KEY_NAME_NOTE_PRONOUNCING[] = "_pronouncing";
-static const char KEY_NAME_NOTE_START_POS[] = "_startPos";
-static const char KEY_NAME_NOTE_WIDTH_POS[] = "_widthPos";
 
 #define ERROR_ON_PROPERTY_NOT_FOUND(PROPERTY)                                                      \
     qDebug().noquote() << QString("Svip: Property \"%1\" not found").arg(PROPERTY);                \
@@ -175,6 +57,9 @@ static const char KEY_NAME_NOTE_WIDTH_POS[] = "_widthPos";
 #endif
 
 SvipReader::SvipReader(const NrbfRegistry &reg) : reg(reg) {
+}
+
+SvipReader::~SvipReader() {
 }
 
 bool SvipReader::load() {

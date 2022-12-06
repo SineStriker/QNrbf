@@ -468,7 +468,7 @@ bool SvipReader::readITrack(const QMap<QString, ObjectRef> &members, XSITrack &o
 bool SvipReader::readLineParam(const QMap<QString, ObjectRef> &members, XSLineParam &out) {
     /* Use custom deserialization strategy */
 
-    QList<qint8> bytes;
+    QList<quint8> bytes;
     if (!reg.findPrimitiveList(members, KEY_NAME_LINE_PARAM, PrimitiveTypeEnumeration::Byte,
                                bytes)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_LINE_PARAM);
@@ -599,13 +599,13 @@ bool SvipReader::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
             out.NotePhoneInfo = QSharedPointer<XSNotePhoneInfo>::create();
             const auto &phonemeMembers = phonemeObj->members;
 
-            // HeadPhoneTimeInSec
+            // HeadPhoneTimeInSec <Property>
             if (!reg.findPrimitive(
                     phonemeMembers, NrbfRegistry::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
                     PrimitiveTypeEnumeration::Single, out.NotePhoneInfo->HeadPhoneTimeInSec)) {
                 ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_HEAD_PHONEME_TIME);
             }
-            // MidPartOverTailPartRatio
+            // MidPartOverTailPartRatio <Property>
             if (!reg.findPrimitive(
                     phonemeMembers,
                     NrbfRegistry::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),

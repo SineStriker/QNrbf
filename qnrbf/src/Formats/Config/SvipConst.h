@@ -46,6 +46,9 @@ const char ASSEMBLY_NAME_NOTE_PHONEME_INFO[] = "SingingTool.Model.NotePhoneInfo"
 const char ASSEMBLY_NAME_NOTE_HEAD_TAG[] = "SingingTool.Model.NoteHeadTag";
 const char ASSEMBLY_NAME_VIBRATO_PERCENT_INFO[] = "SingingTool.Model.VibratoPercentInfo";
 const char ASSEMBLY_NAME_VIBRATO_STYLE[] = "SingingTool.Model.VibratoStyle";
+const char ASSEMBLY_NAME_ITRACK_ARRAY[] = "SingingTool.Model.ITrack[]";
+const char ASSEMBLY_NAME_SONG_TEMPO_ARRAY[] = "SingingTool.Model.SingingGeneralConcept.SongTempo[]";
+const char ASSEMBLY_NAME_SONG_BEAT_ARRAY[] = "SingingTool.Model.SingingGeneralConcept.SongBeat[]";
 
 // AppModel keys
 const char KEY_NAME_ACTUAL_PROJECT_FILE_PATH[] = "ActualProjectFilePath";
@@ -59,7 +62,12 @@ const char KEY_NAME_TRACK_LIST[] = "_trackList";
 const char KEY_NAME_FIRST_NUMERICAL[] = "_firstNumerialKeyNameAtIndex";
 
 const char KEY_NAME_SERIAL_LIST_BUF[] = "_buf";
+const char KEY_NAME_SERIAL_LIST_BUF_1[] = "SerialItemList`1+_buf";
+
+// List keys
 const char KEY_NAME_LIST_ITEMS[] = "_items";
+const char KEY_NAME_LIST_SIZE[] = "_size";
+const char KEY_NAME_LIST_VERSION[] = "_version";
 
 // IOverlappable keys
 const char KEY_NAME_OVERLAPPED[] = "Overlaped";
@@ -131,6 +139,12 @@ const char KEY_NAME_NOTE_LYRIC[] = "_lyric";
 const char KEY_NAME_NOTE_PRONOUNCING[] = "_pronouncing";
 const char KEY_NAME_NOTE_START_POS[] = "_startPos";
 const char KEY_NAME_NOTE_WIDTH_POS[] = "_widthPos";
+
+// Values
+const int VALUE_LIST_VERSION_SONG_TEMPO = 2;
+const int VALUE_LIST_VERSION_SONG_BEAT = 2;
+const int VALUE_LIST_VERSION_SONG_ITRACK = 4;
+const int VALUE_LIST_VERSION_SONG_NOTE = 1054;
 
 QNRBF_END_NAMESPACE
 

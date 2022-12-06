@@ -8,6 +8,10 @@ ClassTypeInfo::ClassTypeInfo() {
     libraryId = 0;
 }
 
+ClassTypeInfo::ClassTypeInfo(const QString &typeName, qint32 libraryId)
+    : typeName(typeName), libraryId(libraryId) {
+}
+
 bool ClassTypeInfo::read(QDataStream &in) {
     if (!Parser::readString(typeName, in)) {
         return false;

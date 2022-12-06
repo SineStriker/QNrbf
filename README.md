@@ -2,7 +2,7 @@
 
 C++/Qt library to read/write MS-NRBF.
 
-## Reference
+## References
 
 + [BinaryFormatDataStructure](https://github.com/bbowyersmyth/BinaryFormatDataStructure)
   + MIT License
@@ -16,4 +16,4 @@ C++/Qt library to read/write MS-NRBF.
   + Extract MS-NRBF data structure to json file
 
 + Svip
-  + Deserialize XStudio Singers (not 3) project file
+  + Deserialize X Studio Singer (not 3) project file

@@ -12,6 +12,7 @@ QNRBF_BEGIN_NAMESPACE
 class QNRBF_INTERNAL ClassTypeInfo {
 public:
     ClassTypeInfo();
+    ClassTypeInfo(const QString &typeName, qint32 libraryId);
 
     QString typeName;
     qint32 libraryId;

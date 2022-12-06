@@ -59,12 +59,13 @@ struct Receiver {
 };
 
 QJsonValue JsonReader::dfs_shallow() {
-    QJsonObject totalObj;
     QHash<int, ObjectRef> objects = reg.objectsById;
-    for (const auto &item : qAsConst(reg.classesById)) {
-        objects.insert(item->classInfo.objectId, item->value);
+    for (auto it = reg.classesById.begin(); it != reg.classesById.end(); ++it) {
+        objects.insert(it.key(), it.value()->value);
     }
 
+    // Objects
+    QJsonObject allObj;
     for (auto it0 = objects.begin(); it0 != objects.end(); ++it0) {
         auto rootKey = it0.key();
         auto rootObj = it0.value();
@@ -302,17 +303,69 @@ QJsonValue JsonReader::dfs_shallow() {
             docVal = anotherStack.front().value;
         }
 
-        totalObj.insert(QString("%1").arg(rootKey, (rootKey >= 0) ? 4 : 5, 10, QLatin1Char('0')),
-                        docVal);
+        allObj.insert(QString("%1").arg(rootKey, (rootKey >= 0) ? 4 : 5, 10, QLatin1Char('0')),
+                      docVal);
     }
 
-    totalObj.insert("header", QJsonObject({
-                                  {"rootId", reg.header->rootId},
-                                  {"headerId", reg.header->headerId},
-                                  {"majorVersion", reg.header->majorVersion},
-                                  {"minorVersion", reg.header->minorVersion},
-                              }));
-    return totalObj;
+    // Libraries
+    QJsonObject allLibs;
+    {
+        for (auto it = reg.libraries.begin(); it != reg.libraries.end(); ++it) {
+            allLibs.insert(QString("%1").arg(it.key(), 4, 10, QLatin1Char('0')), it.value());
+        }
+    }
+
+    // Classes
+    QJsonObject allClasses;
+    {
+        for (auto it = reg.classesById.begin(); it != reg.classesById.end(); ++it) {
+            auto classRef = it.value();
+
+            QJsonObject classObj;
+            QString classType;
+            switch (classRef->classType()) {
+                case QNrbf::ClassMemberObject::User:
+                    classType = "ClassWithMembers";
+                    break;
+                case QNrbf::ClassMemberObject::UserWithTypes:
+                    classType = "ClassWithMembersAndTypes";
+                    break;
+                case QNrbf::ClassMemberObject::System:
+                    classType = "SystemClassWithMembers";
+                    break;
+                case QNrbf::ClassMemberObject::SystemWithTypes:
+                    classType = "SystemClassWithMembersAndTypes";
+                    break;
+                default:
+                    break;
+            }
+            classObj.insert("recordType", classType);
+            classObj.insert(
+                "classInfo",
+                QJsonObject({
+                    {"objectId", classRef->classInfo.objectId},
+                    {"name", classRef->classInfo.name},
+                    {"memberCount", classRef->classInfo.memberCount},
+                    {"memberNames", QJsonArray::fromStringList(classRef->classInfo.memberNames)},
+                }));
+            classObj.insert("libraryId", classRef->libraryId);
+
+            allClasses.insert(QString("%1").arg(it.key(), 4, 10, QLatin1Char('0')), classObj);
+        }
+    }
+
+    QJsonObject resObj;
+    resObj.insert("header", QJsonObject({
+                                {"rootId", reg.header->rootId},
+                                {"headerId", reg.header->headerId},
+                                {"majorVersion", reg.header->majorVersion},
+                                {"minorVersion", reg.header->minorVersion},
+                            }));
+    resObj.insert("objects", allObj);
+    resObj.insert("classes", allClasses);
+    resObj.insert("libraries", allLibs);
+
+    return resObj;
 }
 
 QNRBF_END_NAMESPACE

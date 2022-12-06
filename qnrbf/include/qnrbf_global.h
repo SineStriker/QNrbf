@@ -15,8 +15,10 @@
 #  endif
 #endif
 
-#ifdef QNRBF_LIBRARY
-#  define QNRBF_INTERNAL
+#ifndef QNRBF_INTERNAL
+#  if defined(QNRBF_LIBRARY) || defined(QNRBF_STATIC)
+#    define QNRBF_INTERNAL
+#  endif
 #endif
 
 #define QNRBF_BEGIN_NAMESPACE namespace QNrbf {

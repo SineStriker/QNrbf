@@ -59,7 +59,7 @@ struct Receiver {
 };
 
 QJsonValue JsonReader::dfs_shallow() {
-    QHash<int, ObjectRef> objects = reg.objectsById;
+    QMap<int, ObjectRef> objects = reg.objectsById;
     for (auto it = reg.classesById.begin(); it != reg.classesById.end(); ++it) {
         objects.insert(it.key(), it.value()->value);
     }

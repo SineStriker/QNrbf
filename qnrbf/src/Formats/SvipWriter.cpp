@@ -291,9 +291,11 @@ bool SvipWriter::save() {
                                                                 : createReference(idEnq()));
 
                 // Power
-                members.insert(KEY_NAME_EDITED_POWER_LINE, singingTrack->editedPowerLine.isNull()
-                                                               ? ObjectRef()
-                                                               : createReference(idEnq()));
+                // members.insert(KEY_NAME_EDITED_POWER_LINE,
+                // singingTrack->editedPowerLine.isNull()
+                //  ? ObjectRef()
+                //  :
+                //  createReference(idEnq()));
 
                 singingTracks.push_back(singingTrack);
 
@@ -415,7 +417,7 @@ bool SvipWriter::save() {
             cnt += !item->editedGenderLine.isNull();
             cnt += !item->editedPitchLine.isNull();
             cnt += !item->editedVolumeLine.isNull();
-            cnt += !item->editedPowerLine.isNull();
+            //            cnt += !item->editedPowerLine.isNull();
 
             for (int i = 0; i < cnt; ++i) {
                 // Write lineParam
@@ -464,7 +466,7 @@ bool SvipWriter::save() {
         // Write notesList contents and lineParams data
         for (const auto &item : qAsConst(singingTracks)) {
             // Write noteList
-            auto classDef = createClassDef_TrackList(idDeq());
+            auto classDef = createClassDef_NoteListBuf(idDeq());
             classDef->value = writeListMapping(item->noteList.size(), VALUE_LIST_VERSION_SONG_NOTE);
             reg.classesById.insert(idTmp, classDef);
 
@@ -473,7 +475,8 @@ bool SvipWriter::save() {
             item->editedGenderLine.isNull() ? void() : encodeParams(item->editedGenderLine);
             item->editedPitchLine.isNull() ? void() : encodeParams(item->editedPitchLine);
             item->editedVolumeLine.isNull() ? void() : encodeParams(item->editedVolumeLine);
-            item->editedPowerLine.isNull() ? void() : encodeParams(item->editedPowerLine);
+            //            item->editedPowerLine.isNull() ? void() :
+            //            encodeParams(item->editedPowerLine);
         }
     }
 
@@ -511,7 +514,7 @@ bool SvipWriter::save() {
 
                 // headTag
                 {
-                    auto headTagClassRef = createClassDef_ReverbPreset(idEnq());
+                    auto headTagClassRef = createClassDef_NoteHeadTag(idEnq());
                     headTagClassRef->value = writeEnum(note.headTag);
 
                     members.insert(KEY_NAME_NOTE_HEAD_TAG, headTagClassRef);
@@ -663,7 +666,7 @@ bool SvipWriter::save() {
     return true;
 }
 
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_ReverbPreset(qint32 objectId) {
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_ReverbPreset(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
     classInfo.name = ASSEMBLY_NAME_REVERB_PRESET;
@@ -681,7 +684,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_ReverbPreset(qint
     return obj;
 }
 
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_NoteHeadTag(qint32 objectId) {
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_NoteHeadTag(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
     classInfo.name = ASSEMBLY_NAME_NOTE_HEAD_TAG;
@@ -699,7 +702,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_NoteHeadTag(qint3
     return obj;
 }
 
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_AppModel(qint32 objectId) {
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_AppModel(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
     classInfo.name = ASSEMBLY_NAME_APP_MODEL;
@@ -742,7 +745,8 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_AppModel(qint32 o
     return obj;
 }
 
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongTempoList(qint32 objectId) {
+QSharedPointer<UserClassTypeObject>
+    SvipWriter::createClassDef_SongTempoList(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
     classInfo.name = ASSEMBLY_NAME_TEMPO_LIST;
@@ -769,7 +773,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongTempoList(qin
     return obj;
 }
 
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongBeatList(qint32 objectId) {
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongBeatList(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
     classInfo.name = ASSEMBLY_NAME_BEAT_LIST;
@@ -796,7 +800,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongBeatList(qint
     return obj;
 }
 
-QSharedPointer<SystemClassTypeObject> SvipWriter::createClassDef_TrackList(qint32 objectId) {
+QSharedPointer<SystemClassTypeObject> SvipWriter::createClassDef_TrackList(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
     classInfo.name = ASSEMBLY_NAME_TRACK_LIST;
@@ -825,7 +829,8 @@ QSharedPointer<SystemClassTypeObject> SvipWriter::createClassDef_TrackList(qint3
     return obj;
 }
 
-QSharedPointer<SystemClassTypeObject> SvipWriter::createClassDef_SongTempoListBuf(qint32 objectId) {
+QSharedPointer<SystemClassTypeObject>
+    SvipWriter::createClassDef_SongTempoListBuf(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
     classInfo.name = ASSEMBLY_NAME_TEMPO_LIST_BUF;
@@ -854,7 +859,8 @@ QSharedPointer<SystemClassTypeObject> SvipWriter::createClassDef_SongTempoListBu
     return obj;
 }
 
-QSharedPointer<SystemClassTypeObject> SvipWriter::createClassDef_SongBeatListBuf(qint32 objectId) {
+QSharedPointer<SystemClassTypeObject>
+    SvipWriter::createClassDef_SongBeatListBuf(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
     classInfo.name = ASSEMBLY_NAME_BEAT_LIST_BUF;
@@ -883,41 +889,408 @@ QSharedPointer<SystemClassTypeObject> SvipWriter::createClassDef_SongBeatListBuf
     return obj;
 }
 
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SingingTrack(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SingingTrack(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_SINGING_TRACK;
+    classInfo.memberCount = 13;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_NOTE_LIST,
+        KEY_NAME_NEED_REFRESH_FLAG,
+        KEY_NAME_EDITED_PITCH_LINE,
+        KEY_NAME_EDITED_VOLUME_LINE,
+        KEY_NAME_EDITED_BREATH_LINE,
+        KEY_NAME_EDITED_GENDER_LINE,
+        // KEY_NAME_EDITED_POWER_LINE,
+        KEY_NAME_REVERB_PRESET,
+        KEY_NAME_TRACK_VOLUME,
+        KEY_NAME_TRACK_PAN,
+        KEY_NAME_TRACK_NAME,
+        KEY_NAME_TRACK_MUTE,
+        KEY_NAME_TRACK_SOLO,
+        NrbfRegistry::toBackingField(KEY_NAME_AI_SINGER_ID),
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Class,
+        // BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::String,
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::String,
+    };
+    memberTypeInfo.additionalInfos = {
+        ClassTypeInfo(ASSEMBLY_NAME_NOTE_LIST, id_SingingToolLibrary),
+        PrimitiveTypeEnumeration::Boolean,
+        ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
+        ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
+        ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
+        ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
+        // ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
+        ClassTypeInfo(ASSEMBLY_NAME_REVERB_PRESET, id_SingingToolLibrary),
+        PrimitiveTypeEnumeration::Double,
+        PrimitiveTypeEnumeration::Double,
+        {},
+        PrimitiveTypeEnumeration::Boolean,
+        PrimitiveTypeEnumeration::Boolean,
+        {},
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolLibrary;
+    return obj;
 }
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_InstrumentTrack(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+
+QSharedPointer<UserClassTypeObject>
+    SvipWriter::createClassDef_InstrumentTrack(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_INSTRUMENT_TRACK;
+    classInfo.memberCount = 10;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_TRACK_VOLUME,
+        KEY_NAME_TRACK_PAN,
+        KEY_NAME_TRACK_NAME,
+        KEY_NAME_TRACK_MUTE,
+        KEY_NAME_TRACK_SOLO,
+        NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_RATE),
+        NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_COUNT),
+        NrbfRegistry::toBackingField(KEY_NAME_CHANNEL_COUNT),
+        NrbfRegistry::toBackingField(KEY_NAME_OFFSET_IN_POS),
+        NrbfRegistry::toBackingField(KEY_NAME_INSTRUMENT_FILE_PATH),
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::String,    BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::String,
+    };
+    memberTypeInfo.additionalInfos = {
+        PrimitiveTypeEnumeration::Double,
+        PrimitiveTypeEnumeration::Double,
+        {},
+        PrimitiveTypeEnumeration::Boolean,
+        PrimitiveTypeEnumeration::Boolean,
+        PrimitiveTypeEnumeration::Double,
+        PrimitiveTypeEnumeration::Int32,
+        PrimitiveTypeEnumeration::Int32,
+        PrimitiveTypeEnumeration::Int32,
+        {},
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolLibrary;
+    return obj;
 }
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongTempo(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongTempo(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_SONG_TEMPO;
+    classInfo.memberCount = 3;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_TEMPO_POS,
+        KEY_NAME_TEMPO,
+        NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive,
+    };
+    memberTypeInfo.additionalInfos = {
+        PrimitiveTypeEnumeration::Int32,
+        PrimitiveTypeEnumeration::Int32,
+        PrimitiveTypeEnumeration::Boolean,
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    return obj;
 }
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongBeat(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongBeat(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_SONG_BEAT;
+    classInfo.memberCount = 3;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_BAR_INDEX,
+        KEY_NAME_BEAT_SIZE,
+        NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Primitive,
+    };
+    memberTypeInfo.additionalInfos = {
+        PrimitiveTypeEnumeration::Int32,
+        ClassTypeInfo(ASSEMBLY_NAME_BEAT_SIZE, id_SingingToolModel),
+        PrimitiveTypeEnumeration::Boolean,
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolModel;
+    return obj;
 }
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_NoteList(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_NoteList(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_NOTE_LIST;
+    classInfo.memberCount = 2;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_SERIAL_LIST_BUF,
+        KEY_NAME_SERIAL_LIST_BUF_1,
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::SystemClass,
+        BinaryTypeEnumeration::SystemClass,
+    };
+    memberTypeInfo.additionalInfos = {
+        QString(ASSEMBLY_NAME_BEAT_LIST_BUF),
+        QString(ASSEMBLY_NAME_BEAT_LIST_BUF),
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolLibrary;
+    return obj;
 }
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_LineParam(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_LineParam(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_LINE_PARAM;
+    classInfo.memberCount = 1;
+    classInfo.memberNames = QStringList({KEY_NAME_LINE_PARAM});
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {BinaryTypeEnumeration::PrimitiveArray};
+    memberTypeInfo.additionalInfos = {PrimitiveTypeEnumeration::Byte};
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolModel;
+    return obj;
 }
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_BeatSize(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_BeatSize(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_BEAT_SIZE;
+    classInfo.memberCount = 2;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_BEAT_SIZE_X,
+        KEY_NAME_BEAT_SIZE_Y,
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive,
+    };
+    memberTypeInfo.additionalInfos = {
+        PrimitiveTypeEnumeration::Int32,
+        PrimitiveTypeEnumeration::Int32,
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    return obj;
 }
-QSharedPointer<SystemClassTypeObject> SvipWriter::createClassDef_NoteListBuf(qint32 objectId) {
-    return QSharedPointer<SystemClassTypeObject>();
+
+QSharedPointer<SystemClassTypeObject>
+    SvipWriter::createClassDef_NoteListBuf(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_NOTE_LIST_BUF;
+    classInfo.memberCount = 3;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_LIST_ITEMS,
+        KEY_NAME_LIST_SIZE,
+        KEY_NAME_LIST_VERSION,
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive,
+    };
+    memberTypeInfo.additionalInfos = {
+        ClassTypeInfo(ASSEMBLY_NAME_NOTE_ARRAY, id_SingingToolModel),
+        PrimitiveTypeEnumeration::Int32,
+        PrimitiveTypeEnumeration::Int32,
+    };
+
+    auto obj = QSharedPointer<SystemClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    return obj;
 }
+
 QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_Note(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_NOTE;
+    classInfo.memberCount = 11;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_NOTE_START_POS,
+        KEY_NAME_NOTE_WIDTH_POS,
+        KEY_NAME_NOTE_KEY_INDEX,
+        KEY_NAME_NOTE_LYRIC,
+        KEY_NAME_NOTE_PRONOUNCING,
+        KEY_NAME_NOTE_HEAD_TAG,
+        NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+        NrbfRegistry::toBackingField(KEY_NAME_NOTE_PHONEME_INFO),
+        NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT),
+        NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO),
+        NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO),
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::String,
+        BinaryTypeEnumeration::String,    BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Class,
+    };
+    memberTypeInfo.additionalInfos = {
+        PrimitiveTypeEnumeration::Int32,
+        PrimitiveTypeEnumeration::Int32,
+        PrimitiveTypeEnumeration::Int32,
+        {},
+        {},
+        ClassTypeInfo(ASSEMBLY_NAME_NOTE_HEAD_TAG, id_SingingToolModel),
+        PrimitiveTypeEnumeration::Boolean,
+        ClassTypeInfo(ASSEMBLY_NAME_NOTE_PHONEME_INFO, id_SingingToolModel),
+        PrimitiveTypeEnumeration::Int32,
+        ClassTypeInfo(ASSEMBLY_NAME_VIBRATO_STYLE, id_SingingToolModel),
+        ClassTypeInfo(ASSEMBLY_NAME_VIBRATO_PERCENT_INFO, id_SingingToolModel),
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolModel;
+    return obj;
 }
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_NotePhoneInfo(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+
+QSharedPointer<UserClassTypeObject>
+    SvipWriter::createClassDef_NotePhoneInfo(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_NOTE_PHONEME_INFO;
+    classInfo.memberCount = 2;
+    classInfo.memberNames = QStringList({
+        NrbfRegistry::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
+        NrbfRegistry::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive,
+    };
+    memberTypeInfo.additionalInfos = {
+        PrimitiveTypeEnumeration::Single,
+        PrimitiveTypeEnumeration::Single,
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolModel;
+    return obj;
 }
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_VibratoStyle(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+
+QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_VibratoStyle(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_VIBRATO_PERCENT_INFO;
+    classInfo.memberCount = 3;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_VIBRATO_AMP_LINE,
+        KEY_NAME_VIBRATO_FREQ_LINE,
+        NrbfRegistry::toBackingField(KEY_NAME_VIBRATO_ANTI_PHASE),
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Primitive,
+    };
+    memberTypeInfo.additionalInfos = {
+        ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
+        ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
+        PrimitiveTypeEnumeration::Boolean,
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolModel;
+    return obj;
 }
-QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_VibratoPercentInfo(qint32 objectId) {
-    return QSharedPointer<UserClassTypeObject>();
+
+QSharedPointer<UserClassTypeObject>
+    SvipWriter::createClassDef_VibratoPercentInfo(qint32 objectId) const {
+    ClassInfo classInfo;
+    classInfo.objectId = objectId;
+    classInfo.name = ASSEMBLY_NAME_VIBRATO_PERCENT_INFO;
+    classInfo.memberCount = 2;
+    classInfo.memberNames = QStringList({
+        KEY_NAME_VIBRATO_START_PERCENT,
+        KEY_NAME_VIBRATO_END_PERCENT,
+    });
+
+    MemberTypeInfo memberTypeInfo;
+    memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive,
+    };
+    memberTypeInfo.additionalInfos = {
+        PrimitiveTypeEnumeration::Single,
+        PrimitiveTypeEnumeration::Single,
+    };
+
+    auto obj = QSharedPointer<UserClassTypeObject>::create();
+    obj->classInfo = std::move(classInfo);
+    obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolModel;
+    return obj;
 }
 
 QSharedPointer<DeferredReferenceObject> SvipWriter::createReference(qint32 id) {

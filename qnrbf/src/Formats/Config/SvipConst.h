@@ -49,6 +49,7 @@ const char ASSEMBLY_NAME_VIBRATO_STYLE[] = "SingingTool.Model.VibratoStyle";
 const char ASSEMBLY_NAME_ITRACK_ARRAY[] = "SingingTool.Model.ITrack[]";
 const char ASSEMBLY_NAME_SONG_TEMPO_ARRAY[] = "SingingTool.Model.SingingGeneralConcept.SongTempo[]";
 const char ASSEMBLY_NAME_SONG_BEAT_ARRAY[] = "SingingTool.Model.SingingGeneralConcept.SongBeat[]";
+const char ASSEMBLY_NAME_NOTE_ARRAY[] = "SingingTool.Model.Note[]";
 
 // AppModel keys
 const char KEY_NAME_ACTUAL_PROJECT_FILE_PATH[] = "ActualProjectFilePath";

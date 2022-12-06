@@ -1,4 +1,4 @@
-project(qnrbf LANGUAGES CXX)
+project(qnrbf LANGUAGES CXX VERSION 0.0.1.1)
 
 set(_qt_libs)
 set(_headers)
@@ -40,4 +40,22 @@ if(QNRBF_BUILD_STATIC)
     target_include_directories(${QNRBF_TARGET_NAME} PUBLIC src)
 else()
     target_include_directories(${QNRBF_TARGET_NAME} PRIVATE src)
+endif()
+
+# Add embedded resources
+if(WIN32)
+    set(WIN32_EXPORT_NAME ${QNRBF_TARGET_NAME})
+    set(WIN32_COPYRIGHT_START_YEAR "2020")
+    set(WIN32_COPYRIGHT_END_YEAR "2022")
+    set(WIN32_AUTHOR_NAME "Sine Striker")
+    set(WIN32_FILE_DESC "QNrbfFormat")
+    set(WIN32_PRODUCT_NAME "QNrbfFormat")
+    configure_file(
+            res/win32/Win32DllRes.rc.in
+            ${CMAKE_CURRENT_BINARY_DIR}/res.rc
+            @ONLY
+    )
+    target_sources(${QNRBF_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/res.rc)
+elseif(APPLE)
+
 endif()

@@ -16,4 +16,4 @@ C++/Qt library to read/write MS-NRBF.
   + Extract MS-NRBF data structure to json file
 
 + Svip
-  + Deserialize XStudio project file
+  + Deserialize XStudio Singers (not 3) project file

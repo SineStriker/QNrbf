@@ -5,6 +5,12 @@
 
 QNRBF_BEGIN_NAMESPACE
 
+// Library names
+const char LIBRARY_NAME_SINGING_TOOL_MODEL[] =
+    "SingingTool.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+const char LIBRARY_NAME_SINGING_TOOL_LIBRARY[] =
+    "SingingTool.Library, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+
 // Class type names
 const char ASSEMBLY_NAME_APP_MODEL[] = "SingingTool.Model.AppModel";
 const char ASSEMBLY_NAME_BEAT_LIST[] =
@@ -42,6 +48,7 @@ const char ASSEMBLY_NAME_VIBRATO_PERCENT_INFO[] = "SingingTool.Model.VibratoPerc
 const char ASSEMBLY_NAME_VIBRATO_STYLE[] = "SingingTool.Model.VibratoStyle";
 
 // AppModel keys
+const char KEY_NAME_ACTUAL_PROJECT_FILE_PATH[] = "ActualProjectFilePath";
 const char KEY_NAME_PROJECT_FILE_PATH[] = "ProjectFilePath";
 const char KEY_NAME_QUANTIZE[] = "_quantize";
 const char KEY_NAME_IS_TRIPLET[] = "_isTriplet";

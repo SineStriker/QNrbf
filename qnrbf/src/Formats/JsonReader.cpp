@@ -350,6 +350,40 @@ QJsonValue JsonReader::dfs_shallow() {
                 }));
             classObj.insert("libraryId", classRef->libraryId);
 
+            QJsonArray memberTypeInfoArr;
+            const auto &binaryTypes = classRef->memberTypeInfo.binaryTypeEnums;
+            const auto &remotingTypes = classRef->memberTypeInfo.additionalInfos;
+            for (int i = 0; i < binaryTypes.size(); ++i) {
+                QJsonObject memberObj;
+                memberObj.insert("binaryType", QNrbf::Parser::strBinaryTypeEnum(binaryTypes.at(i)));
+
+                const auto &remotingType = remotingTypes.at(i);
+
+                QJsonValue infoValue(QJsonValue::Null);
+                switch (remotingType.type()) {
+                    case QNrbf::RemotingTypeInfo::PrimitiveType:
+                        infoValue =
+                            QNrbf::Parser::strPrimitiveTypeEnum(remotingType.toPrimitiveTypeEnum());
+                        break;
+                    case QNrbf::RemotingTypeInfo::String:
+                        infoValue = remotingType.toString();
+                        break;
+                    case QNrbf::RemotingTypeInfo::Class: {
+                        auto classTypeInfo = remotingType.toClassTypeInfo();
+                        infoValue = QJsonObject({{"typeName", classTypeInfo.typeName},
+                                                 {"libraryId", classTypeInfo.libraryId}});
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                memberObj.insert("infoAddition", infoValue);
+
+                memberTypeInfoArr.append(memberObj);
+            }
+            classObj.insert("memberTypeInfo", memberTypeInfoArr);
+
             allClasses.insert(QString("%1").arg(it.key(), 4, 10, QLatin1Char('0')), classObj);
         }
     }

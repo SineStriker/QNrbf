@@ -23,7 +23,7 @@ public:
         ObjectList,
     };
 
-    AbstractObject(Type type);
+    explicit AbstractObject(Type type);
     virtual ~AbstractObject();
 
     inline Type type() const {

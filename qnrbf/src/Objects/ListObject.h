@@ -7,7 +7,7 @@ QNRBF_BEGIN_NAMESPACE
 
 class QNRBF_API ListObject : public AbstractObject {
 public:
-    ListObject(Type type);
+    explicit ListObject(Type type);
 
     QList<int> lengths;
     QList<int> lowerBounds;

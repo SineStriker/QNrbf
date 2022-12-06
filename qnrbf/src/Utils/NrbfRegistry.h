@@ -2,8 +2,8 @@
 #define QNRBFFORMAT_NRBFREGISTRY_H
 
 #include <QDataStream>
-#include <QHash>
 #include <QDebug>
+#include <QMap>
 
 #include "Common/PrimitiveValue.h"
 #include "Common/PrimitiveValueArray.h"
@@ -23,9 +23,9 @@ public:
     ObjectRef findReference(qint32 id) const;
 
     // Registry
-    QHash<qint32, ObjectRef> objectsById;
-    QHash<qint32, ClassRef> classesById;
-    QHash<qint32, QString> libraries;
+    QMap<qint32, ObjectRef> objectsById;
+    QMap<qint32, ClassRef> classesById;
+    QMap<qint32, QString> libraries;
 
     // Header
     QSharedPointer<SerializationHeader> header;

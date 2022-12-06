@@ -19,7 +19,7 @@ public:
         SystemWithTypes = System | WithTypes,
     };
 
-    ClassMemberObject(ClassType t);
+    explicit ClassMemberObject(ClassType t);
 
     ClassInfo classInfo;
     MemberTypeInfo memberTypeInfo;

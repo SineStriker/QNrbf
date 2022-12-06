@@ -8,8 +8,8 @@ QNRBF_BEGIN_NAMESPACE
 class QNRBF_INTERNAL ObjectListObject : public ListObject {
 public:
     ObjectListObject();
-    explicit ObjectListObject(const QList<ObjectRef> &values);
-    explicit ObjectListObject(QList<ObjectRef> &&values) noexcept;
+    ObjectListObject(const QList<ObjectRef> &values);
+    ObjectListObject(QList<ObjectRef> &&values) noexcept;
 
     QList<ObjectRef> values;
 };

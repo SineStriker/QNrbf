@@ -22,6 +22,8 @@ enum class BinaryTypeEnumeration : quint8 {
 
 namespace Parser {
 
+    QNRBF_INTERNAL QString strBinaryTypeEnum(BinaryTypeEnumeration type);
+
     QNRBF_INTERNAL bool readBinaryTypeEnum(BinaryTypeEnumeration &out, QDataStream &in);
 
 };

@@ -17,6 +17,7 @@ public:
     qint32 nullCount;
 
     bool read(QDataStream &in, bool is256);
+    bool write(QDataStream &out, bool is256) const;
 };
 
 QNRBF_END_NAMESPACE

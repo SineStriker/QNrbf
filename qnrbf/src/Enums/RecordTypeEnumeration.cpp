@@ -89,4 +89,12 @@ bool Parser::readRecordTypeEnum(RecordTypeEnumeration &out, QDataStream &in) {
     }
 }
 
+bool Parser::writeRecordTypeEnum(RecordTypeEnumeration in, QDataStream &out) {
+    out << quint8(in);
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

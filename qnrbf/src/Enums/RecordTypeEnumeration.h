@@ -38,6 +38,8 @@ namespace Parser {
 
     QNRBF_INTERNAL bool readRecordTypeEnum(RecordTypeEnumeration &out, QDataStream &in);
 
+    QNRBF_INTERNAL bool writeRecordTypeEnum(RecordTypeEnumeration in, QDataStream &out);
+
 }; // namespace Parser
 
 QNRBF_END_NAMESPACE

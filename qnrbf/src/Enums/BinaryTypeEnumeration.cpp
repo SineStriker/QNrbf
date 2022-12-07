@@ -36,8 +36,22 @@ QString Parser::strBinaryTypeEnum(BinaryTypeEnumeration type) {
 }
 
 bool Parser::readBinaryTypeEnum(BinaryTypeEnumeration &out, QDataStream &in) {
-    in >> out;
+    quint8 binaryTypeEnum;
+    in >> binaryTypeEnum;
     if (in.status() != QDataStream::Ok) {
+        return false;
+    }
+    if (binaryTypeEnum > (quint8) BinaryTypeEnumeration::PrimitiveArray) {
+        in.setStatus(QDataStream::ReadCorruptData);
+        return false;
+    }
+    out = (BinaryTypeEnumeration) binaryTypeEnum;
+    return true;
+}
+
+bool Parser::writeBinaryTypeEnum(BinaryTypeEnumeration in, QDataStream &out){
+    out << quint8(in);
+    if (out.status() != QDataStream::Ok) {
         return false;
     }
     return true;

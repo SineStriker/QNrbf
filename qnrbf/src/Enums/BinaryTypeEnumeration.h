@@ -26,6 +26,8 @@ namespace Parser {
 
     QNRBF_INTERNAL bool readBinaryTypeEnum(BinaryTypeEnumeration &out, QDataStream &in);
 
+    QNRBF_INTERNAL bool writeBinaryTypeEnum(BinaryTypeEnumeration in, QDataStream &out);
+
 };
 
 QNRBF_END_NAMESPACE

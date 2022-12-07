@@ -20,4 +20,15 @@ bool SerializationHeader::read(QDataStream &in) {
     return true;
 }
 
+bool SerializationHeader::write(QDataStream &out) {
+    out << rootId;
+    out << headerId;
+    out << majorVersion;
+    out << minorVersion;
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return false;
+}
+
 QNRBF_END_NAMESPACE

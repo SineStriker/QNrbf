@@ -37,6 +37,7 @@ public:
     ClassTypeInfo toClassTypeInfo() const;
 
     bool read(QDataStream &in, BinaryTypeEnumeration binaryTypeEnum);
+    bool write(QDataStream &out)const;
 
 protected:
     QSharedDataPointer<RemotingTypeInfoData> d;

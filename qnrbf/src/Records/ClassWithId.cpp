@@ -16,4 +16,13 @@ bool ClassWithId::read(QDataStream &in) {
     return true;
 }
 
+bool ClassWithId::write(QDataStream &out) const {
+    out << objectId;
+    out << metadataId;
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

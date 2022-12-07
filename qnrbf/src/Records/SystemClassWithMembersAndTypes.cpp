@@ -15,4 +15,14 @@ bool SystemClassWithMembersAndTypes::read(QDataStream &in) {
     return true;
 }
 
+bool QNrbf::SystemClassWithMembersAndTypes::write(QDataStream &out) const {
+    if (!classInfo.write(out)) {
+        return false;
+    }
+    if (!memberTypeInfo.write(out)) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

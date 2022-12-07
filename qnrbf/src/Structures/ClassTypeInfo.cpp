@@ -23,4 +23,15 @@ bool ClassTypeInfo::read(QDataStream &in) {
     return true;
 }
 
+bool ClassTypeInfo::write(QDataStream &out) const {
+    if (!Parser::writeString(typeName, out)) {
+        return false;
+    }
+    out << libraryId;
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

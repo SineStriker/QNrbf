@@ -15,6 +15,7 @@ public:
     QList<RemotingTypeInfo> additionalInfos;
 
     bool read(QDataStream &in, qint32 memberCount);
+    bool write(QDataStream &out) const;
 };
 
 QNRBF_END_NAMESPACE

@@ -27,4 +27,21 @@ bool MemberTypeInfo::read(QDataStream &in, qint32 memberCount) {
     return true;
 }
 
+bool MemberTypeInfo::write(QDataStream &out) const {
+    // Write enums
+    for (const auto &item : qAsConst(binaryTypeEnums)) {
+        if (!Parser::writeBinaryTypeEnum(item, out)) {
+            return false;
+        }
+    }
+
+    // Read additional infos
+    for (const auto &item : qAsConst(additionalInfos)) {
+        if (!item.write(out)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

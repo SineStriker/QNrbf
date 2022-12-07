@@ -456,4 +456,88 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
     return true;
 }
 
+bool PrimitiveValue::write(QDataStream &out) const {
+    switch (d->type) {
+        case PrimitiveTypeEnumeration::Boolean:
+        case PrimitiveTypeEnumeration::Byte: {
+            out << d->data.uc;
+            break;
+        }
+        case PrimitiveTypeEnumeration::Char: {
+            Parser::writeUtf8Char(*d->data.ch, out);
+            break;
+        }
+        case PrimitiveTypeEnumeration::Double: {
+            out << d->data.d;
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int16: {
+            out << d->data.s;
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int32: {
+            out << d->data.i;
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int64: {
+            out << d->data.l;
+            break;
+        }
+        case PrimitiveTypeEnumeration::SByte: {
+            out << d->data.c;
+            break;
+        }
+        case PrimitiveTypeEnumeration::Single: {
+            float val = d->data.f;
+            out.writeRawData((char *) &val, sizeof(val));
+            break;
+        }
+        case PrimitiveTypeEnumeration::TimeSpan: {
+            Parser::writeTimeSpan(*d->data.ts, out);
+            break;
+        }
+        case PrimitiveTypeEnumeration::DateTime: {
+            Parser::writeDateTime(*d->data.dt, out);
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt16: {
+            out << d->data.us;
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt32: {
+            out << d->data.u;
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt64: {
+            out << d->data.ul;
+            break;
+        }
+        case PrimitiveTypeEnumeration::Decimal: {
+            Parser::writeDecimal(*d->data.dec, out);
+            break;
+        }
+        case PrimitiveTypeEnumeration::String: {
+            Parser::writeString(*d->data.str, out);
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
+}
+
+bool PrimitiveValue::writeWithType(QDataStream &out) const {
+    if (!Parser::writePrimitiveTypeEnum(d->type, out)) {
+        return false;
+    }
+    if (!write(out)) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

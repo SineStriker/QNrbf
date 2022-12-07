@@ -17,6 +17,7 @@ public:
     QString libraryName;
 
     bool read(QDataStream &in);
+    bool write(QDataStream &out);
 };
 
 QNRBF_END_NAMESPACE

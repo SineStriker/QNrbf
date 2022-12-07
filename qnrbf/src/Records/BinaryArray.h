@@ -24,6 +24,7 @@ public:
     RemotingTypeInfo additionInfo;
 
     bool read(QDataStream &in);
+    bool write(QDataStream &out) const;
 };
 
 QNRBF_END_NAMESPACE

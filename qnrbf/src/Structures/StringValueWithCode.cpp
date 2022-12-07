@@ -18,4 +18,14 @@ bool StringValueWithCode::read(QDataStream &in) {
     return true;
 }
 
+bool StringValueWithCode::write(QDataStream &out) const {
+    if (!Parser::writePrimitiveTypeEnum(primitiveTypeEnum, out)) {
+        return false;
+    }
+    if (!Parser::writeString(stringValue, out)) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

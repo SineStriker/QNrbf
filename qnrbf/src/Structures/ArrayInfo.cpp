@@ -16,4 +16,13 @@ bool ArrayInfo::read(QDataStream &in) {
     return true;
 }
 
+bool QNrbf::ArrayInfo::write(QDataStream &out) const {
+    out << objectId;
+    out << length;
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

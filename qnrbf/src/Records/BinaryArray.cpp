@@ -57,4 +57,8 @@ bool BinaryArray::read(QDataStream &in) {
     return true;
 }
 
+bool QNrbf::BinaryArray::write(QDataStream &out) const {
+    return false;
+}
+
 QNRBF_END_NAMESPACE

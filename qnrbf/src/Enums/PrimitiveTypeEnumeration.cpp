@@ -83,4 +83,12 @@ bool Parser::readPrimitiveTypeEnum(PrimitiveTypeEnumeration &out, QDataStream &i
     return true;
 }
 
+bool Parser::writePrimitiveTypeEnum(PrimitiveTypeEnumeration in, QDataStream &out){
+    out << quint8(in);
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

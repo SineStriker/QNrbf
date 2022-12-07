@@ -104,14 +104,10 @@ bool SvipWriter::save() {
             in << node.Value;
         }
 
-        QList<quint8> arr;
-        arr.reserve(bytes.size());
-        for (const auto &byte : bytes) {
-            arr.append(byte);
-        }
-
         auto objId = idDeq();
-        reg.objectsById.insert(objId, createPrimitiveList(arr, objId));
+        reg.objectsById.insert(
+            objId,
+            createPrimitiveList(PrimitiveValueArray(bytes, PrimitiveTypeEnumeration::Byte), objId));
     };
 
     // Reserved ids

@@ -28,4 +28,8 @@ bool BinaryMethodCall::read(QDataStream &in) {
     return true;
 }
 
+bool BinaryMethodCall::write(QDataStream &out) const {
+    return false;
+}
+
 QNRBF_END_NAMESPACE

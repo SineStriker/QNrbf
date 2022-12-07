@@ -60,12 +60,17 @@ public:
 
     void *data();
     const void *constData() const;
-    inline const void *data() const { return constData(); }
+    inline const void *data() const {
+        return constData();
+    }
 
     QString asString() const;
 
     bool read(QDataStream &in);
     bool read(QDataStream &in, PrimitiveTypeEnumeration primitiveTypeEnum);
+
+    bool write(QDataStream &out) const;
+    bool writeWithType(QDataStream &out) const;
 
 protected:
     QSharedDataPointer<PrimitiveValueData> d;

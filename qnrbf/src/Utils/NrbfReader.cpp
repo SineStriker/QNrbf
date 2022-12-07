@@ -111,7 +111,7 @@ bool NrbfReader::readRecord(ObjectRef *out) {
                     _status = Failed;
                 }
             } else {
-                qDebug() << QString("QNrbfStream: multiple stream header, start from %1")
+                qDebug() << QString("NrbfReader: multiple stream header, start from %1")
                                 .arg(posToStr(startPos));
                 _status = MultipleHead;
             }
@@ -199,7 +199,7 @@ bool NrbfReader::readRecord(ObjectRef *out) {
                 // Not implemented
                 // ...
 
-                qDebug().noquote() << QString("QNrbfStream: BinaryMethodCall not implemented...");
+                qDebug().noquote() << QString("NrbfReader: BinaryMethodCall not implemented...");
                 _status = UnsupportedRecord;
             }
             break;
@@ -212,7 +212,7 @@ bool NrbfReader::readRecord(ObjectRef *out) {
                 // Not implemented
                 // ...
 
-                qDebug().noquote() << QString("QNrbfStream: BinaryMethodReturn not implemented...");
+                qDebug().noquote() << QString("NrbfReader: BinaryMethodReturn not implemented...");
                 _status = UnsupportedRecord;
             }
             break;
@@ -266,7 +266,7 @@ bool NrbfReader::readRecord(ObjectRef *out) {
 
     if (_status == Failed) {
         qDebug().noquote().noquote()
-            << QString("QNrbfStream: read %1 error at %2, start from %3")
+            << QString("NrbfReader: read %1 error at %2, start from %3")
                    .arg(Parser::strRecordTypeEnum((RecordTypeEnumeration) recordType),
                         posToStr(dev->pos()), posToStr(startPos));
     }
@@ -332,7 +332,7 @@ bool NrbfReader::readUntypedMembers(const MappingRef &acceptor, const QString &c
         }
     }
 
-    qDebug().noquote() << QString("QNrbfStream: Unsupported untyped member: %1").arg(className);
+    qDebug().noquote() << QString("NrbfReader: Unsupported untyped member: %1").arg(className);
     return false;
 
 #undef ADD_MEMBER

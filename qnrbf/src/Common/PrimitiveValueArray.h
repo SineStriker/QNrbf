@@ -37,6 +37,8 @@ public:
     PrimitiveValueArray(const QList<quint64> &uls);
     PrimitiveValueArray(const QStringList &strs);
 
+    PrimitiveValueArray(const QByteArray &bytes, PrimitiveTypeEnumeration type);
+
     bool isValid() const;
     PrimitiveTypeEnumeration type() const;
     int size() const;
@@ -58,14 +60,21 @@ public:
     QList<quint64> toUInt64List() const;
     QStringList toStringList() const;
 
+    QByteArray toByteArray() const;
+
     void *data();
     const void *constData() const;
-    inline const void *data() const { return constData(); }
+    inline const void *data() const {
+        return constData();
+    }
 
     QStringList asStringList() const;
 
     bool read(QDataStream &in, int size);
     bool read(QDataStream &in, int size, PrimitiveTypeEnumeration primitiveTypeEnum);
+
+    bool write(QDataStream &out) const;
+    bool writeWithType(QDataStream &out) const;
 
 protected:
     QSharedDataPointer<PrimitiveValueArrayData> d;

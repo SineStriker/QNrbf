@@ -12,4 +12,8 @@ bool ValueWithCode::read(QDataStream &in) {
     return true;
 }
 
+bool QNrbf::ValueWithCode::write(QDataStream &out) const {
+    return value.write(out);
+}
+
 QNRBF_END_NAMESPACE

@@ -93,4 +93,27 @@ bool RemotingTypeInfo::read(QDataStream &in, BinaryTypeEnumeration binaryTypeEnu
     return true;
 }
 
+bool RemotingTypeInfo::write(QDataStream &out) const {
+    switch (d->type) {
+        case PrimitiveType:
+            if (!Parser::writePrimitiveTypeEnum(d->data.pte, out)) {
+                return false;
+            }
+            break;
+        case String:
+            if (!Parser::writeString(*d->data.str, out)) {
+                return false;
+            }
+            break;
+        case Class:
+            if (!d->data.cti->write(out)) {
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

@@ -19,4 +19,15 @@ bool BinaryLibrary::read(QDataStream &in) {
     return true;
 }
 
+bool BinaryLibrary::write(QDataStream &out) {
+    out << libraryId;
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    if (!Parser::writeString(libraryName, out)) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

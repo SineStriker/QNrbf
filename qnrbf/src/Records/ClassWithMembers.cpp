@@ -17,4 +17,15 @@ bool ClassWithMembers::read(QDataStream &in) {
     return true;
 }
 
+bool ClassWithMembers::write(QDataStream &out) const {
+    if (!classInfo.write(out)) {
+        return false;
+    }
+    out << libraryId;
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

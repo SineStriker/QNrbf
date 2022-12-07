@@ -20,5 +20,17 @@ bool ObjectNullMultiple::read(QDataStream &in, bool is256) {
     }
     return true;
 }
+bool ObjectNullMultiple::write(QDataStream &out, bool is256) const {
+    if (is256) {
+        quint8 ch = nullCount;
+        out << ch;
+    } else {
+        out << nullCount;
+    }
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
+}
 
 QNRBF_END_NAMESPACE

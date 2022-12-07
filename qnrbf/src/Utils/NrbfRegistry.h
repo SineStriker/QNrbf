@@ -66,6 +66,9 @@ public:
     bool findPrimitiveList(const ObjectMap &objMap, const QString &key,
                            PrimitiveValueArray &out) const;
 
+    bool findByteArray(const ObjectMap &objMap, const QString &key, PrimitiveTypeEnumeration type,
+                       QByteArray &out) const;
+
     template <class T>
     bool findPrimitiveList(const ObjectMap &objMap, const QString &key,
                            PrimitiveTypeEnumeration type, QList<T> &out) const {

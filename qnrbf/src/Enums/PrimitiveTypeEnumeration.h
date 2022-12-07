@@ -37,6 +37,8 @@ namespace Parser {
 
     QNRBF_INTERNAL bool readPrimitiveTypeEnum(PrimitiveTypeEnumeration &out, QDataStream &in);
 
+    QNRBF_INTERNAL bool writePrimitiveTypeEnum(PrimitiveTypeEnumeration in, QDataStream &out);
+
 }; // namespace Parser
 
 QNRBF_END_NAMESPACE

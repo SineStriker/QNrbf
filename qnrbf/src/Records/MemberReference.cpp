@@ -16,4 +16,12 @@ bool MemberReference::read(QDataStream &in) {
     return true;
 }
 
+bool MemberReference::write(QDataStream &out) const {
+    out << idRef;
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

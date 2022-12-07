@@ -114,6 +114,23 @@ bool NrbfRegistry::findPrimitiveList(const ObjectMap &objMap, const QString &key
     return true;
 }
 
+bool NrbfRegistry::findByteArray(const NrbfRegistry::ObjectMap &objMap, const QString &key,
+                                 PrimitiveTypeEnumeration type, QByteArray &out) const {
+    PrimitiveValueArray val;
+    if (!findPrimitiveList(objMap, key, val)) {
+        return false;
+    }
+    if (val.type() == PrimitiveTypeEnumeration::None) {
+        out.clear();
+        return true;
+    }
+    if (val.type() != type) {
+        return false;
+    }
+    out = val.toByteArray();
+    return true;
+}
+
 bool NrbfRegistry::findObjectList(const ObjectMap &objMap, const QString &key,
                                   QList<ObjectRef> &out) const {
     const ObjectRef &objRef = findRealObject(objMap, key);

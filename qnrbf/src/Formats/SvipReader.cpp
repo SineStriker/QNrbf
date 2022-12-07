@@ -468,20 +468,15 @@ bool SvipReader::readITrack(const QMap<QString, ObjectRef> &members, XSITrack &o
 bool SvipReader::readLineParam(const QMap<QString, ObjectRef> &members, XSLineParam &out) {
     /* Use custom deserialization strategy */
 
-    QList<quint8> bytes;
-    if (!reg.findPrimitiveList(members, KEY_NAME_LINE_PARAM, PrimitiveTypeEnumeration::Byte,
-                               bytes)) {
+    QByteArray data;
+    if (!reg.findByteArray(members, KEY_NAME_LINE_PARAM, PrimitiveTypeEnumeration::Byte, data)) {
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_LINE_PARAM);
     }
 
     // Skip if empty
-    if (bytes.isEmpty()) {
+    if (data.isEmpty()) {
         return true;
     }
-
-    QByteArray data;
-    data.resize(bytes.size());
-    std::copy(bytes.begin(), bytes.end(), data.begin());
 
     QDataStream stream(&data, QIODevice::ReadOnly);
     stream.setByteOrder(QDataStream::LittleEndian);

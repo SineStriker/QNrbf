@@ -6,10 +6,11 @@ MemberPrimitiveTyped::MemberPrimitiveTyped() {
 }
 
 bool MemberPrimitiveTyped::read(QDataStream &in) {
-    if (!value.read(in)) {
-        return false;
-    }
-    return true;
+    return value.read(in);
+}
+
+bool MemberPrimitiveTyped::write(QDataStream &out) const {
+    return value.write(out);
 }
 
 QNRBF_END_NAMESPACE

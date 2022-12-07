@@ -19,5 +19,16 @@ bool BinaryObjectString::read(QDataStream &in) {
     return true;
 }
 
+bool BinaryObjectString::write(QDataStream &out) const {
+    out << objectId;
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+    if (!Parser::writeString(value, out)) {
+        return false;
+    }
+    return true;
+}
+
 
 QNRBF_END_NAMESPACE

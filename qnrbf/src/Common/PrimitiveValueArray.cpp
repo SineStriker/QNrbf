@@ -114,6 +114,24 @@ PrimitiveValueArray::PrimitiveValueArray(const QStringList &strs)
     COPY(String, QString, str);
 }
 
+PrimitiveValueArray::PrimitiveValueArray(const QByteArray &bytes, PrimitiveTypeEnumeration type)
+    : d(new PrimitiveValueArrayData()) {
+
+    Q_ASSERT(type == PrimitiveTypeEnumeration::Byte || type == PrimitiveTypeEnumeration::SByte);
+
+    if (type == PrimitiveTypeEnumeration::Byte) {
+        d->type = PrimitiveTypeEnumeration::Byte;
+        d->size = bytes.size();
+        d->data.uc = new quint8[bytes.size()];
+        std::copy(bytes.begin(), bytes.end(), d->data.uc);
+    } else {
+        d->type = PrimitiveTypeEnumeration::SByte;
+        d->size = bytes.size();
+        d->data.c = new qint8[bytes.size()];
+        std::copy(bytes.begin(), bytes.end(), d->data.c);
+    }
+}
+
 #undef COPY
 
 bool PrimitiveValueArray::isValid() const {
@@ -203,6 +221,15 @@ QStringList PrimitiveValueArray::toStringList() const {
         res.append(d->data.str[i]);
     }
     return res;
+}
+
+QByteArray PrimitiveValueArray::toByteArray() const {
+    if (d->type == PrimitiveTypeEnumeration::Byte) {
+        return QByteArray(reinterpret_cast<const char *>(d->data.uc), d->size);
+    } else if (d->type == PrimitiveTypeEnumeration::SByte) {
+        return QByteArray(reinterpret_cast<const char *>(d->data.c), d->size);
+    }
+    return QByteArray();
 }
 
 void *PrimitiveValueArray::data() {
@@ -554,6 +581,167 @@ bool PrimitiveValueArray::read(QDataStream &in, int size,
         default: {
             break;
         }
+    }
+    return true;
+}
+
+bool PrimitiveValueArray::write(QDataStream &out) const {
+    out << qint32(d->size);
+    if (out.status() != QDataStream::Ok) {
+        return false;
+    }
+
+    switch (d->type) {
+        case PrimitiveTypeEnumeration::Boolean:
+        case PrimitiveTypeEnumeration::Byte: {
+            for (int i = 0; i < d->size; ++i) {
+                out << d->data.uc[i];
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Char: {
+            for (int i = 0; i < d->size; ++i) {
+                Parser::writeUtf8Char(d->data.ch[i], out);
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Double: {
+            for (int i = 0; i < d->size; ++i) {
+                out << d->data.d[i];
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int16: {
+            for (int i = 0; i < d->size; ++i) {
+                out << d->data.s[i];
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int32: {
+            for (int i = 0; i < d->size; ++i) {
+                out << d->data.i[i];
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Int64: {
+            for (int i = 0; i < d->size; ++i) {
+                out << d->data.l[i];
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::SByte: {
+            for (int i = 0; i < d->size; ++i) {
+                out << d->data.c[i];
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Single: {
+            for (int i = 0; i < d->size; ++i) {
+                float val = d->data.f[i];
+                out.writeRawData((char *) &val, sizeof(val));
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::TimeSpan: {
+            for (int i = 0; i < d->size; ++i) {
+                Parser::writeTimeSpan(d->data.ts[i], out);
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::DateTime: {
+            for (int i = 0; i < d->size; ++i) {
+                Parser::writeDateTime(d->data.dt[i], out);
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt16: {
+            for (int i = 0; i < d->size; ++i) {
+                out << d->data.us[i];
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt32: {
+            for (int i = 0; i < d->size; ++i) {
+                out << d->data.u[i];
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::UInt64: {
+            for (int i = 0; i < d->size; ++i) {
+                out << d->data.ul[i];
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::Decimal: {
+            for (int i = 0; i < d->size; ++i) {
+                Parser::writeDecimal(d->data.dec[i], out);
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveTypeEnumeration::String: {
+            for (int i = 0; i < d->size; ++i) {
+                Parser::writeString(d->data.str[i], out);
+                if (out.status() != QDataStream::Ok) {
+                    return false;
+                }
+            }
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    return true;
+}
+
+bool PrimitiveValueArray::writeWithType(QDataStream &out) const {
+    if (!Parser::writePrimitiveTypeEnum(d->type, out)) {
+        return false;
+    }
+    if (!write(out)) {
+        return false;
     }
     return true;
 }

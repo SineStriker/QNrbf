@@ -25,7 +25,7 @@ RemotingTypeInfo::RemotingTypeInfo(PrimitiveTypeEnumeration pte) : d(new Remotin
     d->data.pte = pte;
 }
 
-RemotingTypeInfo::RemotingTypeInfo(const QString &str) {
+RemotingTypeInfo::RemotingTypeInfo(const QString &str) : d(new RemotingTypeInfoData()) {
     d->type = String;
     d->data.str = new QString(str);
 }

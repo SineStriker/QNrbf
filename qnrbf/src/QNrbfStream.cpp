@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QJsonArray>
+#include <QJsonDocument>
 
 #include "Formats/JsonReader.h"
 #include "Formats/SvipReader.h"
@@ -27,7 +28,11 @@ public:
 void QNrbfStreamPrivate::init() {
     Q_UNUSED(this);
 
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
     q->setByteOrder(QDataStream::LittleEndian);
+#else
+    q->setByteOrder(QDataStream::BigEndian);
+#endif
 }
 
 NrbfRegistry QNrbfStreamPrivate::deserialize() {
@@ -44,6 +49,15 @@ NrbfRegistry QNrbfStreamPrivate::deserialize() {
 
 void QNrbfStreamPrivate::serialize(const NrbfRegistry &reg) {
     Q_UNUSED(this);
+
+    JsonReader reader(reg);
+    if (!reader.load()) {
+        q->setStatus(QDataStream::ReadCorruptData);
+    } else {
+        QJsonDocument doc(reader.jsonObj);
+        auto data = doc.toJson();
+        q->writeRawData(data.data(), data.size());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

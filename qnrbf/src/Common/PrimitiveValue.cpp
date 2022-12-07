@@ -48,7 +48,7 @@ PrimitiveValue::PrimitiveValue(const Decimal &dec) : d(new PrimitiveValueData())
 }
 
 PrimitiveValue::PrimitiveValue(double d) : d(new PrimitiveValueData()) {
-    this->d->type = PrimitiveTypeEnumeration::Decimal;
+    this->d->type = PrimitiveTypeEnumeration::Double;
     this->d->data.d = d;
 }
 

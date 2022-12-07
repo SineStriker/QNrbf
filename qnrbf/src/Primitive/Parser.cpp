@@ -5,6 +5,7 @@
 static const quint8 mask_high1 = 0b10000000;
 static const quint8 mask_low7 = 0b01111111;
 static const quint8 mask_low3 = 0b00000111;
+static const quint32 max_length = 2147483647;
 
 using namespace QNrbf;
 
@@ -124,6 +125,29 @@ bool Parser::readTimeSpan(TimeSpan &out, QDataStream &in) {
 }
 
 bool Parser::writeLengthPrefix(quint32 size, QDataStream &out) {
+    if (size > max_length) {
+        return false;
+    }
+
+    int i = 0;
+    while (size > 0 && i <= 4) {
+        quint8 byte = size & mask_low7;
+        size >>= 7;
+        if (size > 0) {
+            byte |= mask_high1;
+        }
+        out << byte;
+        if (out.status() != QDataStream::Ok) {
+            return false;
+        }
+        i++;
+    }
+    if (size > 0) {
+        out << quint32(size & mask_low3);
+        if (out.status() != QDataStream::Ok) {
+            return false;
+        }
+    }
     return true;
 }
 

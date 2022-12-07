@@ -141,19 +141,23 @@ QJsonValue JsonReader::dfs_shallow() {
                                         {{"type", Parser::strPrimitiveTypeEnum(val->value.type())},
                                          {"value", val->value.asString().toDouble()}}));
                                 break;
-                            default:
+                            default: {
+                                std::string keyStr = objKey.toStdString();
                                 receivers.emplace_back(
                                     objKey,
                                     QJsonObject(
                                         {{"type", Parser::strPrimitiveTypeEnum(val->value.type())},
                                          {"value", val->value.asString()}}));
                                 break;
+                            }
                         }
                         break;
                     }
                     case AbstractObject::String: {
                         auto val = dynamic_cast<StringObject *>(binObj.data());
-                        receivers.emplace_back(objKey, val->value);
+                        receivers.emplace_back(
+                            objKey,
+                            QJsonObject({{"id", val->id}, {"value", val->value}}));
                         break;
                     }
                     case AbstractObject::Null: {

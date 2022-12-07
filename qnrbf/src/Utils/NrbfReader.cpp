@@ -101,8 +101,6 @@ bool NrbfReader::readRecord(ObjectRef *out) {
 
     QSharedPointer<AbstractObject> obj;
 
-    qDebug() << posToStr(startPos) << Parser::strRecordTypeEnum((RecordTypeEnumeration) recordType);
-
     switch (recordType) {
         case (quint8) RecordTypeEnumeration::SerializedStreamHeader: {
             if (reg.header.isNull()) {

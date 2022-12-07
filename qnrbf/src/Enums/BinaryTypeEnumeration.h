@@ -18,6 +18,8 @@ enum class BinaryTypeEnumeration : quint8 {
     ObjectArray = 5,
     StringArray = 6,
     PrimitiveArray = 7,
+    // Placeholder
+    None = 127,
 };
 
 namespace Parser {
@@ -28,7 +30,7 @@ namespace Parser {
 
     QNRBF_INTERNAL bool writeBinaryTypeEnum(BinaryTypeEnumeration in, QDataStream &out);
 
-};
+}; // namespace Parser
 
 QNRBF_END_NAMESPACE
 

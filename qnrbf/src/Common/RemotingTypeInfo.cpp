@@ -4,6 +4,8 @@
 
 #include "private/RemotingTypeInfoData.h"
 
+#include <QJsonObject>
+
 QNRBF_BEGIN_NAMESPACE
 
 RemotingTypeInfo::RemotingTypeInfo() : d(new RemotingTypeInfoData()) {
@@ -114,6 +116,26 @@ bool RemotingTypeInfo::write(QDataStream &out) const {
             break;
     }
     return true;
+}
+
+QJsonValue RemotingTypeInfo::readableTypeInfo() const {
+    QJsonValue infoValue(QJsonValue::Null);
+    switch (d->type) {
+        case QNrbf::RemotingTypeInfo::PrimitiveType:
+            infoValue = QNrbf::Parser::strPrimitiveTypeEnum(d->data.pte);
+            break;
+        case QNrbf::RemotingTypeInfo::String:
+            infoValue = *d->data.str;
+            break;
+        case QNrbf::RemotingTypeInfo::Class: {
+            infoValue = QJsonObject(
+                {{"typeName", d->data.cti->typeName}, {"libraryId", d->data.cti->libraryId}});
+            break;
+        }
+        default:
+            break;
+    }
+    return infoValue;
 }
 
 QNRBF_END_NAMESPACE

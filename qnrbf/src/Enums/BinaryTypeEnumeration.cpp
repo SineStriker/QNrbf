@@ -7,6 +7,9 @@ QNRBF_BEGIN_NAMESPACE
 QString Parser::strBinaryTypeEnum(BinaryTypeEnumeration type) {
     QString res;
     switch (type) {
+        case BinaryTypeEnumeration::None:
+            res = "None";
+            break;
         case BinaryTypeEnumeration::Primitive:
             res = "Primitive";
             break;
@@ -31,6 +34,9 @@ QString Parser::strBinaryTypeEnum(BinaryTypeEnumeration type) {
         case BinaryTypeEnumeration::PrimitiveArray:
             res = "PrimitiveArray";
             break;
+        default:
+            res = QString("Unknown Type %1").arg(qint32(type));
+            break;
     }
     return res;
 }
@@ -49,7 +55,7 @@ bool Parser::readBinaryTypeEnum(BinaryTypeEnumeration &out, QDataStream &in) {
     return true;
 }
 
-bool Parser::writeBinaryTypeEnum(BinaryTypeEnumeration in, QDataStream &out){
+bool Parser::writeBinaryTypeEnum(BinaryTypeEnumeration in, QDataStream &out) {
     out << quint8(in);
     if (out.status() != QDataStream::Ok) {
         return false;

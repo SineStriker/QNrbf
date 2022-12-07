@@ -16,6 +16,16 @@
 
 QNRBF_BEGIN_NAMESPACE
 
+template <class T>
+static QStringList numsToStrs(const QList<T> &list) {
+    QStringList res;
+    res.reserve(list.size());
+    for (const auto &item : list) {
+        res.append(QString::number(item));
+    }
+    return res;
+}
+
 JsonReader::JsonReader(const NrbfRegistry &reg) : reg(reg) {
 }
 
@@ -102,7 +112,7 @@ QJsonValue JsonReader::dfs_shallow() {
                             objKey,
                             QJsonObject(
                                 {{"idRef",
-                                  dynamic_cast<DeferredReferenceObject *>(binObj.data())->id}}));
+                                  dynamic_cast<DeferredReferenceObject *>(binObj.data())->idRef}}));
                         break;
                     }
                     case AbstractObject::Mapping: {
@@ -156,8 +166,7 @@ QJsonValue JsonReader::dfs_shallow() {
                     case AbstractObject::String: {
                         auto val = dynamic_cast<StringObject *>(binObj.data());
                         receivers.emplace_back(
-                            objKey,
-                            QJsonObject({{"id", val->id}, {"value", val->value}}));
+                            objKey, QJsonObject({{"id", val->id}, {"value", val->value}}));
                         break;
                     }
                     case AbstractObject::Null: {
@@ -175,6 +184,7 @@ QJsonValue JsonReader::dfs_shallow() {
                     }
                     case AbstractObject::PrimitiveList: {
                         auto val = dynamic_cast<PrimitiveListObject *>(binObj.data());
+                        auto arrayType = val->hasShapeInfo ? "BinaryArray" : "ArraySinglePrimitive";
                         switch (val->values.type()) {
                             case PrimitiveTypeEnumeration::Byte:
                             case PrimitiveTypeEnumeration::SByte:
@@ -189,7 +199,7 @@ QJsonValue JsonReader::dfs_shallow() {
                                 receivers.emplace_back(
                                     objKey,
                                     QJsonObject(
-                                        {{"array", val->arrayType},
+                                        {{"array", arrayType},
                                          {"type", Parser::strPrimitiveTypeEnum(val->values.type())},
                                          {"values", arr}}));
                                 break;
@@ -204,7 +214,7 @@ QJsonValue JsonReader::dfs_shallow() {
                                 receivers.emplace_back(
                                     objKey,
                                     QJsonObject(
-                                        {{"array", val->arrayType},
+                                        {{"array", arrayType},
                                          {"type", Parser::strPrimitiveTypeEnum(val->values.type())},
                                          {"values", arr}}));
                                 break;
@@ -213,7 +223,7 @@ QJsonValue JsonReader::dfs_shallow() {
                                 receivers.emplace_back(
                                     objKey,
                                     QJsonObject(
-                                        {{"array", val->arrayType},
+                                        {{"array", arrayType},
                                          {"type", Parser::strPrimitiveTypeEnum(val->values.type())},
                                          {"values", QJsonArray::fromStringList(
                                                         val->values.asStringList())}}));
@@ -226,8 +236,9 @@ QJsonValue JsonReader::dfs_shallow() {
                         auto val = dynamic_cast<StringListObject *>(binObj.data());
                         receivers.emplace_back(
                             objKey,
-                            QJsonObject({{"array", val->arrayType},
-                                         {"values", QJsonArray::fromStringList(val->values)}}));
+                            QJsonObject(
+                                {{"array", val->hasShapeInfo ? "BinaryArray" : "ArraySingleString"},
+                                 {"values", QJsonArray::fromStringList(val->values)}}));
                         break;
                     }
                     case AbstractObject::ObjectList: {
@@ -287,11 +298,30 @@ QJsonValue JsonReader::dfs_shallow() {
                             arr.append(nextItem.value);
                         }
                         auto listObj = dynamic_cast<ObjectListObject *>(top.obj);
-                        top.value = QJsonObject({
-                            {"array", listObj->arrayType},
-                            {"values", arr},
-                        });
-
+                        {
+                            QJsonObject valueObj({
+                                {"array",
+                                 listObj->hasShapeInfo ? "BinaryArray" : "ArraySingleObject"},
+                                {"values", arr},
+                            });
+                            if (listObj->hasShapeInfo) {
+                                const auto &info = listObj->shapeInfo;
+                                valueObj.insert(
+                                    "info",
+                                    QJsonObject({
+                                        {"binaryArrayType", Parser::strBinaryArrayTypeEnumeration(
+                                                                info.binaryArrayTypeEnum)},
+                                        {"rank", info.rank},
+                                        {"binaryType", Parser::strBinaryTypeEnum(info.binaryTypeEnum)},
+                                        {"lengths",
+                                         QJsonArray::fromStringList(numsToStrs(info.lengths))},
+                                        {"lowerBounds",
+                                         QJsonArray::fromStringList(numsToStrs(info.lowerBounds))},
+                                        {"additionInfo", info.additionInfo.readableTypeInfo()},
+                                    }));
+                            }
+                            top.value = valueObj;
+                        }
                         // Receive members over
                         top.type = Receiver::Value;
                         break;
@@ -360,30 +390,7 @@ QJsonValue JsonReader::dfs_shallow() {
             for (int i = 0; i < binaryTypes.size(); ++i) {
                 QJsonObject memberObj;
                 memberObj.insert("binaryType", QNrbf::Parser::strBinaryTypeEnum(binaryTypes.at(i)));
-
-                const auto &remotingType = remotingTypes.at(i);
-
-                QJsonValue infoValue(QJsonValue::Null);
-                switch (remotingType.type()) {
-                    case QNrbf::RemotingTypeInfo::PrimitiveType:
-                        infoValue =
-                            QNrbf::Parser::strPrimitiveTypeEnum(remotingType.toPrimitiveTypeEnum());
-                        break;
-                    case QNrbf::RemotingTypeInfo::String:
-                        infoValue = remotingType.toString();
-                        break;
-                    case QNrbf::RemotingTypeInfo::Class: {
-                        auto classTypeInfo = remotingType.toClassTypeInfo();
-                        infoValue = QJsonObject({{"typeName", classTypeInfo.typeName},
-                                                 {"libraryId", classTypeInfo.libraryId}});
-                        break;
-                    }
-                    default:
-                        break;
-                }
-
-                memberObj.insert("infoAddition", infoValue);
-
+                memberObj.insert("infoAddition", remotingTypes.at(i).readableTypeInfo());
                 memberTypeInfoArr.append(memberObj);
             }
             classObj.insert("memberTypeInfo", memberTypeInfoArr);

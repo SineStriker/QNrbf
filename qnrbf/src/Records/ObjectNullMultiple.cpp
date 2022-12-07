@@ -22,8 +22,7 @@ bool ObjectNullMultiple::read(QDataStream &in, bool is256) {
 }
 bool ObjectNullMultiple::write(QDataStream &out, bool is256) const {
     if (is256) {
-        quint8 ch = nullCount;
-        out << ch;
+        out << quint8(nullCount);
     } else {
         out << nullCount;
     }

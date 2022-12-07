@@ -9,6 +9,26 @@
 QNRBF_BEGIN_NAMESPACE
 
 SvipWriter::SvipWriter(const QNrbf::XSAppModel &model) : appModel(model) {
+    classDef_ReverbPreset = 0;       // -24
+    classDef_NoteHeadTag = 0;        // -169
+    classDef_AppModel = 0;           // 1
+    classDef_SongTempoList = 0;      // 5
+    classDef_SongBeatList = 0;       // 6
+    classDef_TrackList = 0;          // 7
+    classDef_SongTempoListBuf = 0;   // 8
+    classDef_SongBeatListBuf = 0;    // 9
+    classDef_SingingTrack = 0;       // 13
+    classDef_InstrumentTrack = 0;    // 14
+    classDef_SongTempo = 0;          // 15
+    classDef_SongBeat = 0;           // 17
+    classDef_NoteList = 0;           // 19
+    classDef_LineParam = 0;          // 20
+    classDef_BeatSize = 0;           // 29
+    classDef_NoteListBuf = 0;        // 31
+    classDef_Note = 0;               // 37
+    classDef_NotePhoneInfo = 0;      // 170
+    classDef_VibratoStyle = 0;       // 352
+    classDef_VibratoPercentInfo = 0; // 353
 }
 
 SvipWriter::~SvipWriter() {
@@ -69,7 +89,7 @@ bool SvipWriter::save() {
         return mapping;
     };
 
-    auto writeBinaryArray = [&](int size) {
+    auto writeBinaryArray = [&](int size, const QString &typeName, qint32 libraryId) {
         QList<ObjectRef> res;
 
         // Add objects
@@ -80,8 +100,19 @@ bool SvipWriter::save() {
         // Finish
         auto listObj = QSharedPointer<ObjectListObject>::create();
         listObj->values = std::move(res);
+        listObj->hasShapeInfo = true;
 
-        reg.objectsById.insert(idDeq(), listObj);
+        auto objId = idDeq();
+
+        BinaryArray record;
+        record.objectId = objId;
+        record.binaryArrayTypeEnum = BinaryArrayTypeEnumeration::Single;
+        record.rank = 1;
+        record.lengths = {size};
+        record.binaryTypeEnum = BinaryTypeEnumeration::Class;
+        record.additionInfo = ClassTypeInfo(typeName, libraryId);
+
+        reg.objectsById.insert(objId, listObj);
     };
 
     auto encodeParams = [&](const QSharedPointer<XSLineParam> &param) {
@@ -169,15 +200,19 @@ bool SvipWriter::save() {
         auto mapping = QSharedPointer<MappingObject>::create();
         mapping->members = std::move(members);
 
-        if (classDef_AppModel.isNull()) {
-            auto classDef = createClassDef_AppModel(id_AppModel);
+        auto objId = id_AppModel;
+        mapping->id = objId;
+        if (classDef_AppModel == 0) {
+            auto classDef = createClassDef_AppModel(objId);
+            classDef->id = objId;
             classDef->value = mapping;
-            reg.classesById.insert(id_AppModel, classDef);
+            reg.classesById.insert(objId, classDef);
 
-            classDef_AppModel = classDef;
+            classDef_AppModel = objId;
         } else {
-            reg.objectsById.insert(id_AppModel, mapping);
+            reg.objectsById.insert(objId, mapping);
         }
+        mapping->classId = objId;
     }
 
     /* Deferred items: tempoList, beatList, trackList */
@@ -187,12 +222,14 @@ bool SvipWriter::save() {
         // Write tempoList
         auto mapping = writeSerialListMapping(); // idEnq
         auto objId = idDeq();
-        if (classDef_SongTempoList.isNull()) {
+        mapping->id = objId;
+        if (classDef_SongTempoList == 0) {
             auto classDef = createClassDef_SongTempoList(objId);
+            classDef->id = objId;
             classDef->value = mapping;
             reg.classesById.insert(objId, classDef);
 
-            classDef_SongTempoList = classDef;
+            classDef_SongTempoList = objId;
         } else {
             reg.objectsById.insert(objId, mapping);
         }
@@ -201,30 +238,36 @@ bool SvipWriter::save() {
         // Write beatList
         auto mapping = writeSerialListMapping(); // idEnq
         auto objId = idDeq();
-        if (classDef_SongBeatList.isNull()) {
+        mapping->id = objId;
+        if (classDef_SongBeatList == 0) {
             auto classDef = createClassDef_SongBeatList(objId);
+            classDef->id = objId;
             classDef->value = mapping;
             reg.classesById.insert(objId, classDef);
 
-            classDef_SongBeatList = classDef;
+            classDef_SongBeatList = objId;
         } else {
             reg.objectsById.insert(objId, mapping);
         }
+        mapping->classId = classDef_SongBeatList;
     }
     {
         // Write trackList
         auto mapping =
             writeListMapping(appModel.trackList.size(), VALUE_LIST_VERSION_SONG_ITRACK); // idEnq
         auto objId = idDeq();
-        if (classDef_TrackList.isNull()) {
+        mapping->id = objId;
+        if (classDef_TrackList == 0) {
             auto classDef = createClassDef_TrackList(objId);
+            classDef->id = objId;
             classDef->value = mapping;
             reg.classesById.insert(objId, classDef);
 
-            classDef_TrackList = classDef;
+            classDef_TrackList = objId;
         } else {
             reg.objectsById.insert(objId, mapping);
         }
+        mapping->classId = classDef_TrackList;
     }
 
     /* Deferred items: tempoListBuf, beatListBuf, trackList contents */
@@ -235,34 +278,40 @@ bool SvipWriter::save() {
         auto mapping =
             writeListMapping(appModel.tempoList.size(), VALUE_LIST_VERSION_SONG_TEMPO); // idEnq
         auto objId = idDeq();
-        if (classDef_SongTempoListBuf.isNull()) {
+        mapping->id = objId;
+        if (classDef_SongTempoListBuf == 0) {
             auto classDef = createClassDef_SongTempoListBuf(objId);
+            classDef->id = objId;
             classDef->value = mapping;
             reg.classesById.insert(objId, classDef);
 
-            classDef_SongTempoListBuf = classDef;
+            classDef_SongTempoListBuf = objId;
         } else {
             reg.objectsById.insert(objId, mapping);
         }
+        mapping->classId = classDef_SongTempoListBuf;
     }
     {
         // Write beatList buf
         auto mapping =
             writeListMapping(appModel.beatList.size(), VALUE_LIST_VERSION_SONG_BEAT); // idEnq
         auto objId = idDeq();
-        if (classDef_SongBeatListBuf.isNull()) {
+        mapping->id = objId;
+        if (classDef_SongBeatListBuf == 0) {
             auto classDef = createClassDef_SongBeatListBuf(objId);
+            classDef->id = objId;
             classDef->value = mapping;
             reg.classesById.insert(objId, classDef);
 
-            classDef_SongBeatListBuf = classDef;
+            classDef_SongBeatListBuf = objId;
         } else {
             reg.objectsById.insert(objId, mapping);
         }
+        mapping->classId = classDef_SongBeatListBuf;
     }
     {
         // Write trackList contents
-        writeBinaryArray(appModel.trackList.size());
+        writeBinaryArray(appModel.trackList.size(), ASSEMBLY_NAME_ITRACK, id_SingingToolModel);
     }
 
     /* Deferred items: tempoList contents, beatList contents, tracks */
@@ -270,11 +319,11 @@ bool SvipWriter::save() {
     /* Layer 3 */
     {
         // Write tempoList contents
-        writeBinaryArray(appModel.tempoList.size());
+        writeBinaryArray(appModel.tempoList.size(), ASSEMBLY_NAME_SONG_TEMPO, id_SingingToolModel);
     }
     {
         // Write beatList contents
-        writeBinaryArray(appModel.beatList.size());
+        writeBinaryArray(appModel.beatList.size(), ASSEMBLY_NAME_SONG_BEAT, id_SingingToolModel);
     }
 
     auto writeITrack = [&](const QSharedPointer<XSITrack> &track,
@@ -335,19 +384,21 @@ bool SvipWriter::save() {
                     auto mapping = writeEnum(singingTrack->reverbPreset);
                     auto objId = -(++idMax);
                     mapping->id = objId;
-                    if (classDef_ReverbPreset.isNull()) {
+                    if (classDef_ReverbPreset == 0) {
                         auto reverbPresetClassDef = createClassDef_ReverbPreset(objId);
+                        reverbPresetClassDef->id = objId;
                         reverbPresetClassDef->value = mapping;
                         members.insert(KEY_NAME_REVERB_PRESET, reverbPresetClassDef);
 
                         reg.classesById.insert(objId, reverbPresetClassDef);
 
-                        classDef_ReverbPreset = reverbPresetClassDef;
+                        classDef_ReverbPreset = objId;
                     } else {
                         members.insert(KEY_NAME_REVERB_PRESET, mapping);
 
                         reg.objectsById.insert(objId, mapping);
                     }
+                    mapping->classId = classDef_ReverbPreset;
                 }
 
                 // Base part
@@ -364,15 +415,18 @@ bool SvipWriter::save() {
                 mapping->members = std::move(members);
 
                 auto objId = idDeq();
-                if (classDef_SingingTrack.isNull()) {
+                mapping->id = objId;
+                if (classDef_SingingTrack == 0) {
                     auto classDef = createClassDef_SingingTrack(objId);
+                    classDef->id = objId;
                     classDef->value = mapping;
                     reg.classesById.insert(objId, classDef);
 
-                    classDef_SingingTrack = classDef;
+                    classDef_SingingTrack = objId;
                 } else {
                     reg.objectsById.insert(objId, mapping);
                 }
+                mapping->classId = classDef_SingingTrack;
             } else {
                 auto instrumentTrack = item.dynamicCast<XSInstrumentTrack>();
 
@@ -407,15 +461,18 @@ bool SvipWriter::save() {
                 mapping->members = std::move(members);
 
                 auto objId = idDeq();
-                if (classDef_InstrumentTrack.isNull()) {
+                mapping->id = objId;
+                if (classDef_InstrumentTrack == 0) {
                     auto classDef = createClassDef_InstrumentTrack(objId);
+                    classDef->id = objId;
                     classDef->value = mapping;
                     reg.classesById.insert(objId, classDef);
 
-                    classDef_InstrumentTrack = classDef;
+                    classDef_InstrumentTrack = objId;
                 } else {
                     reg.objectsById.insert(objId, mapping);
                 }
+                mapping->classId = classDef_InstrumentTrack;
             }
         }
     }
@@ -444,15 +501,18 @@ bool SvipWriter::save() {
             mapping->members = std::move(members);
 
             auto objId = idDeq();
-            if (classDef_SongTempo.isNull()) {
+            mapping->id = objId;
+            if (classDef_SongTempo == 0) {
                 auto classDef = createClassDef_SongTempo(objId);
+                classDef->id = objId;
                 classDef->value = mapping;
                 reg.classesById.insert(objId, classDef);
 
-                classDef_SongTempo = classDef;
+                classDef_SongTempo = objId;
             } else {
                 reg.objectsById.insert(objId, mapping);
             }
+            mapping->classId = classDef_SongTempo;
         }
     }
     {
@@ -477,15 +537,18 @@ bool SvipWriter::save() {
             mapping->members = std::move(members);
 
             auto objId = idDeq();
-            if (classDef_SongBeat.isNull()) {
+            mapping->id = objId;
+            if (classDef_SongBeat == 0) {
                 auto classDef = createClassDef_SongBeat(objId);
+                classDef->id = objId;
                 classDef->value = mapping;
                 reg.classesById.insert(objId, classDef);
 
-                classDef_SongBeat = classDef;
+                classDef_SongBeat = objId;
             } else {
                 reg.objectsById.insert(objId, mapping);
             }
+            mapping->classId = classDef_SongBeat;
         }
     }
     {
@@ -495,15 +558,18 @@ bool SvipWriter::save() {
             {
                 auto mapping = writeSerialListMapping();
                 auto objId = idDeq();
-                if (classDef_NoteList.isNull()) {
+                mapping->id = objId;
+                if (classDef_NoteList == 0) {
                     auto classDef = createClassDef_NoteList(objId);
+                    classDef->id = objId;
                     classDef->value = mapping;
                     reg.classesById.insert(objId, classDef);
 
-                    classDef_NoteList = classDef;
+                    classDef_NoteList = objId;
                 } else {
                     reg.objectsById.insert(objId, mapping);
                 }
+                mapping->classId = classDef_NoteList;
             }
 
             int cnt = 0;
@@ -524,15 +590,18 @@ bool SvipWriter::save() {
                 mapping->members = std::move(members);
 
                 auto objId = idDeq();
-                if (classDef_LineParam.isNull()) {
+                mapping->id = objId;
+                if (classDef_LineParam == 0) {
                     auto classDef = createClassDef_LineParam(objId);
+                    classDef->id = objId;
                     classDef->value = mapping;
                     reg.classesById.insert(objId, classDef);
 
-                    classDef_LineParam = classDef;
+                    classDef_LineParam = objId;
                 } else {
                     reg.objectsById.insert(objId, mapping);
                 }
+                mapping->classId = classDef_LineParam;
             }
         }
     }
@@ -557,15 +626,18 @@ bool SvipWriter::save() {
             mapping->members = std::move(members);
 
             auto objId = idDeq();
-            if (classDef_BeatSize.isNull()) {
+            mapping->id = objId;
+            if (classDef_BeatSize == 0) {
                 auto classDef = createClassDef_BeatSize(objId);
+                classDef->id = objId;
                 classDef->value = mapping;
                 reg.classesById.insert(objId, classDef);
 
-                classDef_BeatSize = classDef;
+                classDef_BeatSize = objId;
             } else {
                 reg.objectsById.insert(objId, mapping);
             }
+            mapping->classId = classDef_BeatSize;
         }
     }
     {
@@ -576,8 +648,10 @@ bool SvipWriter::save() {
                 auto mapping =
                     writeListMapping(item->noteList.size(), VALUE_LIST_VERSION_SONG_NOTE);
                 auto objId = idDeq();
-                if (classDef_NoteListBuf.isNull()) {
+                mapping->id = objId;
+                if (classDef_NoteListBuf == 0) {
                     auto classDef = createClassDef_NoteListBuf(objId);
+                    classDef->id = objId;
                     classDef->value = mapping;
                     reg.classesById.insert(objId, classDef);
                 } else {
@@ -599,7 +673,7 @@ bool SvipWriter::save() {
     /* Layer 6 */
     {
         for (const auto &track : qAsConst(singingTracks)) {
-            writeBinaryArray(track->noteList.size());
+            writeBinaryArray(track->noteList.size(), ASSEMBLY_NAME_NOTE, id_SingingToolModel);
         }
     }
 
@@ -640,19 +714,21 @@ bool SvipWriter::save() {
                     auto mapping = writeEnum(note.headTag);
                     auto objId = -(++idMax);
                     mapping->id = objId;
-                    if (classDef_NoteHeadTag.isNull()) {
+                    if (classDef_NoteHeadTag == 0) {
                         auto headTagClassDef = createClassDef_NoteHeadTag(objId);
+                        headTagClassDef->id = objId;
                         headTagClassDef->value = mapping;
                         members.insert(KEY_NAME_NOTE_HEAD_TAG, headTagClassDef);
 
                         reg.classesById.insert(objId, headTagClassDef);
 
-                        classDef_NoteHeadTag = headTagClassDef;
+                        classDef_NoteHeadTag = objId;
                     } else {
                         members.insert(KEY_NAME_NOTE_HEAD_TAG, mapping);
 
                         reg.objectsById.insert(objId, mapping);
                     }
+                    mapping->classId = classDef_NoteHeadTag;
                 }
 
                 // NotePhoneInfo <Property>
@@ -674,15 +750,18 @@ bool SvipWriter::save() {
                 mapping->members = std::move(members);
 
                 auto objId = idDeq();
-                if (classDef_Note.isNull()) {
+                mapping->id = objId;
+                if (classDef_Note == 0) {
                     auto classDef = createClassDef_Note(objId);
+                    classDef->id = objId;
                     classDef->value = mapping;
                     reg.classesById.insert(objId, classDef);
 
-                    classDef_Note = classDef;
+                    classDef_Note = objId;
                 } else {
                     reg.objectsById.insert(objId, mapping);
                 }
+                mapping->classId = classDef_Note;
             }
         }
     }
@@ -712,15 +791,18 @@ bool SvipWriter::save() {
                     mapping->members = std::move(members);
 
                     auto objId = idDeq();
-                    if (classDef_NotePhoneInfo.isNull()) {
+                    mapping->id = objId;
+                    if (classDef_NotePhoneInfo == 0) {
                         auto classDef = createClassDef_NotePhoneInfo(objId);
+                        classDef->id = objId;
                         classDef->value = mapping;
                         reg.classesById.insert(objId, classDef);
 
-                        classDef_NotePhoneInfo = classDef;
+                        classDef_NotePhoneInfo = objId;
                     } else {
                         reg.objectsById.insert(objId, mapping);
                     }
+                    mapping->classId = classDef_NotePhoneInfo;
                 }
 
                 // Write Vibrato
@@ -749,15 +831,18 @@ bool SvipWriter::save() {
                     mapping->members = std::move(members);
 
                     auto objId = idDeq();
-                    if (classDef_VibratoStyle.isNull()) {
+                    mapping->id = objId;
+                    if (classDef_VibratoStyle == 0) {
                         auto classDef = createClassDef_VibratoStyle(objId);
+                        classDef->id = objId;
                         classDef->value = mapping;
                         reg.classesById.insert(objId, classDef);
 
-                        classDef_VibratoStyle = classDef;
+                        classDef_VibratoStyle = objId;
                     } else {
                         reg.objectsById.insert(objId, mapping);
                     }
+                    mapping->classId = classDef_VibratoStyle;
                 }
 
                 // Write VibratoPercentInfo
@@ -777,15 +862,18 @@ bool SvipWriter::save() {
                     mapping->members = std::move(members);
 
                     auto objId = idDeq();
-                    if (classDef_VibratoPercentInfo.isNull()) {
+                    mapping->id = objId;
+                    if (classDef_VibratoPercentInfo == 0) {
                         auto classDef = createClassDef_VibratoPercentInfo(objId);
+                        classDef->id = objId;
                         classDef->value = mapping;
                         reg.classesById.insert(objId, classDef);
 
-                        classDef_VibratoPercentInfo = classDef;
+                        classDef_VibratoPercentInfo = objId;
                     } else {
                         reg.objectsById.insert(objId, mapping);
                     }
+                    mapping->classId = classDef_VibratoPercentInfo;
                 }
             }
         }
@@ -806,15 +894,18 @@ bool SvipWriter::save() {
             mapping->members = std::move(members);
 
             auto objId = idDeq();
-            if (classDef_LineParam.isNull()) {
+            mapping->id = objId;
+            if (classDef_LineParam == 0) {
                 auto classDef = createClassDef_LineParam(objId);
+                classDef->id = objId;
                 classDef->value = mapping;
                 reg.classesById.insert(objId, classDef);
 
-                classDef_LineParam = classDef;
+                classDef_LineParam = objId;
             } else {
                 reg.objectsById.insert(objId, mapping);
             }
+            mapping->classId = classDef_LineParam;
         }
     }
 

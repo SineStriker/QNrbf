@@ -16,4 +16,14 @@ bool ArraySinglePrimitive::read(QDataStream &in) {
     return true;
 }
 
+bool ArraySinglePrimitive::write(QDataStream &out) const {
+    if (!arrayInfo.write(out)) {
+        return false;
+    }
+    if (!Parser::writePrimitiveTypeEnum(primitiveTypeEnum, out)) {
+        return false;
+    }
+    return true;
+}
+
 QNRBF_END_NAMESPACE

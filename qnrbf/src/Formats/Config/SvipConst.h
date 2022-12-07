@@ -46,6 +46,7 @@ const char ASSEMBLY_NAME_NOTE_PHONEME_INFO[] = "SingingTool.Model.NotePhoneInfo"
 const char ASSEMBLY_NAME_NOTE_HEAD_TAG[] = "SingingTool.Model.NoteHeadTag";
 const char ASSEMBLY_NAME_VIBRATO_PERCENT_INFO[] = "SingingTool.Model.VibratoPercentInfo";
 const char ASSEMBLY_NAME_VIBRATO_STYLE[] = "SingingTool.Model.VibratoStyle";
+const char ASSEMBLY_NAME_ITRACK[] = "SingingTool.Model.ITrack";
 const char ASSEMBLY_NAME_ITRACK_ARRAY[] = "SingingTool.Model.ITrack[]";
 const char ASSEMBLY_NAME_SONG_TEMPO_ARRAY[] = "SingingTool.Model.SingingGeneralConcept.SongTempo[]";
 const char ASSEMBLY_NAME_SONG_BEAT_ARRAY[] = "SingingTool.Model.SingingGeneralConcept.SongBeat[]";

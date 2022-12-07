@@ -5,6 +5,9 @@ QNRBF_BEGIN_NAMESPACE
 QString Parser::strBinaryArrayTypeEnumeration(BinaryArrayTypeEnumeration type) {
     QString res;
     switch (type) {
+        case BinaryArrayTypeEnumeration::None:
+            res = "None";
+            break;
         case BinaryArrayTypeEnumeration::Single:
             res = "Single";
             break;
@@ -22,6 +25,9 @@ QString Parser::strBinaryArrayTypeEnumeration(BinaryArrayTypeEnumeration type) {
             break;
         case BinaryArrayTypeEnumeration::RectangularOffset:
             res = "RectangularOffset";
+            break;
+        default:
+            res = QString("Unknown Type %1").arg(qint32(type));
             break;
     }
     return res;

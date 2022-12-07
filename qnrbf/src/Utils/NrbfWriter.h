@@ -32,11 +32,18 @@ public:
     bool write();
 
 protected:
+    bool writeObject(const ObjectRef &objRef);
+
     // Registry
     NrbfRegistry reg;
 
+    QSet<qint32> writtenObjects;
+
     // Properties
     QDataStream *stream;
+
+    bool writeMembers(const MappingRef &mapping, const QStringList &memberNames,
+                      const MemberTypeInfo &memberTypeInfo);
 };
 
 QNRBF_END_NAMESPACE

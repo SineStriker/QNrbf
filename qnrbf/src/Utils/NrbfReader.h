@@ -92,7 +92,7 @@ protected:
     /* Reusable reading method */
     bool readStrings(QStringList &arr);
 
-    bool readObjects(QList<ObjectRef> &arr, const QSharedPointer<ObjectListObject> &parent);
+    bool readObjects(QList<ObjectRef> &arr);
 
     // Registry
     NrbfRegistry reg;

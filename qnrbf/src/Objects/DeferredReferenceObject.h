@@ -9,7 +9,7 @@ class QNRBF_INTERNAL DeferredReferenceObject : public AbstractObject {
 public:
     DeferredReferenceObject(qint32 id);
 
-    int id;
+    int idRef;
 };
 
 QNRBF_END_NAMESPACE

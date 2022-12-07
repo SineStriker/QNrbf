@@ -13,6 +13,7 @@ public:
 
     QString typeName;
     QString assemblyName;
+    qint32 classId;
 
     QMap<QString, ObjectRef> members;
 

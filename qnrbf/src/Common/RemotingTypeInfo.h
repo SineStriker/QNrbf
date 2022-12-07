@@ -6,6 +6,7 @@
 #include "Structures/ClassTypeInfo.h"
 
 #include <QSharedDataPointer>
+#include <QJsonValue>
 
 QNRBF_BEGIN_NAMESPACE
 
@@ -36,8 +37,10 @@ public:
     QString toString() const;
     ClassTypeInfo toClassTypeInfo() const;
 
+    QJsonValue readableTypeInfo() const;
+
     bool read(QDataStream &in, BinaryTypeEnumeration binaryTypeEnum);
-    bool write(QDataStream &out)const;
+    bool write(QDataStream &out) const;
 
 protected:
     QSharedDataPointer<RemotingTypeInfoData> d;

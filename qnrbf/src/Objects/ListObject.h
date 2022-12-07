@@ -2,17 +2,19 @@
 #define QNRBFFORMAT_LISTOBJECT_H
 
 #include "AbstractObject.h"
+#include "Records/BinaryArray.h"
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API ListObject : public AbstractObject {
+class QNRBF_INTERNAL ListObject : public AbstractObject {
 public:
     explicit ListObject(Type type);
 
     QList<int> lengths;
     QList<int> lowerBounds;
 
-    QString arrayType;
+    bool hasShapeInfo;
+    BinaryArray shapeInfo;
 };
 
 QNRBF_END_NAMESPACE

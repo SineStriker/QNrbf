@@ -151,7 +151,7 @@ ObjectRef NrbfRegistry::resolveReference(ObjectRef obj) const {
     } else if (obj->type() == AbstractObject::DeferredReference) {
         // Recursively find reference
         while (!obj.isNull() && obj->type() == AbstractObject::DeferredReference) {
-            obj = findReference(dynamic_cast<DeferredReferenceObject *>(obj.data())->id);
+            obj = findReference(dynamic_cast<DeferredReferenceObject *>(obj.data())->idRef);
         }
     }
     return obj;

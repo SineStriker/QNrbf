@@ -1,8 +1,8 @@
 #ifndef QNRBF_ARRAYSINGLEPRIMITIVE_H
 #define QNRBF_ARRAYSINGLEPRIMITIVE_H
 
-#include "Structures/ArrayInfo.h"
 #include "Enums/PrimitiveTypeEnumeration.h"
+#include "Structures/ArrayInfo.h"
 
 QNRBF_BEGIN_NAMESPACE
 
@@ -15,6 +15,7 @@ public:
     PrimitiveTypeEnumeration primitiveTypeEnum;
 
     bool read(QDataStream &in);
+    bool write(QDataStream &out) const;
 };
 
 QNRBF_END_NAMESPACE

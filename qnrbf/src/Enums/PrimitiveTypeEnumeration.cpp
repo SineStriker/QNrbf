@@ -63,7 +63,7 @@ QString Parser::strPrimitiveTypeEnum(PrimitiveTypeEnumeration type) {
             res = "String";
             break;
         default:
-            res = "UnknownPrimitiveType";
+            res = QString("Unknown Type %1").arg(qint32(type));
             break;
     }
     return res;

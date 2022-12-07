@@ -2,8 +2,8 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-ListObject::ListObject(QNrbf::AbstractObject::Type type)
-    : AbstractObject(type) {
+ListObject::ListObject(QNrbf::AbstractObject::Type type) : AbstractObject(type) {
+    hasShapeInfo = false;
 }
 
 QNRBF_END_NAMESPACE

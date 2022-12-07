@@ -20,7 +20,7 @@
 
 QNRBF_BEGIN_NAMESPACE
 
-class QNRBF_API SvipWriter {
+class QNRBF_INTERNAL SvipWriter {
 public:
     explicit SvipWriter(const XSAppModel &model);
     ~SvipWriter();
@@ -30,26 +30,26 @@ public:
     NrbfRegistry reg;
 
 protected:
-    QSharedPointer<UserClassTypeObject> classDef_ReverbPreset;       // -24
-    QSharedPointer<UserClassTypeObject> classDef_NoteHeadTag;        // -169
-    QSharedPointer<UserClassTypeObject> classDef_AppModel;           // 1
-    QSharedPointer<UserClassTypeObject> classDef_SongTempoList;      // 5
-    QSharedPointer<UserClassTypeObject> classDef_SongBeatList;       // 6
-    QSharedPointer<SystemClassTypeObject> classDef_TrackList;        // 7
-    QSharedPointer<SystemClassTypeObject> classDef_SongTempoListBuf; // 8
-    QSharedPointer<SystemClassTypeObject> classDef_SongBeatListBuf;  // 9
-    QSharedPointer<UserClassTypeObject> classDef_SingingTrack;       // 13
-    QSharedPointer<UserClassTypeObject> classDef_InstrumentTrack;    // 14
-    QSharedPointer<UserClassTypeObject> classDef_SongTempo;          // 15
-    QSharedPointer<UserClassTypeObject> classDef_SongBeat;           // 17
-    QSharedPointer<UserClassTypeObject> classDef_NoteList;           // 19
-    QSharedPointer<UserClassTypeObject> classDef_LineParam;          // 20
-    QSharedPointer<UserClassTypeObject> classDef_BeatSize;           // 29
-    QSharedPointer<SystemClassTypeObject> classDef_NoteListBuf;      // 31
-    QSharedPointer<UserClassTypeObject> classDef_Note;               // 37
-    QSharedPointer<UserClassTypeObject> classDef_NotePhoneInfo;      // 170
-    QSharedPointer<UserClassTypeObject> classDef_VibratoStyle;       // 352
-    QSharedPointer<UserClassTypeObject> classDef_VibratoPercentInfo; // 353
+    qint32 classDef_ReverbPreset;       // -24
+    qint32 classDef_NoteHeadTag;        // -169
+    qint32 classDef_AppModel;           // 1
+    qint32 classDef_SongTempoList;      // 5
+    qint32 classDef_SongBeatList;       // 6
+    qint32 classDef_TrackList;          // 7
+    qint32 classDef_SongTempoListBuf;   // 8
+    qint32 classDef_SongBeatListBuf;    // 9
+    qint32 classDef_SingingTrack;       // 13
+    qint32 classDef_InstrumentTrack;    // 14
+    qint32 classDef_SongTempo;          // 15
+    qint32 classDef_SongBeat;           // 17
+    qint32 classDef_NoteList;           // 19
+    qint32 classDef_LineParam;          // 20
+    qint32 classDef_BeatSize;           // 29
+    qint32 classDef_NoteListBuf;        // 31
+    qint32 classDef_Note;               // 37
+    qint32 classDef_NotePhoneInfo;      // 170
+    qint32 classDef_VibratoStyle;       // 352
+    qint32 classDef_VibratoPercentInfo; // 353
 
     QSharedPointer<UserClassTypeObject> createClassDef_ReverbPreset(qint32 objectId) const;
     QSharedPointer<UserClassTypeObject> createClassDef_NoteHeadTag(qint32 objectId) const;

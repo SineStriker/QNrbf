@@ -15,6 +15,8 @@ enum class BinaryArrayTypeEnumeration : quint8 {
     SingleOffset = 3,
     JaggedOffset = 4,
     RectangularOffset = 5,
+    // Placeholder
+    None = 127,
 };
 
 namespace Parser {

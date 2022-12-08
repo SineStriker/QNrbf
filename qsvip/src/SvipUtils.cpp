@@ -38,7 +38,10 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
             auto singingTrack = item.dynamicCast<QNrbf::XSSingingTrack>();
 
             QSvipModel::SingingTrack track;
-            track.AISingerName = singingTrack->AISingerId;
+            track.AISingerName =
+                (singingTrack->AISingerId.isEmpty())
+                    ? QString()
+                    : QString("$(%1)").arg(singingTrack->AISingerId); // Use escape syntax
             track.ReverbPreset = reverbPresets_index2Name(singingTrack->reverbPreset);
 
             for (const auto &noteItem : qAsConst(singingTrack->noteList)) {
@@ -134,6 +137,22 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
 }
 
 bool SvipUtils::json2Bin(const QSvipModel &in, QNrbf::XSAppModel &out) {
+    QNrbf::XSAppModel model;
+
+    if (in.TimeSignatureList.isEmpty()) {
+        qDebug() << "SvipUtils: Empty time signature list";
+        return false;
+    }
+    const QSvipModel::TimeSignature &firstTimeSig = in.TimeSignatureList.front();
+
+    // First bar tick
+    qint32 firstBarTick =
+        qRound(1920.0 * double(firstTimeSig.Numerator) / firstTimeSig.Denominator);
+
+    // Tempos
+    QList<QSvipModel::SongTempo> firstBarTempo = {};
+
+
     return false;
 }
 

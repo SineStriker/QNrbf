@@ -14,32 +14,16 @@
 #include "Objects/UserClassObject.h"
 #include "Objects/UserClassTypeObject.h"
 
-#include "Primitive/Parser.h"
-
 #include "Records/BinaryMethodCall.h"
 #include "Records/BinaryMethodReturn.h"
 #include "Records/SerializationHeader.h"
 
+#include "NrbfHelper.h"
+#include "NrbfParser.h"
+
 QNRBF_BEGIN_NAMESPACE
 
 static const int SuccessStatusMask = 1;
-
-static QString posToStr(qint64 pos) {
-    static const int print_base = 16;
-    return "0x" + QString::number(pos, print_base).toUpper();
-}
-
-template <class T>
-static void resizeList(QList<T> &list, int size) {
-    if (list.size() > size) {
-        list.erase(list.begin() + size, list.end());
-        return;
-    }
-    list.reserve(size);
-    for (int i = list.size(); i < size; ++i) {
-        list.append(T{});
-    }
-}
 
 NrbfReader::NrbfReader(QDataStream *stream) : stream(stream) {
     _status = Normal;
@@ -101,6 +85,9 @@ bool NrbfReader::readRecord(ObjectRef *out) {
 
     QSharedPointer<AbstractObject> obj;
 
+    // qDebug().noquote() << posToStr(startPos)
+    //                    << Parser::strRecordTypeEnum(RecordTypeEnumeration(recordType));
+
     switch (recordType) {
         case (quint8) RecordTypeEnumeration::SerializedStreamHeader: {
             if (reg.header.isNull()) {
@@ -111,8 +98,8 @@ bool NrbfReader::readRecord(ObjectRef *out) {
                     _status = Failed;
                 }
             } else {
-                qDebug() << QString("NrbfReader: multiple stream header, start from %1")
-                                .arg(posToStr(startPos));
+                qDebug().noquote() << QString("NrbfReader: Multiple stream header, start from %1")
+                                          .arg(Helper::num2hex(startPos));
                 _status = MultipleHead;
             }
             break;
@@ -199,7 +186,9 @@ bool NrbfReader::readRecord(ObjectRef *out) {
                 // Not implemented
                 // ...
 
-                qDebug().noquote() << QString("NrbfReader: BinaryMethodCall not implemented...");
+                qDebug().noquote()
+                    << QString("NrbfReader: BinaryMethodCall not implemented, start from %2")
+                           .arg(QString::number(recordType), Helper::num2hex(startPos));
                 _status = UnsupportedRecord;
             }
             break;
@@ -212,7 +201,9 @@ bool NrbfReader::readRecord(ObjectRef *out) {
                 // Not implemented
                 // ...
 
-                qDebug().noquote() << QString("NrbfReader: BinaryMethodReturn not implemented...");
+                qDebug().noquote()
+                    << QString("NrbfReader: BinaryMethodReturn not implemented, start from %2")
+                           .arg(QString::number(recordType), Helper::num2hex(startPos));
                 _status = UnsupportedRecord;
             }
             break;
@@ -230,7 +221,6 @@ bool NrbfReader::readRecord(ObjectRef *out) {
             if (!record.read(in) || !onMemberPrimitiveTyped(record, obj)) {
                 _status = Failed;
             }
-            qDebug() << posToStr(startPos) << obj.dynamicCast<PrimitiveObject>()->value.asString();
             break;
         }
         case (quint8) RecordTypeEnumeration::MemberReference: {
@@ -261,16 +251,18 @@ bool NrbfReader::readRecord(ObjectRef *out) {
             break;
         }
         default: {
+            qDebug().noquote() << QString("NrbfReader: Unknown record type %1, start from %2")
+                                      .arg(QString::number(recordType), Helper::num2hex(startPos));
             _status = UnsupportedRecord;
             break;
         }
     }
 
     if (_status == Failed) {
-        qDebug().noquote().noquote()
-            << QString("NrbfReader: read %1 error at %2, start from %3")
-                   .arg(Parser::strRecordTypeEnum((RecordTypeEnumeration) recordType),
-                        posToStr(dev->pos()), posToStr(startPos));
+        qDebug().noquote() << QString("NrbfReader: Read %1 error at %2, start from %3")
+                                  .arg(
+                                      Parser::strRecordTypeEnum((RecordTypeEnumeration) recordType),
+                                      Helper::num2hex(dev->pos()), Helper::num2hex(startPos));
     }
 
     bool success = _status & SuccessStatusMask;
@@ -368,6 +360,8 @@ bool NrbfReader::onClassWithMembers(ClassWithMembers &in, ObjectRef &out) {
     {
         auto it = reg.libraries.find(in.libraryId);
         if (it == reg.libraries.end()) {
+            qDebug().noquote() << QString("NrbfReader: Undefined class library id %1")
+                                      .arg(QString::number(in.libraryId));
             return false;
         }
         library = it.value();
@@ -410,6 +404,7 @@ bool NrbfReader::onSystemClassWithMembersAndTypes(SystemClassWithMembersAndTypes
 
     // Read members
     if (!readMembers(obj, in.classInfo.memberNames, in.memberTypeInfo)) {
+        qDebug().noquote() << "NrbfReader: Read class members failed";
         return false;
     }
 
@@ -422,6 +417,8 @@ bool NrbfReader::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, Object
     {
         auto it = reg.libraries.find(in.libraryId);
         if (it == reg.libraries.end()) {
+            qDebug().noquote() << QString("NrbfReader: Undefined class library id %1")
+                                      .arg(QString::number(in.libraryId));
             return false;
         }
         library = it.value();
@@ -442,6 +439,7 @@ bool NrbfReader::onClassWithMembersAndTypes(ClassWithMembersAndTypes &in, Object
 
     // Read members
     if (!readMembers(obj, in.classInfo.memberNames, in.memberTypeInfo)) {
+        qDebug().noquote() << "NrbfReader: Read class members failed";
         return false;
     }
 
@@ -453,14 +451,13 @@ bool NrbfReader::onClassWithId(ClassWithId &in, ObjectRef &out) {
     // Find saved class
     auto it = reg.classesById.find(in.metadataId);
     if (it == reg.classesById.end()) {
+        qDebug().noquote() << QString("NrbfReader: Undefined class reference id %1")
+                                  .arg(QString::number(in.metadataId));
         return false;
     }
 
     // This class has been defined, and we use the saved one
-    auto classRef = dynamic_cast<ClassMemberObject *>(it.value().data());
-    if (!classRef) {
-        return false;
-    }
+    auto classRef = it.value();
     auto objRef = classRef->value.data();
 
     // Copy information
@@ -480,6 +477,7 @@ bool NrbfReader::onClassWithId(ClassWithId &in, ObjectRef &out) {
     // Read members
     if (classRef->classType() & ClassMemberObject::WithTypes) {
         if (!readMembers(obj, classRef->classInfo.memberNames, classRef->memberTypeInfo)) {
+            qDebug().noquote() << "NrbfReader: Read class members failed";
             return false;
         }
     } else {
@@ -513,6 +511,7 @@ bool NrbfReader::onBinaryArray(BinaryArray &in, ObjectRef &out) {
         case RemotingTypeInfo::PrimitiveType: {
             PrimitiveValueArray arr;
             if (!arr.read(*stream, production, in.additionInfo.toPrimitiveTypeEnum())) {
+                qDebug().noquote() << QString("NrbfReader: Read primitive array failed");
                 return false;
             }
             auto listObj = new PrimitiveListObject(arr);
@@ -525,8 +524,9 @@ bool NrbfReader::onBinaryArray(BinaryArray &in, ObjectRef &out) {
         }
         case RemotingTypeInfo::String: {
             QStringList arr;
-            resizeList(arr, production);
+            Helper::resizeList(arr, production);
             if (!readStrings(arr)) {
+                qDebug().noquote() << QString("NrbfReader: Read string array failed");
                 return false;
             }
             auto listObj = new StringListObject(arr);
@@ -539,8 +539,9 @@ bool NrbfReader::onBinaryArray(BinaryArray &in, ObjectRef &out) {
         }
         default: {
             QSharedPointer<ObjectListObject> listObj(new ObjectListObject());
-            resizeList(listObj->values, production);
+            Helper::resizeList(listObj->values, production);
             if (!readObjects(listObj->values)) {
+                qDebug().noquote() << QString("NrbfReader: Read object array failed");
                 return false;
             }
             listObj->lengths = in.lengths;
@@ -601,6 +602,7 @@ bool NrbfReader::onObjectNullMultiple(ObjectNullMultiple &in, ObjectRef &out) {
 bool NrbfReader::onArraySinglePrimitive(ArraySinglePrimitive &in, ObjectRef &out) {
     PrimitiveValueArray arr;
     if (!arr.read(*stream, in.arrayInfo.length, in.primitiveTypeEnum)) {
+        qDebug().noquote() << QString("NrbfReader: Read primitive array failed");
         return false;
     }
 
@@ -618,8 +620,9 @@ bool NrbfReader::onArraySinglePrimitive(ArraySinglePrimitive &in, ObjectRef &out
 bool NrbfReader::onArraySingleObject(ArraySingleObject &in, ObjectRef &out) {
     // Allocate first because the read function needs it
     auto obj = QSharedPointer<ObjectListObject>::create();
-    resizeList(obj->values, in.arrayInfo.length);
+    Helper::resizeList(obj->values, in.arrayInfo.length);
     if (!readObjects(obj->values)) {
+        qDebug().noquote() << QString("NrbfReader: Read object array failed");
         return false;
     }
 
@@ -635,8 +638,9 @@ bool NrbfReader::onArraySingleObject(ArraySingleObject &in, ObjectRef &out) {
 
 bool NrbfReader::onArraySingleString(ArraySingleString &in, ObjectRef &out) {
     QStringList arr;
-    resizeList(arr, in.arrayInfo.length);
+    Helper::resizeList(arr, in.arrayInfo.length);
     if (!readStrings(arr)) {
+        qDebug().noquote() << QString("NrbfReader: Read string array failed");
         return false;
     }
 

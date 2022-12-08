@@ -8,7 +8,7 @@
 #include "Formats/SvipReader.h"
 #include "Formats/SvipWriter.h"
 
-#include "Primitive/Parser.h"
+#include "Utils/NrbfParser.h"
 
 #include "Utils/NrbfReader.h"
 #include "Utils/NrbfWriter.h"
@@ -63,7 +63,7 @@ void QNrbfStreamPrivate::serialize(const NrbfRegistry &reg) {
     //    }
 
     NrbfWriter writer(q, reg);
-    if (!writer.write()){
+    if (!writer.write()) {
         q->setStatus(QDataStream::WriteFailed);
     }
 }

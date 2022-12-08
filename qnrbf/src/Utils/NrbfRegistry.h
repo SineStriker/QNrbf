@@ -31,9 +31,6 @@ public:
     QSharedPointer<SerializationHeader> header;
 
 public:
-    static QString toBackingField(const QString &key);
-
-public:
     using ObjectMap = QMap<QString, ObjectRef>;
 
     // Searching utils

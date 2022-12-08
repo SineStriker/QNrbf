@@ -28,7 +28,7 @@ bool SerializationHeader::write(QDataStream &out) {
     if (out.status() != QDataStream::Ok) {
         return false;
     }
-    return false;
+    return true;
 }
 
 QNRBF_END_NAMESPACE

@@ -62,13 +62,19 @@ int main(int argc, char *argv[]) {
     }
     qDebug() << "Successfully load nrbf file.";
 
+    const bool isBin = true;
+
     // Save model
     {
         QString outputFilename;
         if (args.size() >= 3) {
             outputFilename = args.at(2);
         } else {
-            outputFilename = QFileInfo(filename).baseName() + "_back.json";
+            if (isBin) {
+                outputFilename = QFileInfo(filename).baseName() + "_back.svip";
+            } else {
+                outputFilename = QFileInfo(filename).baseName() + "_back.json";
+            }
         }
         QFile file(outputFilename);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
@@ -77,12 +83,19 @@ int main(int argc, char *argv[]) {
         }
 
         QNrbfStream out(&file);
+        if (isBin) {
+            out << "SVIP";
+            out << "6.0.0";
+        }
         out << svip;
 
         file.close();
     }
 
-    qDebug() << "Successfully save json file.";
-
+    if (isBin) {
+        qDebug() << "Successfully save binary file.";
+    } else {
+        qDebug() << "Successfully save json file.";
+    }
     return 0;
 }

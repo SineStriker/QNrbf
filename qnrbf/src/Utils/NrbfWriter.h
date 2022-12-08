@@ -17,6 +17,7 @@
 #include "Records/SystemClassWithMembers.h"
 #include "Records/SystemClassWithMembersAndTypes.h"
 
+#include "Enums/RecordTypeEnumeration.h"
 #include "NrbfRegistry.h"
 
 QNRBF_BEGIN_NAMESPACE
@@ -32,8 +33,6 @@ public:
     bool write();
 
 protected:
-    bool writeObject(const ObjectRef &objRef);
-
     // Registry
     NrbfRegistry reg;
 
@@ -42,8 +41,12 @@ protected:
     // Properties
     QDataStream *stream;
 
+    bool writeObject(const ObjectRef &objRef);
+
     bool writeMembers(const MappingRef &mapping, const QStringList &memberNames,
                       const MemberTypeInfo &memberTypeInfo);
+
+    bool writeNullObjects(int nullCount);
 };
 
 QNRBF_END_NAMESPACE

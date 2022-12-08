@@ -1,10 +1,14 @@
 #include "SvipWriter.h"
 
+#include <QtMath>
+
 #include "Config/SvipConst.h"
 
 #include "Objects/PrimitiveObject.h"
 #include "Objects/StringObject.h"
 #include "Records/SerializationHeader.h"
+
+#include "Utils/NrbfHelper.h"
 
 QNRBF_BEGIN_NAMESPACE
 
@@ -112,6 +116,8 @@ bool SvipWriter::save() {
         record.binaryTypeEnum = BinaryTypeEnumeration::Class;
         record.additionInfo = ClassTypeInfo(typeName, libraryId);
 
+        listObj->shapeInfo = std::move(record);
+
         reg.objectsById.insert(objId, listObj);
     };
 
@@ -133,6 +139,16 @@ bool SvipWriter::save() {
         for (const auto &node : qAsConst(param->nodeLinkedList)) {
             in << node.Pos;
             in << node.Value;
+        }
+
+        // Add bytes to pow of 2
+        qint32 expectedSize = bytes.size() / 4;
+        expectedSize =
+            (expectedSize < 64) ? 64 : qint32(qPow(2, std::ceil(std::log2(expectedSize))));
+        expectedSize *= 4;
+
+        if (bytes.size() < expectedSize) {
+            bytes.append(expectedSize - bytes.size(), 0);
         }
 
         auto objId = idDeq();
@@ -168,10 +184,10 @@ bool SvipWriter::save() {
         QMap<QString, ObjectRef> members;
 
         // ActualProjectFilePath <Property> - ignored
-        members.insert(NrbfRegistry::toBackingField(KEY_NAME_ACTUAL_PROJECT_FILE_PATH), {});
+        members.insert(Helper::toBackingField(KEY_NAME_ACTUAL_PROJECT_FILE_PATH), {});
 
         // ProjectFilePath <Property>
-        members.insert(NrbfRegistry::toBackingField(KEY_NAME_PROJECT_FILE_PATH),
+        members.insert(Helper::toBackingField(KEY_NAME_PROJECT_FILE_PATH),
                        createString(appModel.ProjectFilePath, ++idMax));
 
         // firstNumericalKeyNameAtIndex
@@ -405,7 +421,7 @@ bool SvipWriter::save() {
                 writeITrack(singingTrack, members);
 
                 // AISingerId <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_AI_SINGER_ID),
+                members.insert(Helper::toBackingField(KEY_NAME_AI_SINGER_ID),
                                createString(singingTrack->AISingerId, ++idMax));
 
                 singingTracks.push_back(singingTrack);
@@ -437,23 +453,23 @@ bool SvipWriter::save() {
                 writeITrack(instrumentTrack, members);
 
                 // SampleRate <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_RATE),
+                members.insert(Helper::toBackingField(KEY_NAME_SAMPLE_RATE),
                                createPrimitive(instrumentTrack->SampleRate));
 
                 // SampleCount <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_COUNT),
+                members.insert(Helper::toBackingField(KEY_NAME_SAMPLE_COUNT),
                                createPrimitive(instrumentTrack->SampleCount));
 
                 // ChannelCount <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_CHANNEL_COUNT),
+                members.insert(Helper::toBackingField(KEY_NAME_CHANNEL_COUNT),
                                createPrimitive(instrumentTrack->ChannelCount));
 
                 // OffsetInPos <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_OFFSET_IN_POS),
+                members.insert(Helper::toBackingField(KEY_NAME_OFFSET_IN_POS),
                                createPrimitive(instrumentTrack->OffsetInPos));
 
                 // InstrumentFilePath <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_INSTRUMENT_FILE_PATH),
+                members.insert(Helper::toBackingField(KEY_NAME_INSTRUMENT_FILE_PATH),
                                createString(instrumentTrack->InstrumentFilePath, ++idMax));
 
                 // Finish
@@ -488,7 +504,7 @@ bool SvipWriter::save() {
             QMap<QString, ObjectRef> members;
 
             // Overlapped <Property>
-            members.insert(NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+            members.insert(Helper::toBackingField(KEY_NAME_OVERLAPPED),
                            createPrimitive(item.Overlapped));
             // pos
             members.insert(KEY_NAME_TEMPO_POS, createPrimitive(item.pos));
@@ -522,7 +538,7 @@ bool SvipWriter::save() {
             QMap<QString, ObjectRef> members;
 
             // Overlapped <Property>
-            members.insert(NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+            members.insert(Helper::toBackingField(KEY_NAME_OVERLAPPED),
                            createPrimitive(item.Overlapped));
 
             // barIndex
@@ -702,11 +718,11 @@ bool SvipWriter::save() {
                 members.insert(KEY_NAME_NOTE_PRONOUNCING, createString(note.pronouncing, ++idMax));
 
                 // Overlapped <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+                members.insert(Helper::toBackingField(KEY_NAME_OVERLAPPED),
                                createPrimitive(note.Overlapped));
 
                 // VibratoPercent <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT),
+                members.insert(Helper::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT),
                                createPrimitive(note.VibratoPercent));
 
                 // headTag
@@ -732,16 +748,16 @@ bool SvipWriter::save() {
                 }
 
                 // NotePhoneInfo <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_NOTE_PHONEME_INFO),
+                members.insert(Helper::toBackingField(KEY_NAME_NOTE_PHONEME_INFO),
                                note.NotePhoneInfo.isNull() ? ObjectRef()
                                                            : createReference(idEnq()));
 
                 // Vibrato <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO),
+                members.insert(Helper::toBackingField(KEY_NAME_NOTE_VIBRATO),
                                note.Vibrato.isNull() ? ObjectRef() : createReference(idEnq()));
 
                 // VibratoPercentInfo <Property>
-                members.insert(NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO),
+                members.insert(Helper::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO),
                                note.VibratoPercentInfo.isNull() ? ObjectRef()
                                                                 : createReference(idEnq()));
 
@@ -778,13 +794,12 @@ bool SvipWriter::save() {
                     QMap<QString, ObjectRef> members;
 
                     // HeadPhoneTimeInSec <Property>
-                    members.insert(NrbfRegistry::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
+                    members.insert(Helper::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
                                    createPrimitive(note.NotePhoneInfo->HeadPhoneTimeInSec));
 
                     // MidPartOverTailPartRatio <Property>
-                    members.insert(
-                        NrbfRegistry::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),
-                        createPrimitive(note.NotePhoneInfo->MidPartOverTailPartRatio));
+                    members.insert(Helper::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),
+                                   createPrimitive(note.NotePhoneInfo->MidPartOverTailPartRatio));
 
                     // Finish
                     auto mapping = QSharedPointer<MappingObject>::create();
@@ -810,7 +825,7 @@ bool SvipWriter::save() {
                     QMap<QString, ObjectRef> members;
 
                     // IsAntiPhase <Property>
-                    members.insert(NrbfRegistry::toBackingField(KEY_NAME_VIBRATO_ANTI_PHASE),
+                    members.insert(Helper::toBackingField(KEY_NAME_VIBRATO_ANTI_PHASE),
                                    createPrimitive(note.Vibrato->IsAntiPhase));
 
                     // ampLine
@@ -964,7 +979,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_AppModel(qint32 o
     classInfo.name = ASSEMBLY_NAME_APP_MODEL;
     classInfo.memberCount = 9;
     classInfo.memberNames = QStringList({
-        NrbfRegistry::toBackingField(KEY_NAME_PROJECT_FILE_PATH),
+        Helper::toBackingField(KEY_NAME_PROJECT_FILE_PATH),
         KEY_NAME_TEMPO_LIST,
         KEY_NAME_BEAT_LIST,
         KEY_NAME_TRACK_LIST,
@@ -972,7 +987,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_AppModel(qint32 o
         KEY_NAME_IS_TRIPLET,
         KEY_NAME_IS_NUMERICAL,
         KEY_NAME_FIRST_NUMERICAL,
-        NrbfRegistry::toBackingField(KEY_NAME_ACTUAL_PROJECT_FILE_PATH),
+        Helper::toBackingField(KEY_NAME_ACTUAL_PROJECT_FILE_PATH),
     });
 
     MemberTypeInfo memberTypeInfo;
@@ -1165,7 +1180,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SingingTrack(qint
         KEY_NAME_TRACK_NAME,
         KEY_NAME_TRACK_MUTE,
         KEY_NAME_TRACK_SOLO,
-        NrbfRegistry::toBackingField(KEY_NAME_AI_SINGER_ID),
+        Helper::toBackingField(KEY_NAME_AI_SINGER_ID),
     });
 
     MemberTypeInfo memberTypeInfo;
@@ -1205,7 +1220,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SingingTrack(qint
     auto obj = QSharedPointer<UserClassTypeObject>::create();
     obj->classInfo = std::move(classInfo);
     obj->memberTypeInfo = std::move(memberTypeInfo);
-    obj->libraryId = id_SingingToolLibrary;
+    obj->libraryId = id_SingingToolModel;
     return obj;
 }
 
@@ -1221,11 +1236,11 @@ QSharedPointer<UserClassTypeObject>
         KEY_NAME_TRACK_NAME,
         KEY_NAME_TRACK_MUTE,
         KEY_NAME_TRACK_SOLO,
-        NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_RATE),
-        NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_COUNT),
-        NrbfRegistry::toBackingField(KEY_NAME_CHANNEL_COUNT),
-        NrbfRegistry::toBackingField(KEY_NAME_OFFSET_IN_POS),
-        NrbfRegistry::toBackingField(KEY_NAME_INSTRUMENT_FILE_PATH),
+        Helper::toBackingField(KEY_NAME_SAMPLE_RATE),
+        Helper::toBackingField(KEY_NAME_SAMPLE_COUNT),
+        Helper::toBackingField(KEY_NAME_CHANNEL_COUNT),
+        Helper::toBackingField(KEY_NAME_OFFSET_IN_POS),
+        Helper::toBackingField(KEY_NAME_INSTRUMENT_FILE_PATH),
     });
 
     MemberTypeInfo memberTypeInfo;
@@ -1252,7 +1267,7 @@ QSharedPointer<UserClassTypeObject>
     auto obj = QSharedPointer<UserClassTypeObject>::create();
     obj->classInfo = std::move(classInfo);
     obj->memberTypeInfo = std::move(memberTypeInfo);
-    obj->libraryId = id_SingingToolLibrary;
+    obj->libraryId = id_SingingToolModel;
     return obj;
 }
 
@@ -1264,7 +1279,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongTempo(qint32 
     classInfo.memberNames = QStringList({
         KEY_NAME_TEMPO_POS,
         KEY_NAME_TEMPO,
-        NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+        Helper::toBackingField(KEY_NAME_OVERLAPPED),
     });
 
     MemberTypeInfo memberTypeInfo;
@@ -1282,8 +1297,10 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongTempo(qint32 
     auto obj = QSharedPointer<UserClassTypeObject>::create();
     obj->classInfo = std::move(classInfo);
     obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolModel;
     return obj;
 }
+
 QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongBeat(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
@@ -1292,7 +1309,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SongBeat(qint32 o
     classInfo.memberNames = QStringList({
         KEY_NAME_BAR_INDEX,
         KEY_NAME_BEAT_SIZE,
-        NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+        Helper::toBackingField(KEY_NAME_OVERLAPPED),
     });
 
     MemberTypeInfo memberTypeInfo;
@@ -1382,6 +1399,7 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_BeatSize(qint32 o
     auto obj = QSharedPointer<UserClassTypeObject>::create();
     obj->classInfo = std::move(classInfo);
     obj->memberTypeInfo = std::move(memberTypeInfo);
+    obj->libraryId = id_SingingToolModel;
     return obj;
 }
 
@@ -1427,11 +1445,11 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_Note(qint32 objec
         KEY_NAME_NOTE_LYRIC,
         KEY_NAME_NOTE_PRONOUNCING,
         KEY_NAME_NOTE_HEAD_TAG,
-        NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
-        NrbfRegistry::toBackingField(KEY_NAME_NOTE_PHONEME_INFO),
-        NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT),
-        NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO),
-        NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO),
+        Helper::toBackingField(KEY_NAME_OVERLAPPED),
+        Helper::toBackingField(KEY_NAME_NOTE_PHONEME_INFO),
+        Helper::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT),
+        Helper::toBackingField(KEY_NAME_NOTE_VIBRATO),
+        Helper::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO),
     });
 
     MemberTypeInfo memberTypeInfo;
@@ -1471,8 +1489,8 @@ QSharedPointer<UserClassTypeObject>
     classInfo.name = ASSEMBLY_NAME_NOTE_PHONEME_INFO;
     classInfo.memberCount = 2;
     classInfo.memberNames = QStringList({
-        NrbfRegistry::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
-        NrbfRegistry::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),
+        Helper::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
+        Helper::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),
     });
 
     MemberTypeInfo memberTypeInfo;
@@ -1495,12 +1513,12 @@ QSharedPointer<UserClassTypeObject>
 QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_VibratoStyle(qint32 objectId) const {
     ClassInfo classInfo;
     classInfo.objectId = objectId;
-    classInfo.name = ASSEMBLY_NAME_VIBRATO_PERCENT_INFO;
+    classInfo.name = ASSEMBLY_NAME_VIBRATO_STYLE;
     classInfo.memberCount = 3;
     classInfo.memberNames = QStringList({
         KEY_NAME_VIBRATO_AMP_LINE,
         KEY_NAME_VIBRATO_FREQ_LINE,
-        NrbfRegistry::toBackingField(KEY_NAME_VIBRATO_ANTI_PHASE),
+        Helper::toBackingField(KEY_NAME_VIBRATO_ANTI_PHASE),
     });
 
     MemberTypeInfo memberTypeInfo;

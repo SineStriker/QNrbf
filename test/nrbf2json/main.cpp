@@ -52,6 +52,9 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    qDebug() << name;
+    qDebug() << ver;
+
     // Read content
     in >> obj;
     if (in.status() != QDataStream::Ok) {

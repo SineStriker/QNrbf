@@ -19,7 +19,7 @@ public:
     PrimitiveValueArray &operator=(const PrimitiveValueArray &other);
     ~PrimitiveValueArray();
 
-    PrimitiveValueArray(PrimitiveTypeEnumeration nullType, int size);
+    PrimitiveValueArray(PrimitiveTypeEnumeration type, int size);
     PrimitiveValueArray(const QList<bool> &bs);
     PrimitiveValueArray(const QList<quint8> &ucs);
     PrimitiveValueArray(const QList<QChar> &chs);

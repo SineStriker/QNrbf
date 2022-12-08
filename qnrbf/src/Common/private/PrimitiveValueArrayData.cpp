@@ -95,7 +95,7 @@ void PrimitiveValueArrayData::clean() {
     }
     zeroMem();
     type = PrimitiveTypeEnumeration::None;
-#undef COPY
+#undef DEL
 }
 
 QNRBF_END_NAMESPACE

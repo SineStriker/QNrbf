@@ -37,7 +37,6 @@ bool JsonReader::load() {
     if (root.isNull()) {
         return false;
     }
-    //    jsonObj = dfs(root).toObject();
     jsonObj = dfs_shallow().toObject();
     return true;
 }
@@ -312,7 +311,8 @@ QJsonValue JsonReader::dfs_shallow() {
                                         {"binaryArrayType", Parser::strBinaryArrayTypeEnumeration(
                                                                 info.binaryArrayTypeEnum)},
                                         {"rank", info.rank},
-                                        {"binaryType", Parser::strBinaryTypeEnum(info.binaryTypeEnum)},
+                                        {"binaryType",
+                                         Parser::strBinaryTypeEnum(info.binaryTypeEnum)},
                                         {"lengths",
                                          QJsonArray::fromStringList(numsToStrs(info.lengths))},
                                         {"lowerBounds",

@@ -60,11 +60,7 @@ QJsonObject QSvipModel::toJsonObject() const {
                 auto track = dynamic_cast<const SingingTrack *>(item.data());
 
                 objTrack.insert("Type", "Singing");
-                objTrack.insert(
-                    "AISingerName",
-                    (track->AISingerName.isEmpty())
-                        ? QString()
-                        : QString("$(%1)").arg(track->AISingerName)); // Use escape syntax
+                objTrack.insert("AISingerName", track->AISingerName);
                 objTrack.insert("ReverbPreset", track->ReverbPreset);
 
                 QJsonArray noteArr;

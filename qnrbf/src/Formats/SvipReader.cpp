@@ -8,6 +8,8 @@
 
 #include "Config/SvipConst.h"
 
+#include "Utils/NrbfHelper.h"
+
 QNRBF_BEGIN_NAMESPACE
 
 #define ERROR_ON_PROPERTY_NOT_FOUND(PROPERTY)                                                      \
@@ -78,7 +80,7 @@ bool SvipReader::load() {
     // Read basic information
     {
         // ProjectFilePath <Property>
-        if (!reg.findString(rootMembers, NrbfRegistry::toBackingField(KEY_NAME_PROJECT_FILE_PATH),
+        if (!reg.findString(rootMembers, Helper::toBackingField(KEY_NAME_PROJECT_FILE_PATH),
                             svip.ProjectFilePath)) {
             ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_PROJECT_FILE_PATH);
         }
@@ -192,8 +194,7 @@ bool SvipReader::load() {
                 }
 
                 // AISingerId <Property>
-                if (!reg.findString(trackMembers,
-                                    NrbfRegistry::toBackingField(KEY_NAME_AI_SINGER_ID),
+                if (!reg.findString(trackMembers, Helper::toBackingField(KEY_NAME_AI_SINGER_ID),
                                     track.AISingerId)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_AI_SINGER_ID);
                 }
@@ -344,32 +345,28 @@ bool SvipReader::load() {
                 }
 
                 // SampleRate <Property>
-                if (!reg.findPrimitive(trackMembers,
-                                       NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_RATE),
+                if (!reg.findPrimitive(trackMembers, Helper::toBackingField(KEY_NAME_SAMPLE_RATE),
                                        PrimitiveTypeEnumeration::Double, track.SampleRate)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_SAMPLE_RATE);
                 }
                 // SampleCount <Property>
-                if (!reg.findPrimitive(trackMembers,
-                                       NrbfRegistry::toBackingField(KEY_NAME_SAMPLE_COUNT),
+                if (!reg.findPrimitive(trackMembers, Helper::toBackingField(KEY_NAME_SAMPLE_COUNT),
                                        PrimitiveTypeEnumeration::Int32, track.SampleCount)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_SAMPLE_COUNT);
                 }
                 // ChannelCount <Property>
-                if (!reg.findPrimitive(trackMembers,
-                                       NrbfRegistry::toBackingField(KEY_NAME_CHANNEL_COUNT),
+                if (!reg.findPrimitive(trackMembers, Helper::toBackingField(KEY_NAME_CHANNEL_COUNT),
                                        PrimitiveTypeEnumeration::Int32, track.ChannelCount)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_CHANNEL_COUNT);
                 }
                 // OffsetInPos <Property>
-                if (!reg.findPrimitive(trackMembers,
-                                       NrbfRegistry::toBackingField(KEY_NAME_OFFSET_IN_POS),
+                if (!reg.findPrimitive(trackMembers, Helper::toBackingField(KEY_NAME_OFFSET_IN_POS),
                                        PrimitiveTypeEnumeration::Int32, track.OffsetInPos)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_OFFSET_IN_POS);
                 }
                 // InstrumentFilePath <Property>
                 if (!reg.findString(trackMembers,
-                                    NrbfRegistry::toBackingField(KEY_NAME_INSTRUMENT_FILE_PATH),
+                                    Helper::toBackingField(KEY_NAME_INSTRUMENT_FILE_PATH),
                                     track.InstrumentFilePath)) {
                     ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_INSTRUMENT_FILE_PATH);
                 }
@@ -386,7 +383,7 @@ bool SvipReader::load() {
 
 bool SvipReader::readBeat(const QMap<QString, ObjectRef> &members, XSSongBeat &out) {
     // Overlapped <Property>
-    if (!reg.findPrimitive(members, NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+    if (!reg.findPrimitive(members, Helper::toBackingField(KEY_NAME_OVERLAPPED),
                            PrimitiveTypeEnumeration::Boolean, out.Overlapped)) {
         ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_OVERLAPPED);
     }
@@ -422,7 +419,7 @@ bool SvipReader::readBeat(const QMap<QString, ObjectRef> &members, XSSongBeat &o
 
 bool SvipReader::readTempo(const QMap<QString, ObjectRef> &members, XSSongTempo &out) {
     // Overlapped <Property>
-    if (!reg.findPrimitive(members, NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+    if (!reg.findPrimitive(members, Helper::toBackingField(KEY_NAME_OVERLAPPED),
                            PrimitiveTypeEnumeration::Boolean, out.Overlapped)) {
         ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_OVERLAPPED);
     }
@@ -531,12 +528,12 @@ bool SvipReader::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
         ERROR_ON_MEMBER_NOT_FOUND(KEY_NAME_NOTE_PRONOUNCING);
     }
     // Overlapped <Property>
-    if (!reg.findPrimitive(members, NrbfRegistry::toBackingField(KEY_NAME_OVERLAPPED),
+    if (!reg.findPrimitive(members, Helper::toBackingField(KEY_NAME_OVERLAPPED),
                            PrimitiveTypeEnumeration::Boolean, out.Overlapped)) {
         ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_OVERLAPPED);
     }
     // VibratoPercent <Property>
-    if (!reg.findPrimitive(members, NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT),
+    if (!reg.findPrimitive(members, Helper::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT),
                            PrimitiveTypeEnumeration::Int32, out.VibratoPercent)) {
         ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_NOTE_VIBRATO_PERCENT);
     }
@@ -558,8 +555,7 @@ bool SvipReader::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
     // VibratoPercentInfo <Property>
     {
         MappingRef infoObj;
-        if (!reg.findObject(members,
-                            NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO),
+        if (!reg.findObject(members, Helper::toBackingField(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO),
                             infoObj)) {
             ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_NOTE_VIBRATO_PERCENT_INFO);
         }
@@ -584,7 +580,7 @@ bool SvipReader::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
     // NotePhoneInfo <Property>
     {
         MappingRef phonemeObj;
-        if (!reg.findObject(members, NrbfRegistry::toBackingField(KEY_NAME_NOTE_PHONEME_INFO),
+        if (!reg.findObject(members, Helper::toBackingField(KEY_NAME_NOTE_PHONEME_INFO),
                             phonemeObj)) {
             ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_NOTE_PHONEME_INFO);
         }
@@ -596,16 +592,15 @@ bool SvipReader::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
 
             // HeadPhoneTimeInSec <Property>
             if (!reg.findPrimitive(
-                    phonemeMembers, NrbfRegistry::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
+                    phonemeMembers, Helper::toBackingField(KEY_NAME_HEAD_PHONEME_TIME),
                     PrimitiveTypeEnumeration::Single, out.NotePhoneInfo->HeadPhoneTimeInSec)) {
                 ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_HEAD_PHONEME_TIME);
             }
             // MidPartOverTailPartRatio <Property>
-            if (!reg.findPrimitive(
-                    phonemeMembers,
-                    NrbfRegistry::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),
-                    PrimitiveTypeEnumeration::Single,
-                    out.NotePhoneInfo->MidPartOverTailPartRatio)) {
+            if (!reg.findPrimitive(phonemeMembers,
+                                   Helper::toBackingField(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO),
+                                   PrimitiveTypeEnumeration::Single,
+                                   out.NotePhoneInfo->MidPartOverTailPartRatio)) {
                 ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_MID_PART_OVER_TAIL_PART_RATIO);
             }
         }
@@ -614,8 +609,7 @@ bool SvipReader::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
     // Vibrato <Property>
     {
         MappingRef styleObj;
-        if (!reg.findObject(members, NrbfRegistry::toBackingField(KEY_NAME_NOTE_VIBRATO),
-                            styleObj)) {
+        if (!reg.findObject(members, Helper::toBackingField(KEY_NAME_NOTE_VIBRATO), styleObj)) {
             ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_NOTE_VIBRATO);
         }
         if (!styleObj.isNull()) {
@@ -626,7 +620,7 @@ bool SvipReader::readNote(const QMap<QString, ObjectRef> &members, XSNote &out) 
 
             // IsAntiPhase <Property>
             if (!reg.findPrimitive(styleMembers,
-                                   NrbfRegistry::toBackingField(KEY_NAME_VIBRATO_ANTI_PHASE),
+                                   Helper::toBackingField(KEY_NAME_VIBRATO_ANTI_PHASE),
                                    PrimitiveTypeEnumeration::Boolean, out.Vibrato->IsAntiPhase)) {
                 ERROR_ON_PROPERTY_NOT_FOUND(KEY_NAME_VIBRATO_ANTI_PHASE);
             }

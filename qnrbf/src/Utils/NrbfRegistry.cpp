@@ -41,10 +41,6 @@ ObjectRef NrbfRegistry::findReference(qint32 id) const {
 }
 
 
-QString NrbfRegistry::toBackingField(const QString &key) {
-    return QString("<%1>k__BackingField").arg(key);
-}
-
 bool NrbfRegistry::findString(const ObjectMap &objMap, const QString &key, QString &out) const {
     const ObjectRef &objRef = findRealObject(objMap, key);
     if (objRef.isNull()) {

@@ -1,6 +1,6 @@
 #include "BinaryLibrary.h"
 
-#include "Primitive/Parser.h"
+#include "Utils/NrbfParser.h"
 
 QNRBF_BEGIN_NAMESPACE
 

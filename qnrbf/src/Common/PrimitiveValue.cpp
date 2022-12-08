@@ -1,9 +1,10 @@
 #include "PrimitiveValue.h"
 
-#include "Primitive/Parser.h"
+#include "Utils/NrbfParser.h"
 
 #include "private/PrimitiveValueData.h"
 
+#include <QDebug>
 #include <QVariant>
 
 QNRBF_BEGIN_NAMESPACE
@@ -22,9 +23,27 @@ PrimitiveValue &PrimitiveValue::operator=(const PrimitiveValue &other) {
 PrimitiveValue::~PrimitiveValue() {
 }
 
-PrimitiveValue::PrimitiveValue(PrimitiveTypeEnumeration nullType) : d(new PrimitiveValueData()) {
-    Q_ASSERT(nullType == PrimitiveTypeEnumeration::Null);
-    d->type = PrimitiveTypeEnumeration::Null;
+PrimitiveValue::PrimitiveValue(PrimitiveTypeEnumeration type) : d(new PrimitiveValueData()) {
+    d->type = type;
+    switch (type) {
+        case PrimitiveTypeEnumeration::Char:
+            d->data.ch = new QChar();
+            break;
+        case PrimitiveTypeEnumeration::String:
+            d->data.str = new QString();
+            break;
+        case PrimitiveTypeEnumeration::Decimal:
+            d->data.dec = new Decimal();
+            break;
+        case PrimitiveTypeEnumeration::DateTime:
+            d->data.dt = new DateTime();
+            break;
+        case PrimitiveTypeEnumeration::TimeSpan:
+            d->data.ts = new TimeSpan();
+            break;
+        default:
+            break;
+    }
 }
 
 PrimitiveValue::PrimitiveValue(bool b) : d(new PrimitiveValueData()) {
@@ -53,8 +72,8 @@ PrimitiveValue::PrimitiveValue(double d) : d(new PrimitiveValueData()) {
 }
 
 PrimitiveValue::PrimitiveValue(qint16 s) : d(new PrimitiveValueData()) {
-    this->d->type = PrimitiveTypeEnumeration::Int16;
-    this->d->data.s = s;
+    d->type = PrimitiveTypeEnumeration::Int16;
+    d->data.s = s;
 }
 
 PrimitiveValue::PrimitiveValue(qint32 i) : d(new PrimitiveValueData()) {
@@ -116,70 +135,67 @@ PrimitiveTypeEnumeration PrimitiveValue::type() const {
 }
 
 bool PrimitiveValue::toBool() const {
-    if (d->type != PrimitiveTypeEnumeration::Boolean) {
-        return false;
-    }
-    return d->data.b;
+    return d->type == PrimitiveTypeEnumeration::Boolean && d->data.b;
 }
 
 quint8 PrimitiveValue::toByte() const {
-    return d->data.uc;
+    return d->type == PrimitiveTypeEnumeration::Byte ? d->data.uc : quint8(0);
 }
 
 QChar PrimitiveValue::toChar() const {
-    return *d->data.ch;
+    return d->type == PrimitiveTypeEnumeration::Char ? *d->data.ch : QChar();
 }
 
 Decimal PrimitiveValue::toDecimal() const {
-    return *d->data.dec;
+    return d->type == PrimitiveTypeEnumeration::Decimal ? *d->data.dec : Decimal();
 }
 
 double PrimitiveValue::toDouble() const {
-    return d->data.d;
+    return d->type == PrimitiveTypeEnumeration::Double ? d->data.d : 0.0;
 }
 
 qint16 PrimitiveValue::toInt16() const {
-    return d->data.s;
+    return d->type == PrimitiveTypeEnumeration::Int16 ? d->data.s : qint16(0);
 }
 
 qint32 PrimitiveValue::toInt32() const {
-    return d->data.i;
+    return d->type == PrimitiveTypeEnumeration::Int32 ? d->data.i : qint32(0);
 }
 
 qint64 PrimitiveValue::toInt64() const {
-    return d->data.l;
+    return d->type == PrimitiveTypeEnumeration::Int64 ? d->data.l : qint64(0);
 }
 
 qint8 PrimitiveValue::toSByte() const {
-    return d->data.c;
+    return d->type == PrimitiveTypeEnumeration::SByte ? d->data.c : qint8(0);
 }
 
 float PrimitiveValue::toSingle() const {
-    return d->data.f;
+    return d->type == PrimitiveTypeEnumeration::Single ? d->data.f : float(0);
 }
 
 TimeSpan PrimitiveValue::toTimeSpan() const {
-    return *d->data.ts;
+    return d->type == PrimitiveTypeEnumeration::TimeSpan ? *d->data.ts : TimeSpan();
 }
 
 DateTime PrimitiveValue::toDateTime() const {
-    return *d->data.dt;
+    return d->type == PrimitiveTypeEnumeration::DateTime ? *d->data.dt : DateTime();
 }
 
 quint16 PrimitiveValue::toUInt16() const {
-    return d->data.us;
+    return d->type == PrimitiveTypeEnumeration::UInt16 ? d->data.us : quint16(0);
 }
 
 quint32 PrimitiveValue::toUInt32() const {
-    return d->data.u;
+    return d->type == PrimitiveTypeEnumeration::UInt32 ? d->data.u : quint32(0);
 }
 
 quint64 PrimitiveValue::toUInt64() const {
-    return d->data.ul;
+    return d->type == PrimitiveTypeEnumeration::Int64 ? d->data.ul : quint64(0);
 }
 
 QString PrimitiveValue::toString() const {
-    return *d->data.str;
+    return d->type == PrimitiveTypeEnumeration::String ? *d->data.str : QString();
 }
 
 void *PrimitiveValue::data() {
@@ -222,8 +238,7 @@ QString PrimitiveValue::asString() const {
     QString res;
     switch (d->type) {
         case PrimitiveTypeEnumeration::Boolean: {
-            bool b = toBool();
-            res = b ? "true" : "false";
+            res = toBool() ? "true" : "false";
             break;
         }
         case PrimitiveTypeEnumeration::Byte: {
@@ -310,7 +325,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.uc = val;
             break;
         }
@@ -319,7 +333,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (!Parser::readUtf8Char(val, in)) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.ch = new QChar(std::move(val));
             break;
         }
@@ -329,7 +342,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.d = val;
             break;
         }
@@ -339,7 +351,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.s = val;
             break;
         }
@@ -349,7 +360,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.i = val;
             break;
         }
@@ -359,7 +369,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.l = val;
             break;
         }
@@ -369,7 +378,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.c = val;
             break;
         }
@@ -379,25 +387,22 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.f = val;
             break;
         }
         case PrimitiveTypeEnumeration::TimeSpan: {
             TimeSpan val;
-            if (Parser::readTimeSpan(val, in)) {
+            if (!Parser::readTimeSpan(val, in)) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.ts = new TimeSpan(val);
             break;
         }
         case PrimitiveTypeEnumeration::DateTime: {
             DateTime val;
-            if (Parser::readDateTime(val, in)) {
+            if (!Parser::readDateTime(val, in)) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.dt = new DateTime(val);
             break;
         }
@@ -407,7 +412,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.us = val;
             break;
         }
@@ -417,7 +421,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.u = val;
             break;
         }
@@ -427,7 +430,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (in.status() != QDataStream::Ok) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.ul = val;
             break;
         }
@@ -436,7 +438,6 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (!Parser::readDecimal(val, in)) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.dec = new Decimal(std::move(val));
             break;
         }
@@ -445,89 +446,100 @@ bool PrimitiveValue::read(QDataStream &in, PrimitiveTypeEnumeration primitiveTyp
             if (!Parser::readString(val, in)) {
                 return false;
             }
-            d->type = primitiveTypeEnum;
             d->data.str = new QString(std::move(val));
             break;
         }
         default: {
+            // Cannot read other type data
+            return false;
             break;
         }
     }
+    d->type = primitiveTypeEnum;
+
     return true;
 }
 
 bool PrimitiveValue::write(QDataStream &out) const {
+    bool success = true;
     switch (d->type) {
         case PrimitiveTypeEnumeration::Boolean:
         case PrimitiveTypeEnumeration::Byte: {
             out << d->data.uc;
+            success = out.status() == QDataStream::Ok;
             break;
         }
         case PrimitiveTypeEnumeration::Char: {
-            Parser::writeUtf8Char(*d->data.ch, out);
+            success = Parser::writeUtf8Char(*d->data.ch, out);
             break;
         }
         case PrimitiveTypeEnumeration::Double: {
             out << d->data.d;
+            success = out.status() == QDataStream::Ok;
             break;
         }
         case PrimitiveTypeEnumeration::Int16: {
             out << d->data.s;
+            success = out.status() == QDataStream::Ok;
             break;
         }
         case PrimitiveTypeEnumeration::Int32: {
             out << d->data.i;
+            success = out.status() == QDataStream::Ok;
             break;
         }
         case PrimitiveTypeEnumeration::Int64: {
             out << d->data.l;
+            success = out.status() == QDataStream::Ok;
             break;
         }
         case PrimitiveTypeEnumeration::SByte: {
             out << d->data.c;
+            success = out.status() == QDataStream::Ok;
             break;
         }
         case PrimitiveTypeEnumeration::Single: {
             float val = d->data.f;
-            out.writeRawData((char *) &val, sizeof(val));
+            success = out.writeRawData((char *) &val, sizeof(val)) == sizeof(val);
             break;
         }
         case PrimitiveTypeEnumeration::TimeSpan: {
-            Parser::writeTimeSpan(*d->data.ts, out);
+            success = Parser::writeTimeSpan(*d->data.ts, out);
             break;
         }
         case PrimitiveTypeEnumeration::DateTime: {
-            Parser::writeDateTime(*d->data.dt, out);
+            success = Parser::writeDateTime(*d->data.dt, out);
             break;
         }
         case PrimitiveTypeEnumeration::UInt16: {
             out << d->data.us;
+            success = out.status() == QDataStream::Ok;
             break;
         }
         case PrimitiveTypeEnumeration::UInt32: {
             out << d->data.u;
+            success = out.status() == QDataStream::Ok;
             break;
         }
         case PrimitiveTypeEnumeration::UInt64: {
             out << d->data.ul;
+            success = out.status() == QDataStream::Ok;
             break;
         }
         case PrimitiveTypeEnumeration::Decimal: {
-            Parser::writeDecimal(*d->data.dec, out);
+            success = Parser::writeDecimal(*d->data.dec, out);
             break;
         }
         case PrimitiveTypeEnumeration::String: {
-            Parser::writeString(*d->data.str, out);
+            success = Parser::writeString(*d->data.str, out);
             break;
         }
         default: {
+            // Write nothing and return true
             break;
         }
     }
-    if (out.status() != QDataStream::Ok) {
-        return false;
-    }
-    return true;
+    return success;
 }
 
 bool PrimitiveValue::writeWithType(QDataStream &out) const {

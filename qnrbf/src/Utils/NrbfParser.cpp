@@ -1,4 +1,4 @@
-#include "Parser.h"
+#include "NrbfParser.h"
 
 #include <QDebug>
 
@@ -88,20 +88,32 @@ bool Parser::readUtf8Char(QChar &out, QDataStream &in) {
     if (in.status() != QDataStream::Ok) {
         return false;
     }
-    int size = (head & 0xD0) != 0 ? 4 : (head & 0xC0) != 0 ? 3 : (head & 0x80) != 0 ? 2 : 1;
-    char buf[4];
-    if (in.readRawData(buf, size) < 0) {
+    // 0xF0 = 0b11110000
+    // 0xE0 = 0b11100000
+    // 0xC0 = 0b11000000
+    // 0x80 = 0b10000000
+    // 0x3F = 0b00111111
+    int suffix = (head & 0xF0) != 0 ? 3 : (
+                 (head & 0xE0) != 0 ? 2 : (
+                 (head & 0xC0) != 0 ? 1 : 0));
+    char tail[3];
+    if (in.readRawData(tail, suffix) != suffix) {
         return false;
     }
-    quint16 value = (head & 0xD0) != 0 ? ((head & 0x3F) << 18) + ((buf[0] & 0x3F) << 12) +
-                                             ((buf[1] & 0x3F) << 6) + (buf[0] & 0x3F)
-                    : (head & 0xC0) != 0
-                        ? ((head & 0x3F) << 12) + ((buf[0] & 0x3F) << 6) + (buf[1] & 0x3F)
-                    : (head & 0x80) != 0 ? ((head & 0x3F) << 6) + (buf[0] & 0x3F)
-                                         : (head & 0x3F);
+    for (int i = 0; i < suffix; ++i) {
+        // Invalid suffix bytes
+        if ((tail[i] & 0xC0) != 0x80) {
+            return false;
+        }
+    }
+    quint16 value =   suffix == 3 ? ((head & 0x3F) << 18) + ((tail[0] & 0x3F) << 12) + ((tail[1] & 0x3F) << 6) + (tail[2] & 0x3F)
+                    : suffix == 2 ? ((head & 0x3F) << 12) + ((tail[0] & 0x3F) << 6)  +  (tail[1] & 0x3F)
+                    : suffix == 1 ? ((head & 0x3F) << 6)  +  (tail[0] & 0x3F)
+                    : (head & 0x3F);
     out = QChar(value);
     return true;
 }
+
 bool Parser::readDateTime(DateTime &out, QDataStream &in) {
     quint64 data;
     in >> data;
@@ -130,7 +142,7 @@ bool Parser::writeLengthPrefix(quint32 size, QDataStream &out) {
     }
 
     int i = 0;
-    while (size > 0 && i <= 4) {
+    while (i == 0 || (size > 0 && i <= 4)) {
         quint8 byte = size & mask_low7;
         size >>= 7;
         if (size > 0) {
@@ -152,10 +164,10 @@ bool Parser::writeLengthPrefix(quint32 size, QDataStream &out) {
 }
 
 bool Parser::writeString(const QString &in, QDataStream &out) {
-    if (!writeLengthPrefix(in.size(), out)) {
+    QByteArray data = in.toUtf8();
+    if (!writeLengthPrefix(data.size(), out)) {
         return false;
     }
-    QByteArray data = in.toUtf8();
     if (out.writeRawData(data.data(), data.size()) != data.size()) {
         return false;
     }

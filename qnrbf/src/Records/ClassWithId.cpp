@@ -1,5 +1,7 @@
 #include "ClassWithId.h"
 
+#include <QDebug>
+
 QNRBF_BEGIN_NAMESPACE
 
 ClassWithId::ClassWithId() {

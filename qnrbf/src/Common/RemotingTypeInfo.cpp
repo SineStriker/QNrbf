@@ -1,6 +1,6 @@
 #include "RemotingTypeInfo.h"
 
-#include "Primitive/Parser.h"
+#include "Utils/NrbfParser.h"
 
 #include "private/RemotingTypeInfoData.h"
 
@@ -47,15 +47,15 @@ RemotingTypeInfo::Type RemotingTypeInfo::type() const {
 }
 
 PrimitiveTypeEnumeration RemotingTypeInfo::toPrimitiveTypeEnum() const {
-    return d->data.pte;
+    return d->type == PrimitiveType ? d->data.pte : PrimitiveTypeEnumeration::None;
 }
 
 QString RemotingTypeInfo::toString() const {
-    return *d->data.str;
+    return d->type == String ? *d->data.str : QString();
 }
 
 ClassTypeInfo RemotingTypeInfo::toClassTypeInfo() const {
-    return *d->data.cti;
+    return d->type == Class ? *d->data.cti : ClassTypeInfo();
 }
 
 bool RemotingTypeInfo::read(QDataStream &in, BinaryTypeEnumeration binaryTypeEnum) {
@@ -86,10 +86,12 @@ bool RemotingTypeInfo::read(QDataStream &in, BinaryTypeEnumeration binaryTypeEnu
             }
             d->type = Class;
             d->data.cti = new ClassTypeInfo();
-            *d->data.cti = info;
+            *d->data.cti = std::move(info);
             break;
         }
         default:
+            // Treat other type as nothing
+            d->type = None;
             break;
     }
     return true;
@@ -97,22 +99,26 @@ bool RemotingTypeInfo::read(QDataStream &in, BinaryTypeEnumeration binaryTypeEnu
 
 bool RemotingTypeInfo::write(QDataStream &out) const {
     switch (d->type) {
-        case PrimitiveType:
+        case PrimitiveType: {
             if (!Parser::writePrimitiveTypeEnum(d->data.pte, out)) {
                 return false;
             }
             break;
-        case String:
+        }
+        case String: {
             if (!Parser::writeString(*d->data.str, out)) {
                 return false;
             }
             break;
-        case Class:
+        }
+        case Class: {
             if (!d->data.cti->write(out)) {
                 return false;
             }
             break;
+        }
         default:
+            // Write nothing and return true
             break;
     }
     return true;

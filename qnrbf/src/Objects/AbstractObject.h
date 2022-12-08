@@ -35,8 +35,8 @@ public:
 protected:
     Type t;
 
-private:
-    QSet<AbstractObject *> insts;
+public:
+    static QSet<AbstractObject *> insts;
 };
 
 using ObjectRef = QSharedPointer<AbstractObject>;

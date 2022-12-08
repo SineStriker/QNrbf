@@ -1,4 +1,4 @@
-project(qnrbf LANGUAGES CXX VERSION 0.0.1.1)
+project(qnrbf LANGUAGES CXX VERSION ${QNRBF_VERSION_VERBOSE})
 
 set(_qt_libs)
 set(_headers)

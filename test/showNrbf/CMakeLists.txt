@@ -4,6 +4,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+# Build another QNrbf static library to query private headers
 set(QNRBF_BUILD_STATIC on)
 set(QNRBF_TARGET_NAME qnrbf2)
 add_subdirectory(../../qnrbf qnrbf_internal)

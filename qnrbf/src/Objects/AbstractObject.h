@@ -7,6 +7,8 @@
 
 #include "qnrbf_global.h"
 
+#define DISABLE_DEBUG_OBJECT_COLLECT
+
 QNRBF_BEGIN_NAMESPACE
 
 class QNRBF_INTERNAL AbstractObject {
@@ -35,8 +37,10 @@ public:
 protected:
     Type t;
 
+#ifndef DISABLE_DEBUG_OBJECT_COLLECT
 public:
     static QSet<AbstractObject *> insts;
+#endif
 };
 
 using ObjectRef = QSharedPointer<AbstractObject>;

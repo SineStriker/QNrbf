@@ -1,4 +1,4 @@
-#include "QSvipModel.h"
+#include "Svip/QSvipModel.h"
 
 #include <QJsonArray>
 

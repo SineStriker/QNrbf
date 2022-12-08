@@ -1,7 +1,7 @@
 #ifndef QNRBFFORMAT_SCOREMARKUTILS_H
 #define QNRBFFORMAT_SCOREMARKUTILS_H
 
-#include "QSvipModel.h"
+#include "Svip/QSvipModel.h"
 
 namespace ScoreMarkUtils {
     // 给定曲速列表从前端截去一定长度，并返回以截断处为零点的新曲速列表。

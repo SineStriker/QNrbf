@@ -3,8 +3,8 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 
-#include "SvipUtils.h"
 #include "QNrbfStream.h"
+#include "Svip/BinSvipResolver.h"
 
 int main(int argc, char *argv[]) {
     QStringList args;
@@ -63,7 +63,8 @@ int main(int argc, char *argv[]) {
 
     // Convert to OpenSVIP model
     QSvipModel model;
-    if (!SvipUtils::bin2Json(svip, name + ver, model)) {
+    BinSvipResolver resolver;
+    if (!resolver.load(svip, model, {{"version", name + ver}})) {
         qDebug() << "Failed to convert to OpenSVIP model.";
         return -1;
     }

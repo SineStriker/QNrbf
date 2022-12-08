@@ -1,6 +1,6 @@
-#include "SvipUtils.h"
+#include "Svip/BinSvipResolver.h"
 
-#include "QSvipConst.h"
+#include "SvipUtils.h"
 
 #include "Utils/ListUtils.h"
 #include "Utils/TimeSynchronizer.h"
@@ -10,7 +10,8 @@ using TimeSig = QSvipModel::TimeSignature;
 
 static double DEFAULT_TEMPO = 120;
 
-bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QSvipModel &out) {
+bool BinSvipResolver::load(const QNrbf::XSAppModel &in, QSvipModel &out,
+                           const QVariantMap &options) {
     auto decodeParam = [](const QNrbf::XSLineParam &param,
                           int(op)(int) = nullptr) -> QSvipModel::ParamCurve {
         QSvipModel::ParamCurve res;
@@ -19,6 +20,17 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
         }
         return res;
     };
+
+    // Find version
+    QString version;
+    {
+        auto it = options.find("version");
+        if (it == options.end() || it.value().type() != QVariant::String) {
+            qDebug().noquote() << "BinSvipResolver: Missing version information";
+            return false;
+        }
+        version = it.value().toString();
+    }
 
     QSvipModel proj;
     proj.Version = version;
@@ -49,7 +61,7 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
                 (singingTrack->AISingerId.isEmpty())
                     ? QString()
                     : QString("$(%1)").arg(singingTrack->AISingerId); // Use escape syntax
-            track.ReverbPreset = reverbPresets_index2Name(singingTrack->reverbPreset);
+            track.ReverbPreset = SvipUtils::reverbPresets_index2Name(singingTrack->reverbPreset);
 
             for (const auto &noteItem : qAsConst(singingTrack->noteList)) {
                 // Convert notes
@@ -58,7 +70,7 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
                 note.StartPos = noteItem.startPos;
                 note.Length = noteItem.widthPos;
                 note.KeyNumber = noteItem.keyIndex - 12;
-                note.HeadTag = noteHeadTag_index2Name(noteItem.headTag);
+                note.HeadTag = SvipUtils::noteHeadTag_index2Name(noteItem.headTag);
                 note.Lyric = noteItem.lyric;
                 note.Pronunciation = noteItem.pronouncing;
 
@@ -143,89 +155,26 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
     return true;
 }
 
-bool SvipUtils::json2Bin(const QSvipModel &in, QNrbf::XSAppModel &out) {
-    QNrbf::XSAppModel model;
+bool BinSvipResolver::save(const QSvipModel &in, QNrbf::XSAppModel &out,
+                           const QVariantMap &options) {
 
     if (in.TimeSignatureList.isEmpty()) {
         qDebug() << "SvipUtils: Empty time signature list";
         return false;
     }
+
     const TimeSig &firstTimeSig = in.TimeSignatureList.front();
 
-    // First bar tick
     qint32 firstBarTick =
         qRound(1920.0 * double(firstTimeSig.Numerator) / firstTimeSig.Denominator);
-
-    // Tempos
     QList<Tempo> firstBarTempo = ListUtils::Where(
         in.SongTempoList, [&](const Tempo &tempo) { return tempo.Position < firstBarTick; });
-
     bool isAbsoluteTimeMode = ListUtils::Any(
         in.SongTempoList, [&](const Tempo &tempo) { return tempo.BPM < 20 || tempo.BPM > 300; });
 
     TimeSynchronizer sync(in.SongTempoList, firstBarTick, isAbsoluteTimeMode, DEFAULT_TEMPO);
 
+    QNrbf::XSAppModel model;
+
     return false;
-}
-
-QNrbf::XSReverbPreset SvipUtils::reverbPresets_name2Index(const QString &name) {
-    return QNrbf::DEFAULT;
-}
-
-QString SvipUtils::reverbPresets_index2Name(QNrbf::XSReverbPreset index) {
-    QString res;
-    switch (index) {
-        case QNrbf::XSReverbPreset::NONE:
-            res = Q_FROM_UNICODE(ReverbPreset_Dry);
-            break;
-        case QNrbf::XSReverbPreset::DEFAULT:
-            res = Q_FROM_UNICODE(ReverbPreset_FloatingLight);
-            break;
-        case QNrbf::XSReverbPreset::SMALLHALL1:
-            res = Q_FROM_UNICODE(ReverbPreset_Afternoon);
-            break;
-        case QNrbf::XSReverbPreset::MEDIUMHALL1:
-            res = Q_FROM_UNICODE(ReverbPreset_Moonlight);
-            break;
-        case QNrbf::XSReverbPreset::LARGEHALL1:
-            res = Q_FROM_UNICODE(ReverbPreset_Cristal);
-            break;
-        case QNrbf::XSReverbPreset::SMALLROOM1:
-            res = Q_FROM_UNICODE(ReverbPreset_Soda);
-            break;
-        case QNrbf::XSReverbPreset::MEDIUMROOM1:
-            res = Q_FROM_UNICODE(ReverbPreset_Nightingale);
-            break;
-        case QNrbf::XSReverbPreset::LONGREVERB2:
-            res = Q_FROM_UNICODE(ReverbPreset_BigDream);
-            break;
-        default:
-            break;
-    }
-    return res;
-}
-
-QNrbf::XSNoteHeadTag SvipUtils::noteHeadTag_name2Index(const QString &name) {
-    QNrbf::XSNoteHeadTag res = QNrbf::XSNoteHeadTag::NoTag;
-    if (name == "0") {
-        res = QNrbf::XSNoteHeadTag::SilTag;
-    } else if (name == "V") {
-        res = QNrbf::XSNoteHeadTag::SpTag;
-    }
-    return res;
-}
-
-QString SvipUtils::noteHeadTag_index2Name(QNrbf::XSNoteHeadTag index) {
-    QString res;
-    switch (index) {
-        case QNrbf::XSNoteHeadTag::SilTag:
-            res = "0";
-            break;
-        case QNrbf::XSNoteHeadTag::SpTag:
-            res = "V";
-            break;
-        default:
-            break;
-    }
-    return res;
 }

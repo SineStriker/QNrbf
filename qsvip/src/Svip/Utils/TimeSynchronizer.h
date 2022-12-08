@@ -3,7 +3,7 @@
 
 #include <QStringList>
 
-#include "QSvipModel.h"
+#include "Svip/QSvipModel.h"
 
 class TimeSynchronizer {
 public:

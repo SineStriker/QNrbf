@@ -1,6 +1,10 @@
 # QNrbfFormat
 
-C++/Qt library to read/write MS-NRBF.
+C++ library to read/write MS-NRBF.
+
+## Requirements
+
++ Qt Core
 
 ## References
 
@@ -17,3 +21,12 @@ C++/Qt library to read/write MS-NRBF.
 
 + Svip
   + Deserialize X Studio Singer (not 3) project file
+
+## Related Pages
+
++ [OpenSVIP](https://github.com/yqzhishen/opensvip)
+  + `qsvip` is to convert XStudio project files into OpenSVIP json files
+
+## License
+
++ `QNrbfFormat` is released under GNU LGPL 2.1 License.

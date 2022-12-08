@@ -4,8 +4,7 @@
 #include <QJsonDocument>
 
 #include "QNrbfStream.h"
-#include "QSvipModel.h"
-#include "SvipUtils.h"
+#include "Svip/BinSvipResolver.h"
 
 struct QSvipData {
     QByteArray input;
@@ -60,7 +59,8 @@ bool qsvip_reader_load() {
 
     // Convert to OpenSVIP model
     QSvipModel model;
-    if (!SvipUtils::bin2Json(svip, name + ver, model)) {
+    BinSvipResolver resolver;
+    if (!resolver.load(svip, model, {{"version", name + ver}})) {
         qDebug() << "Failed to convert to OpenSVIP model";
         return false;
     }

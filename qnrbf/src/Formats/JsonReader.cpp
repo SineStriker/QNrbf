@@ -69,6 +69,7 @@ struct Receiver {
 
 QJsonValue JsonReader::dfs_shallow() {
     QMap<int, ObjectRef> objects = reg.objectsById;
+    //      QMap<int, ObjectRef> objects;
     for (auto it = reg.classesById.begin(); it != reg.classesById.end(); ++it) {
         objects.insert(it.key(), it.value()->value);
     }
@@ -124,7 +125,13 @@ QJsonValue JsonReader::dfs_shallow() {
                         // Push members
                         for (auto it = mapping->members.begin(); it != mapping->members.end();
                              ++it) {
-                            stack.emplace_back(it.key(), it.value());
+                            // To avoid linked list
+                            const auto &objMember = it.value();
+                            stack.emplace_back(
+                                it.key(),
+                                objMember->type() == AbstractObject::Mapping
+                                    ? QSharedPointer<DeferredReferenceObject>::create(objMember->id)
+                                    : objMember);
                         }
                         break;
                     }

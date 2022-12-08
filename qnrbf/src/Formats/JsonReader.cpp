@@ -129,7 +129,7 @@ QJsonValue JsonReader::dfs_shallow() {
                             const auto &objMember = it.value();
                             stack.emplace_back(
                                 it.key(),
-                                objMember->type() == AbstractObject::Mapping
+                                (objMember->type() == AbstractObject::Mapping && objMember->id > 0)
                                     ? QSharedPointer<DeferredReferenceObject>::create(objMember->id)
                                     : objMember);
                         }

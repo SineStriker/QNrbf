@@ -11,10 +11,12 @@ list(APPEND _qt_libs Qt${QT_VERSION_MAJOR}::Core)
 file(GLOB_RECURSE _headers include/*.h include/*.cpp)
 file(GLOB_RECURSE _sources src/*.h src/*.cpp)
 
+# Use project name as default target name
 if(NOT DEFINED QNRBF_TARGET_NAME)
     set(QNRBF_TARGET_NAME ${PROJECT_NAME})
 endif()
 
+# Library type, shared is recommended
 if(QNRBF_BUILD_STATIC)
     add_library(${QNRBF_TARGET_NAME} STATIC ${_headers} ${_sources})
     target_compile_definitions(${QNRBF_TARGET_NAME} PUBLIC QNRBF_STATIC)
@@ -24,10 +26,16 @@ endif()
 
 target_compile_definitions(${QNRBF_TARGET_NAME} PRIVATE QNRBF_LIBRARY)
 
+# Conditional compiling macros
 if(QNRBF_CHECK_ASSEMBLY)
     target_compile_definitions(${QNRBF_TARGET_NAME} PRIVATE QNRBF_CHECK_ASSEMBLY)
 endif()
 
+if(QNRBF_ENABLE_EXTRA_PARAMS)
+    target_compile_definitions(${QNRBF_TARGET_NAME} PRIVATE QNRBF_ENABLE_EXTRA_PARAMS)
+endif()
+
+# Other properties
 set_target_properties(${QNRBF_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${QNRBF_TARGET_NAME}$<$<CONFIG:Debug>:d>
 )

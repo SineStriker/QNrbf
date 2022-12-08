@@ -2,6 +2,14 @@
 
 #include "QSvipConst.h"
 
+#include "Utils/ListUtils.h"
+#include "Utils/TimeSynchronizer.h"
+
+using Tempo = QSvipModel::SongTempo;
+using TimeSig = QSvipModel::TimeSignature;
+
+static double DEFAULT_TEMPO = 120;
+
 bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QSvipModel &out) {
     auto decodeParam = [](const QNrbf::XSLineParam &param,
                           int(op)(int) = nullptr) -> QSvipModel::ParamCurve {
@@ -17,13 +25,12 @@ bool SvipUtils::bin2Json(const QNrbf::XSAppModel &in, const QString &version, QS
 
     // Convert tempos
     for (const auto &item : in.tempoList) {
-        proj.SongTempoList.append(QSvipModel::SongTempo{item.pos, double(item.tempo) / 100});
+        proj.SongTempoList.append(Tempo{item.pos, double(item.tempo) / 100});
     }
 
     // Convert beats
     for (const auto &item : in.beatList) {
-        proj.TimeSignatureList.append(
-            QSvipModel::TimeSignature{item.barIndex, item.beatSize.x, item.beatSize.y});
+        proj.TimeSignatureList.append(TimeSig{item.barIndex, item.beatSize.x, item.beatSize.y});
     }
 
     // Convert tracks
@@ -143,15 +150,20 @@ bool SvipUtils::json2Bin(const QSvipModel &in, QNrbf::XSAppModel &out) {
         qDebug() << "SvipUtils: Empty time signature list";
         return false;
     }
-    const QSvipModel::TimeSignature &firstTimeSig = in.TimeSignatureList.front();
+    const TimeSig &firstTimeSig = in.TimeSignatureList.front();
 
     // First bar tick
     qint32 firstBarTick =
         qRound(1920.0 * double(firstTimeSig.Numerator) / firstTimeSig.Denominator);
 
     // Tempos
-    QList<QSvipModel::SongTempo> firstBarTempo = {};
+    QList<Tempo> firstBarTempo = ListUtils::Where(
+        in.SongTempoList, [&](const Tempo &tempo) { return tempo.Position < firstBarTick; });
 
+    bool isAbsoluteTimeMode = ListUtils::Any(
+        in.SongTempoList, [&](const Tempo &tempo) { return tempo.BPM < 20 || tempo.BPM > 300; });
+
+    TimeSynchronizer sync(in.SongTempoList, firstBarTick, isAbsoluteTimeMode, DEFAULT_TEMPO);
 
     return false;
 }

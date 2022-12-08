@@ -10,6 +10,10 @@
 
 #include "Utils/NrbfHelper.h"
 
+#ifdef QNRBF_ENABLE_EXTRA_PARAMS
+#define WRITE_POWER_PARAMS
+#endif
+
 QNRBF_BEGIN_NAMESPACE
 
 SvipWriter::SvipWriter(const QNrbf::XSAppModel &model) : appModel(model) {
@@ -108,15 +112,18 @@ bool SvipWriter::save() {
 
         auto objId = idDeq();
 
-        BinaryArray record;
-        record.objectId = objId;
-        record.binaryArrayTypeEnum = BinaryArrayTypeEnumeration::Single;
-        record.rank = 1;
-        record.lengths = {size};
-        record.binaryTypeEnum = BinaryTypeEnumeration::Class;
-        record.additionInfo = ClassTypeInfo(typeName, libraryId);
+        // Write binary array
+        {
+            BinaryArray record;
+            record.objectId = objId;
+            record.binaryArrayTypeEnum = BinaryArrayTypeEnumeration::Single;
+            record.rank = 1;
+            record.lengths = {size};
+            record.binaryTypeEnum = BinaryTypeEnumeration::Class;
+            record.additionInfo = ClassTypeInfo(typeName, libraryId);
 
-        listObj->shapeInfo = std::move(record);
+            listObj->shapeInfo = std::move(record);
+        }
 
         reg.objectsById.insert(objId, listObj);
     };
@@ -388,12 +395,11 @@ bool SvipWriter::save() {
                                                                 ? ObjectRef()
                                                                 : createReference(idEnq()));
 
-                // Power
-                // members.insert(KEY_NAME_EDITED_POWER_LINE,
-                // singingTrack->editedPowerLine.isNull()
-                //  ? ObjectRef()
-                //  :
-                //  createReference(idEnq()));
+#ifdef WRITE_POWER_PARAMS
+                members.insert(KEY_NAME_EDITED_POWER_LINE, singingTrack->editedPowerLine.isNull()
+                                                               ? ObjectRef()
+                                                               : createReference(idEnq()));
+#endif
 
                 // reverbPreset
                 {
@@ -593,8 +599,9 @@ bool SvipWriter::save() {
             cnt += !item->editedVolumeLine.isNull();
             cnt += !item->editedBreathLine.isNull();
             cnt += !item->editedGenderLine.isNull();
-            // cnt += !item->editedPowerLine.isNull();
-
+#ifdef WRITE_POWER_PARAMS
+            cnt += !item->editedPowerLine.isNull();
+#endif
             for (int i = 0; i < cnt; ++i) {
                 // Write lineParam
                 QMap<QString, ObjectRef> members;
@@ -680,7 +687,9 @@ bool SvipWriter::save() {
             item->editedVolumeLine.isNull() ? void() : encodeParams(item->editedVolumeLine);
             item->editedBreathLine.isNull() ? void() : encodeParams(item->editedBreathLine);
             item->editedGenderLine.isNull() ? void() : encodeParams(item->editedGenderLine);
-            // item->editedPowerLine.isNull() ? void() : encodeParams(item->editedPowerLine);
+#ifdef WRITE_POWER_PARAMS
+            item->editedPowerLine.isNull() ? void() : encodeParams(item->editedPowerLine);
+#endif
         }
     }
 
@@ -1165,7 +1174,11 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SingingTrack(qint
     ClassInfo classInfo;
     classInfo.objectId = objectId;
     classInfo.name = ASSEMBLY_NAME_SINGING_TRACK;
+#ifdef WRITE_POWER_PARAMS
+    classInfo.memberCount = 14;
+#else
     classInfo.memberCount = 13;
+#endif
     classInfo.memberNames = QStringList({
         KEY_NAME_NOTE_LIST,
         KEY_NAME_NEED_REFRESH_FLAG,
@@ -1173,7 +1186,9 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SingingTrack(qint
         KEY_NAME_EDITED_VOLUME_LINE,
         KEY_NAME_EDITED_BREATH_LINE,
         KEY_NAME_EDITED_GENDER_LINE,
-        // KEY_NAME_EDITED_POWER_LINE,
+#ifdef WRITE_POWER_PARAMS
+        KEY_NAME_EDITED_POWER_LINE,
+#endif
         KEY_NAME_REVERB_PRESET,
         KEY_NAME_TRACK_VOLUME,
         KEY_NAME_TRACK_PAN,
@@ -1185,19 +1200,15 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SingingTrack(qint
 
     MemberTypeInfo memberTypeInfo;
     memberTypeInfo.binaryTypeEnums = {
+        BinaryTypeEnumeration::Class,     BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Class,     BinaryTypeEnumeration::Class,
+        BinaryTypeEnumeration::Class,     BinaryTypeEnumeration::Class,
+#ifdef WRITE_POWER_PARAMS
         BinaryTypeEnumeration::Class,
-        BinaryTypeEnumeration::Primitive,
-        BinaryTypeEnumeration::Class,
-        BinaryTypeEnumeration::Class,
-        BinaryTypeEnumeration::Class,
-        BinaryTypeEnumeration::Class,
-        // BinaryTypeEnumeration::Class,
-        BinaryTypeEnumeration::Class,
-        BinaryTypeEnumeration::Primitive,
-        BinaryTypeEnumeration::Primitive,
-        BinaryTypeEnumeration::String,
-        BinaryTypeEnumeration::Primitive,
-        BinaryTypeEnumeration::Primitive,
+#endif
+        BinaryTypeEnumeration::Class,     BinaryTypeEnumeration::Primitive,
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::String,
+        BinaryTypeEnumeration::Primitive, BinaryTypeEnumeration::Primitive,
         BinaryTypeEnumeration::String,
     };
     memberTypeInfo.additionalInfos = {
@@ -1207,7 +1218,9 @@ QSharedPointer<UserClassTypeObject> SvipWriter::createClassDef_SingingTrack(qint
         ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
         ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
         ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
-        // ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
+#ifdef WRITE_POWER_PARAMS
+        ClassTypeInfo(ASSEMBLY_NAME_LINE_PARAM, id_SingingToolModel),
+#endif
         ClassTypeInfo(ASSEMBLY_NAME_REVERB_PRESET, id_SingingToolLibrary),
         PrimitiveTypeEnumeration::Double,
         PrimitiveTypeEnumeration::Double,

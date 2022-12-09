@@ -6,14 +6,6 @@ C++ library to read/write MS-NRBF.
 
 + Qt Core
 
-## References
-
-+ [BinaryFormatDataStructure](https://github.com/bbowyersmyth/BinaryFormatDataStructure)
-  + MIT License
-
-+ [pypdn](https://github.com/addisonElliott/pypdn)
-  + MIT License
-
 ## Supported Formats
 
 + Json
@@ -21,6 +13,28 @@ C++ library to read/write MS-NRBF.
 
 + Svip
   + Deserialize X Studio Singer (not 3) project file
+
+## How to Use
++ Copy this folder to where contains the `CMakeLists.txt` which bring in QNrbf
++ Set `QNRBF_BUILD_NRBF_ONLY` to `on`
++ Use `add_subdirectory` to add this repository as your subproject 
+  ```cmake
+  set(QNRBF_BUILD_NRBF_ONLY on)
+  add_subdirectory(QNrbf)
+  ````
+
++ Use `target_link_libraries` to link QNrbf to your project.
+  ```cmake
+  target_link_libraries(<target> <scope> QNrbfFormat)
+  ````
+
+## References
+
++ [BinaryFormatDataStructure](https://github.com/bbowyersmyth/BinaryFormatDataStructure)
+  + MIT License
+
++ [pypdn](https://github.com/addisonElliott/pypdn)
+  + MIT License
 
 ## Related Pages
 

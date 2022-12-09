@@ -40,27 +40,24 @@ void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
     if (ctx->buf.str) {
         free(ctx->buf.str);
     }
-    if (!ctx->model) {
-        return;
-    }
+    if (ctx->model) {
+        xs_app_model *model = ctx->model;
 
-    xs_app_model *model = ctx->model;
+        // Free ProjectFilePath
+        if (model->ProjectFilePath.str) {
+            free(model->ProjectFilePath.str);
+        }
 
-    // Free ProjectFilePath
-    if (model->ProjectFilePath.str) {
-        free(model->ProjectFilePath.str);
-    }
+        // Free tempoList
+        free_node_list(model->tempoList, free);
 
-    // Free tempoList
-    free_node_list(model->tempoList, free);
+        // Free beatList
+        free_node_list(model->beatList, free);
 
-    // Free beatList
-    free_node_list(model->beatList, free);
-
-    {
-        auto cleaner = [](void *data) {
+        auto track_cleaner = [](void *data) {
             auto track = reinterpret_cast<xs_track *>(data);
             if (track->track_type == SINGING) {
+                // Free singingTrack
                 auto singingTrack = reinterpret_cast<xs_singing_track *>(track);
 
                 auto note_cleaner = [](void *data) {
@@ -98,28 +95,35 @@ void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
                 free_node_list(singingTrack->editedGenderLine, free);
                 free_node_list(singingTrack->editedPowerLine, free);
             } else {
+                // Free instrumentTrack
                 auto instrumentTrack = reinterpret_cast<xs_instrument_track *>(track);
                 if (instrumentTrack->InstrumentFilePath.str) {
                     free(instrumentTrack->InstrumentFilePath.str);
                 }
             }
+
+            // Free track base
             if (track->name.str) {
                 free(track->name.str);
             }
+
             // Free track
             free(track);
         };
 
         // Free trackList
-        free_node_list(model->trackList, cleaner);
+        free_node_list(model->trackList, track_cleaner);
+
+        // Free app model
+        free(model);
     }
 
-    // Free app model
-    free(model);
+    // Free context
+    free(ctx);
 }
 
-void nrbf_xstudio_read() {
+void nrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
 }
 
-void nrbf_xstudio_write() {
+void nrbf_xstudio_write(qnrbf_xstudio_context *ctx) {
 }

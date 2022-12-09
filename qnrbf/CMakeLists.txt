@@ -65,21 +65,13 @@ if(WIN32)
     )
     target_sources(${QNRBF_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/res.rc)
 elseif(APPLE)
-    # copy files
-#    get_filename_component(MACOSX_BUNDLE_PLIST_FILENAME ${MACOSX_BUNDLE_PLIST} NAME)
-#
-#    file(COPY res/mac/MacOSXFrameworkInfo.plist.in DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
     # configure mac plist
     set_target_properties(${QNRBF_TARGET_NAME} PROPERTIES
             FRAMEWORK TRUE
             FRAMEWORK_VERSION CXX
             MACOSX_FRAMEWORK_NAME QNrbfFormat
             MACOSX_FRAMEWORK_IDENTIFIER com.SineStriker.QNrbf
-            MACOSX_FRAMEWORK_INFO_PLIST Info.plist
-            # "current version" in semantic format in Mach-O binary file
-            VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-            # "compatibility version" in semantic format in Mach-O binary file
-            SOVERSION 1.0.0
+            MACOSX_FRAMEWORK_BUNDLE_VERSION ${PROJECT_VERSION}
+            MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     )
 endif()

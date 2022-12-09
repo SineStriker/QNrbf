@@ -108,15 +108,22 @@ public:
 
     class QSVIP_API TimeSignature {
     public:
-        int BarIndex = 0;
-        int Numerator = 0;
-        int Denominator = 0;
+        int BarIndex;
+        int Numerator;
+        int Denominator;
+
+        explicit TimeSignature(int idx = 0, int num = 0, int den = 0)
+            : BarIndex(idx), Numerator(num), Denominator(den) {
+        }
     };
 
     class QSVIP_API SongTempo {
     public:
-        int Position = 0;
-        double BPM = 120.0;
+        int Position;
+        double BPM;
+
+        explicit SongTempo(int pos = 0, double bpm = 120) : Position(pos), BPM(bpm) {
+        }
     };
 
     using TrackRef = QSharedPointer<Track>;

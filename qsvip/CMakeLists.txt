@@ -50,5 +50,13 @@ if(WIN32)
     )
     target_sources(${QSVIP_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/res.rc)
 elseif(APPLE)
-
+    # configure mac plist
+    set_target_properties(${QSVIP_TARGET_NAME} PROPERTIES
+            FRAMEWORK TRUE
+            FRAMEWORK_VERSION CXX
+            MACOSX_FRAMEWORK_NAME qsvip
+            MACOSX_FRAMEWORK_IDENTIFIER com.SineStriker.QSvip
+            MACOSX_FRAMEWORK_BUNDLE_VERSION ${PROJECT_VERSION}
+            MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    )
 endif()

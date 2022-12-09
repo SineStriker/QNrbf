@@ -30,6 +30,7 @@ qnrbf_xstudio_context *qnrbf_xstudio_alloc_context() {
     ctx->error = {nullptr, 0};
     ctx->buf = {nullptr, 0};
     ctx->model = nullptr;
+    return ctx;
 }
 
 void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
@@ -43,7 +44,6 @@ void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
         return;
     }
 
-    // Free app model
     xs_app_model *model = ctx->model;
 
     // Free ProjectFilePath
@@ -57,7 +57,6 @@ void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
     // Free beatList
     free_node_list(model->beatList, free);
 
-    // Free trackList
     {
         auto cleaner = [](void *data) {
             auto track = reinterpret_cast<xs_track *>(data);
@@ -70,6 +69,7 @@ void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
                         free(note->NotePhoneInfo);
                     }
                     if (note->Vibrato) {
+                        // Free vibrato params
                         free_node_list(note->Vibrato->ampLine, free);
                         free_node_list(note->Vibrato->freqLine, free);
                         free(note->Vibrato);
@@ -77,16 +77,21 @@ void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
                     if (note->VibratoPercentInfo) {
                         free(note->VibratoPercentInfo);
                     }
-                    if (note->lyric.str){
+                    if (note->lyric.str) {
                         free(note->lyric.str);
                     }
-                    if (note->pronouncing.str){
+                    if (note->pronouncing.str) {
                         free(note->pronouncing.str);
                     }
+
+                    // Free note
+                    free(note);
                 };
 
+                // Free noteList
                 free_node_list(singingTrack->noteList, note_cleaner);
 
+                // Free track params
                 free_node_list(singingTrack->editedPitchLine, free);
                 free_node_list(singingTrack->editedVolumeLine, free);
                 free_node_list(singingTrack->editedBreathLine, free);
@@ -101,11 +106,16 @@ void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
             if (track->name.str) {
                 free(track->name.str);
             }
+            // Free track
             free(track);
         };
 
+        // Free trackList
         free_node_list(model->trackList, cleaner);
     }
+
+    // Free app model
+    free(model);
 }
 
 void nrbf_xstudio_read() {

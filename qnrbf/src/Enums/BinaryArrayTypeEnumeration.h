@@ -1,8 +1,6 @@
 #ifndef QNRBF_BINARYARRAYTYPEENUMERATION_H
 #define QNRBF_BINARYARRAYTYPEENUMERATION_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

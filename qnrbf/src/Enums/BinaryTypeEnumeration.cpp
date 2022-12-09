@@ -1,7 +1,5 @@
 #include "BinaryTypeEnumeration.h"
 
-#include <QDataStream>
-
 QNRBF_BEGIN_NAMESPACE
 
 QString Parser::strBinaryTypeEnum(BinaryTypeEnumeration type) {

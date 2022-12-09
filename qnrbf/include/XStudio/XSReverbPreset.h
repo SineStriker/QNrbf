@@ -1,8 +1,6 @@
 #ifndef QNRBFFORMAT_XSREVERBPRESET_H
 #define QNRBFFORMAT_XSREVERBPRESET_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

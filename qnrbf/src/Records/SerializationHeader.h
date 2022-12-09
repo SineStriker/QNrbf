@@ -1,8 +1,6 @@
 #ifndef QNRBF_SERIALIZATIONHEADER_H
 #define QNRBF_SERIALIZATIONHEADER_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

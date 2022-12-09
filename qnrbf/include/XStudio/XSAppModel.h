@@ -1,8 +1,6 @@
 #ifndef QNRBFFORMAT_XSAPPMODEL_H
 #define QNRBFFORMAT_XSAPPMODEL_H
 
-#include <QSharedPointer>
-
 #include "XSSongBeat.h"
 #include "XSSongTempo.h"
 #include "XSTrack.h"

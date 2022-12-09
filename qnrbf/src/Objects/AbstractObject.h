@@ -1,7 +1,6 @@
 #ifndef QNRBF_ABSTRACTOBJECT_H
 #define QNRBF_ABSTRACTOBJECT_H
 
-#include <QDataStream>
 #include <QSet>
 #include <QSharedPointer>
 

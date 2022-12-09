@@ -1,6 +1,8 @@
 #ifndef QNRBFFORMAT_XSVIBRATO_H
 #define QNRBFFORMAT_XSVIBRATO_H
 
+#include <QSharedPointer>
+
 #include "XSLineParam.h"
 
 QNRBF_BEGIN_NAMESPACE

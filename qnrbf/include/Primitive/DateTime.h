@@ -1,8 +1,6 @@
 #ifndef QNRBF_DATETIME_H
 #define QNRBF_DATETIME_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

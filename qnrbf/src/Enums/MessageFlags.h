@@ -1,8 +1,6 @@
 #ifndef QNRBF_MESSAGEFLAGS_H
 #define QNRBF_MESSAGEFLAGS_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

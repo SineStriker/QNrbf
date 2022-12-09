@@ -1,7 +1,8 @@
 #ifndef __QNRBF_GLOBAL_H__
 #define __QNRBF_GLOBAL_H__
 
-#include <QtGlobal>
+#include <QDataStream>
+#include <QIODevice>
 
 #ifndef QNRBF_API
 #  ifdef QNRBF_STATIC

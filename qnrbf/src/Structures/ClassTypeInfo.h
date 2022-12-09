@@ -1,8 +1,6 @@
 #ifndef QNRBF_CLASSTYPEINFO_H
 #define QNRBF_CLASSTYPEINFO_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

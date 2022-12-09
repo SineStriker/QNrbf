@@ -1,8 +1,6 @@
 #ifndef QNRBF_BINARYOBJECTSTRING_H
 #define QNRBF_BINARYOBJECTSTRING_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

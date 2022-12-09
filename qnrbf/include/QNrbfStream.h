@@ -1,7 +1,6 @@
 #ifndef QNRBF_QNRBFSTREAM_H
 #define QNRBF_QNRBFSTREAM_H
 
-#include <QDataStream>
 #include <QJsonObject>
 
 #include "XStudio/XSAppModel.h"

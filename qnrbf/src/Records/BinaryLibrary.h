@@ -1,8 +1,6 @@
 #ifndef QNRBF_BINARYLIBRARY_H
 #define QNRBF_BINARYLIBRARY_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

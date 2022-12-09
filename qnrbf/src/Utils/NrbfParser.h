@@ -1,8 +1,6 @@
 #ifndef QNRBF_PARSER_H
 #define QNRBF_PARSER_H
 
-#include <QDataStream>
-
 #include "Primitive/DateTime.h"
 #include "Primitive/Decimal.h"
 #include "Primitive/TimeSpan.h"

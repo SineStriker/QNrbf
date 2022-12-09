@@ -1,7 +1,6 @@
 #ifndef QNRBFFORMAT_NRBFREGISTRY_H
 #define QNRBFFORMAT_NRBFREGISTRY_H
 
-#include <QDataStream>
 #include <QDebug>
 #include <QMap>
 

@@ -1,8 +1,6 @@
 #ifndef QNRBF_MEMBERREFERENCE_H
 #define QNRBF_MEMBERREFERENCE_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

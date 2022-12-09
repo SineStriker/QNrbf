@@ -1,8 +1,6 @@
 #ifndef QNRBFFORMAT_XSTRACK_H
 #define QNRBFFORMAT_XSTRACK_H
 
-#include <QDataStream>
-
 #include "XSLineParam.h"
 #include "XSNote.h"
 #include "XSReverbPreset.h"

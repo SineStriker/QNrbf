@@ -1,8 +1,6 @@
 #ifndef QNRBF_OBJECTNULLMULTIPLE_H
 #define QNRBF_OBJECTNULLMULTIPLE_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

@@ -1,8 +1,6 @@
 #ifndef QNRBFFORMAT_DECIMAL_H
 #define QNRBFFORMAT_DECIMAL_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

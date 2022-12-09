@@ -1,8 +1,6 @@
 #ifndef QNRBF_RECORDTYPEENUMERATION_H
 #define QNRBF_RECORDTYPEENUMERATION_H
 
-#include <QDataStream>
-
 #include "qnrbf_global.h"
 
 QNRBF_BEGIN_NAMESPACE

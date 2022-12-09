@@ -487,7 +487,7 @@ bool SvipReader::readLineParam(const QMap<QString, ObjectRef> &members, XSLinePa
 
     // Read items
     for (int i = 0; i < size; i++) {
-        int pos, val;
+        qint32 pos, val;
         stream >> pos;
         stream >> val;
         if (stream.status() != QDataStream::Ok) {

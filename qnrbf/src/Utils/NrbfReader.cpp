@@ -502,7 +502,7 @@ bool NrbfReader::onBinaryObjectString(BinaryObjectString &in, ObjectRef &out) {
 
 bool NrbfReader::onBinaryArray(BinaryArray &in, ObjectRef &out) {
     int production = 1;
-    for (int num : qAsConst(in.lengths)) {
+    for (qint32 num : qAsConst(in.lengths)) {
         production *= num;
     }
 

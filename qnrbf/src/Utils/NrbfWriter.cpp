@@ -411,7 +411,7 @@ bool NrbfWriter::writeObject(const ObjectRef &objRef) {
                             if (len > 1) {
                                 nullRanges.push_back(qMakePair(start, len));
                             }
-                            start = i;
+                            start = i + 1;
                             len = 0;
                         } else {
                             len++;
@@ -424,15 +424,18 @@ bool NrbfWriter::writeObject(const ObjectRef &objRef) {
                     // Write contents
                     auto it = nullRanges.begin();
                     for (int i = 0; i < list.size(); ++i) {
+                        // Iterate to next continuous begin
                         while (it != nullRanges.end() && it->first < i) {
                             it++;
                         }
                         if (it != nullRanges.end() && it->first == i) {
+                            // Write continuous null objects
                             if (!writeNullObjects(it->second)) {
                                 return false;
                             }
                             i += len - 1;
                         } else {
+                            // Write single object
                             if (!writeObject(list.at(i))) {
                                 errorWriteFailed("object");
                                 return false;

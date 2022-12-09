@@ -10,8 +10,8 @@ class QNRBF_INTERNAL ListObject : public AbstractObject {
 public:
     explicit ListObject(Type type);
 
-    QList<int> lengths;
-    QList<int> lowerBounds;
+    QList<qint32> lengths;
+    QList<qint32> lowerBounds;
 
     bool hasShapeInfo;
     BinaryArray shapeInfo;

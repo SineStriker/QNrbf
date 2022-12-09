@@ -69,7 +69,6 @@ struct Receiver {
 
 QJsonValue JsonReader::dfs_shallow() {
     QMap<int, ObjectRef> objects = reg.objectsById;
-    //      QMap<int, ObjectRef> objects;
     for (auto it = reg.classesById.begin(); it != reg.classesById.end(); ++it) {
         objects.insert(it.key(), it.value()->value);
     }
@@ -365,16 +364,16 @@ QJsonValue JsonReader::dfs_shallow() {
             QJsonObject classObj;
             QString classType;
             switch (classRef->classType()) {
-                case QNrbf::ClassMemberObject::User:
+                case ClassMemberObject::User:
                     classType = "ClassWithMembers";
                     break;
-                case QNrbf::ClassMemberObject::UserWithTypes:
+                case ClassMemberObject::UserWithTypes:
                     classType = "ClassWithMembersAndTypes";
                     break;
-                case QNrbf::ClassMemberObject::System:
+                case ClassMemberObject::System:
                     classType = "SystemClassWithMembers";
                     break;
-                case QNrbf::ClassMemberObject::SystemWithTypes:
+                case ClassMemberObject::SystemWithTypes:
                     classType = "SystemClassWithMembersAndTypes";
                     break;
                 default:
@@ -396,7 +395,7 @@ QJsonValue JsonReader::dfs_shallow() {
             const auto &remotingTypes = classRef->memberTypeInfo.additionalInfos;
             for (int i = 0; i < binaryTypes.size(); ++i) {
                 QJsonObject memberObj;
-                memberObj.insert("binaryType", QNrbf::Parser::strBinaryTypeEnum(binaryTypes.at(i)));
+                memberObj.insert("binaryType", Parser::strBinaryTypeEnum(binaryTypes.at(i)));
                 memberObj.insert("infoAddition", remotingTypes.at(i).readableTypeInfo());
                 memberTypeInfoArr.append(memberObj);
             }

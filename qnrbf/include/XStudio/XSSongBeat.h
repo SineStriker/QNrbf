@@ -8,7 +8,7 @@ QNRBF_BEGIN_NAMESPACE
 // SingingTool.Model.SingingGeneralConcept.BeatSize
 class QNRBF_API XSBeatSize {
 public:
-    XSBeatSize() : x(0), y(0){};
+    XSBeatSize() : XSBeatSize(0, 0){};
     XSBeatSize(int x, int y) : x(x), y(y){};
 
     /* Members */

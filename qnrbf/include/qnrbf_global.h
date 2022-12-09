@@ -1,8 +1,10 @@
 #ifndef __QNRBF_GLOBAL_H__
 #define __QNRBF_GLOBAL_H__
 
-#include <QDataStream>
-#include <QIODevice>
+#ifdef __cplusplus
+#  include <QDataStream>
+#  include <QIODevice>
+#endif
 
 #ifndef QNRBF_API
 #  ifdef QNRBF_STATIC
@@ -22,8 +24,10 @@
 #  endif
 #endif
 
-#define QNRBF_BEGIN_NAMESPACE namespace QNrbf {
-#define QNRBF_END_NAMESPACE };
-#define QNRBF_USING_NAMESPACE using namespace QNrbf;
+#ifdef __cplusplus
+#  define QNRBF_BEGIN_NAMESPACE namespace QNrbf {
+#  define QNRBF_END_NAMESPACE };
+#  define QNRBF_USING_NAMESPACE using namespace QNrbf;
+#endif
 
 #endif // __QNRBF_GLOBAL_H__

@@ -16,7 +16,10 @@ enum XSNoteHeadTag {
 // SingingTool.Model.NotePhoneInfo
 class QNRBF_API XSNotePhoneInfo {
 public:
-    XSNotePhoneInfo() : HeadPhoneTimeInSec(0), MidPartOverTailPartRatio(0) {
+    XSNotePhoneInfo() : XSNotePhoneInfo(0, 0) {
+    }
+    XSNotePhoneInfo(float head, float mid)
+        : HeadPhoneTimeInSec(head), MidPartOverTailPartRatio(mid) {
     }
 
     /* Properties */

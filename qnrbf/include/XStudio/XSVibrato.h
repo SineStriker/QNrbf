@@ -10,6 +10,9 @@ QNRBF_BEGIN_NAMESPACE
 // SingingTool.Model.VibratoStyle
 class QNRBF_API XSVibratoStyle {
 public:
+    XSVibratoStyle() : IsAntiPhase(false) {
+    }
+
     /* Properties */
     bool IsAntiPhase;
 
@@ -21,7 +24,7 @@ public:
 // SingingTool.Model.VibratoPercentInfo
 class QNRBF_API XSVibratoPercentInfo {
 public:
-    XSVibratoPercentInfo() : startPercent(0), endPercent(100) {
+    XSVibratoPercentInfo() : XSVibratoPercentInfo(0, 100) {
     }
 
     XSVibratoPercentInfo(float start, float end) : startPercent(start), endPercent(end) {

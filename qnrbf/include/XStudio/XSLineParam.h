@@ -10,7 +10,7 @@ QNRBF_BEGIN_NAMESPACE
 // SingingTool.Model.Line.LineParamNode
 class QNRBF_API XSLineParamNode {
 public:
-    XSLineParamNode() : Pos(0), Value(0) {
+    XSLineParamNode() : XSLineParamNode(0, 0) {
     }
     XSLineParamNode(int pos, int value) : Pos(pos), Value(value) {
     }

@@ -4,6 +4,14 @@
 #ifdef __cplusplus
 #  include <QDataStream>
 #  include <QIODevice>
+#else
+#  ifdef _WIN32
+#    define Q_DECL_EXPORT __declspec(dllexport)
+#    define Q_DECL_IMPORT __declspec(dllimport)
+#  else
+#    define Q_DECL_EXPORT
+#    define Q_DECL_IMPORT
+#  endif
 #endif
 
 #ifndef QNRBF_API
@@ -28,6 +36,11 @@
 #  define QNRBF_BEGIN_NAMESPACE namespace QNrbf {
 #  define QNRBF_END_NAMESPACE };
 #  define QNRBF_USING_NAMESPACE using namespace QNrbf;
+#  define QNRBF_EXTERN_C_BEGIN extern "C" {
+#  define QNRBF_EXTERN_C_END };
+#else
+#  define QNRBF_EXTERN_C_BEGIN
+#  define QNRBF_EXTERN_C_END
 #endif
 
 #endif // __QNRBF_GLOBAL_H__

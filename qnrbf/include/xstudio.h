@@ -3,9 +3,7 @@
 
 #include "qnrbf_global.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+QNRBF_EXTERN_C_BEGIN
 
 enum xs_note_head_tag {
     NO_TAG,
@@ -159,22 +157,26 @@ struct qnrbf_xstudio_context {
     struct xs_app_model *model;
 };
 
-/* Allocator */
-QNRBF_API void *qnrbf_alloc_memory(int size);
+/* The APIs are not thread-safe, please use only one instance at any time. */
 
-QNRBF_API void qnrbf_free_memory(void *data);
+/* Allocator */
+QNRBF_API void *qnrbf_malloc(int size);
+
+QNRBF_API void qnrbf_free(void *data);
+
+QNRBF_API void qnrbf_memcpy(void *dst, const void *src, int count);
+
+QNRBF_API void qnrbf_memset(void *dst, int value, int count);
 
 /* Context */
 QNRBF_API qnrbf_xstudio_context *qnrbf_xstudio_alloc_context();
 
 QNRBF_API void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx);
 
-QNRBF_API void nrbf_xstudio_read(qnrbf_xstudio_context *ctx);
+QNRBF_API void qnrbf_xstudio_read(qnrbf_xstudio_context *lineParam);
 
-QNRBF_API void nrbf_xstudio_write(qnrbf_xstudio_context *ctx);
+QNRBF_API void qnrbf_xstudio_write(qnrbf_xstudio_context *lineParams);
 
-#ifdef __cplusplus
-};
-#endif
+QNRBF_EXTERN_C_END
 
 #endif // QNRBFFORMAT_XSTUDIO_H

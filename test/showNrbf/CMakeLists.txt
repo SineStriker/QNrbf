@@ -19,7 +19,7 @@ list(APPEND _qt_libs Qt${QT_VERSION_MAJOR}::Widgets)
 file(GLOB_RECURSE _sources gui/*.h gui/*.cpp)
 list(APPEND _sources main.cpp)
 
-add_executable(${PROJECT_NAME} ${_sources})
+add_executable(${PROJECT_NAME} WIN32 ${_sources})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${_qt_libs})
 

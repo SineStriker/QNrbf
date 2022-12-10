@@ -17,10 +17,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Set a global version variable for sub-projects to use
 set(QNRBF_VERSION_VERBOSE ${PROJECT_VERSION})
+set(QNRBF_TARGET_NAME ${PROJECT_NAME})
+set(QSVIP_TARGET_NAME qsvip)
 
 # Add sub-projects
 if (QNRBF_BUILD_NRBF_ONLY)
-    set(QNRBF_TARGET_NAME ${PROJECT_NAME})
     add_subdirectory(qnrbf)
 else()
     add_subdirectory(qnrbf)

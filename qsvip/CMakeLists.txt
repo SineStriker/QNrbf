@@ -25,7 +25,7 @@ set_target_properties(${QSVIP_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${QSVIP_TARGET_NAME}$<$<CONFIG:Debug>:d>
 )
 
-target_link_libraries(${QSVIP_TARGET_NAME} PUBLIC qnrbf)
+target_link_libraries(${QSVIP_TARGET_NAME} PUBLIC ${QNRBF_TARGET_NAME})
 
 target_include_directories(${QSVIP_TARGET_NAME} PUBLIC include)
 

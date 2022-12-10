@@ -62,6 +62,33 @@ int main(int argc, char *argv[]) {
     }
     qDebug() << "Successfully load nrbf file.";
 
+    // Adjust model
+    for (const auto &track : qAsConst(svip.trackList)) {
+        if (track->type() == QNrbf::XSITrack::Singing) {
+            auto singingTrack = dynamic_cast<QNrbf::XSSingingTrack *>(track.data());
+            if (singingTrack->editedPitchLine.isNull()) {
+                singingTrack->editedPitchLine = QSharedPointer<QNrbf::XSLineParam>::create();
+                singingTrack->editedPitchLine->setDefault();
+            }
+            if (singingTrack->editedVolumeLine.isNull()) {
+                singingTrack->editedVolumeLine = QSharedPointer<QNrbf::XSLineParam>::create();
+                singingTrack->editedVolumeLine->setDefault();
+            }
+            if (singingTrack->editedBreathLine.isNull()) {
+                singingTrack->editedBreathLine = QSharedPointer<QNrbf::XSLineParam>::create();
+                singingTrack->editedBreathLine->setDefault();
+            }
+            if (singingTrack->editedGenderLine.isNull()) {
+                singingTrack->editedGenderLine = QSharedPointer<QNrbf::XSLineParam>::create();
+                singingTrack->editedGenderLine->setDefault();
+            }
+            if (singingTrack->editedPowerLine.isNull()) {
+                singingTrack->editedPowerLine = QSharedPointer<QNrbf::XSLineParam>::create();
+                singingTrack->editedPowerLine->setDefault();
+            }
+        }
+    }
+
     const bool isBin = true;
 
     // Save model

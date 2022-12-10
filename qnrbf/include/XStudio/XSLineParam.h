@@ -28,6 +28,13 @@ public:
      */
 
     std::list<XSLineParamNode> nodeLinkedList;
+
+    /* LineParam property of a singing track cannot be null or empty,
+     * it should at least contain the following two magic point.
+     */
+    inline void setDefault() {
+        nodeLinkedList = {{-192000, 0}, {1073741823, 0}};
+    }
 };
 
 QNRBF_END_NAMESPACE

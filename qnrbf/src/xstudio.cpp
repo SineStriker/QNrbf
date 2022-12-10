@@ -51,11 +51,14 @@ static void free_string(xs_string *str) {
     str->str = nullptr;
 }
 
-static void free_model(xs_app_model *model) {
-    // Free ProjectFilePath
-    if (model->ProjectFilePath.str) {
-        free(model->ProjectFilePath.str);
+static void free_model(xs_app_model **model_ptr) {
+    if (*model_ptr == nullptr) {
+        return;
     }
+    auto &model = *model_ptr;
+
+    // Free ProjectFilePath
+    free_string(&model->ProjectFilePath);
 
     // Free tempoList
     free_node_list(model->tempoList, free);
@@ -75,20 +78,20 @@ static void free_model(xs_app_model *model) {
                     free(note->NotePhoneInfo);
                 }
                 if (note->Vibrato) {
+                    auto vibrato = note->Vibrato;
+
                     // Free vibrato params
-                    free_node_list(note->Vibrato->ampLine, free);
-                    free_node_list(note->Vibrato->freqLine, free);
-                    free(note->Vibrato);
+                    free_node_list(vibrato->ampLine, free);
+                    free_node_list(vibrato->freqLine, free);
+
+                    // Free vibrato
+                    free(vibrato);
                 }
                 if (note->VibratoPercentInfo) {
                     free(note->VibratoPercentInfo);
                 }
-                if (note->lyric.str) {
-                    free(note->lyric.str);
-                }
-                if (note->pronouncing.str) {
-                    free(note->pronouncing.str);
-                }
+                free_string(&note->lyric);
+                free_string(&note->pronouncing);
 
                 // Free note
                 free(note);
@@ -106,15 +109,11 @@ static void free_model(xs_app_model *model) {
         } else {
             // Free instrumentTrack
             auto instrumentTrack = reinterpret_cast<xs_instrument_track *>(track);
-            if (instrumentTrack->InstrumentFilePath.str) {
-                free(instrumentTrack->InstrumentFilePath.str);
-            }
+            free_string(&instrumentTrack->InstrumentFilePath);
         }
 
         // Free track base
-        if (track->name.str) {
-            free(track->name.str);
-        }
+        free_string(&track->name);
 
         // Free track
         free(track);
@@ -125,6 +124,14 @@ static void free_model(xs_app_model *model) {
 
     // Free app model
     free(model);
+
+    model = nullptr;
+}
+
+static void free_context_content(qnrbf_xstudio_context *ctx) {
+    free_string(&ctx->error);
+    free_string(&ctx->buf);
+    free_model(&ctx->model);
 }
 
 void *qnrbf_malloc(int size) {
@@ -147,23 +154,18 @@ void qnrbf_memset(void *dst, int value, int count) {
 
 qnrbf_xstudio_context *qnrbf_xstudio_alloc_context() {
     auto ctx = reinterpret_cast<qnrbf_xstudio_context *>(malloc(sizeof(qnrbf_xstudio_context)));
+
     ctx->status = OK;
     ctx->error = {nullptr, 0};
     ctx->buf = {nullptr, 0};
     ctx->model = nullptr;
+
     return ctx;
 }
 
 void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
-    if (ctx->error.str) {
-        free(ctx->error.str);
-    }
-    if (ctx->buf.str) {
-        free(ctx->buf.str);
-    }
-    if (ctx->model) {
-        free_model(ctx->model);
-    }
+    // Remove content
+    free_context_content(ctx);
 
     // Free context
     free(ctx);
@@ -181,35 +183,34 @@ static void customMessageHandler(QtMsgType type, const QMessageLogContext &conte
 }
 
 void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
-    // Filter debug output
-    hError = new MessageHandler();
-    auto orgHandler = qInstallMessageHandler(customMessageHandler);
-
     // Get buf
     QByteArray data(ctx->buf.str, ctx->buf.size);
 
-    // Remove buf
-    free_string(&ctx->buf);
-    free_string(&ctx->error);
-    if (ctx->model) {
-        free_model(ctx->model);
-        ctx->model = nullptr;
-    }
+    // Remove content
+    free_context_content(ctx);
+
+    // Filter debug output
+    hError = new MessageHandler();
+    auto orgHandler = qInstallMessageHandler(customMessageHandler);
 
     // Read
     QNrbfStream in(&data, QIODevice::ReadOnly);
     QNrbf::XSAppModel model;
     in >> model;
 
+    QByteArray errorMessage = hError->error;
+
     // Restore debug output
     qInstallMessageHandler(orgHandler);
+    delete hError;
+    hError = nullptr;
 
     // Set status
     ctx->status = (qnrbf_stream_status) in.status();
 
     if (in.status() != QDataStream::Ok) {
         // Set error message
-        copy_string(hError->error, &ctx->error);
+        copy_string(errorMessage, &ctx->error);
     } else {
         // Set output data
         auto resModel = (xs_app_model *) qnrbf_malloc(sizeof(xs_app_model));
@@ -273,14 +274,6 @@ void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
 
         // Copy track list
         {
-            auto copy_track_base = [](const QNrbf::XSITrack &in, xs_track *out) {
-                out->volume = in.volume;
-                out->pan = in.pan;
-                out->mute = in.mute;
-                out->solo = in.solo;
-                copy_string(in.name, &out->name);
-            };
-
             auto create_line_param_list = [](const QNrbf::XSLineParam &lineParam) -> xs_node * {
                 xs_node *head = nullptr;
                 auto p = head;
@@ -310,15 +303,12 @@ void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
             head = nullptr;
             auto p = head;
             for (const auto &item : qAsConst(model.trackList)) {
-                void *trackPtr;
+                xs_track *trackPtr;
                 if (item->type() == QNrbf::XSITrack::Singing) {
                     auto singingTrack = dynamic_cast<QNrbf::XSSingingTrack *>(item.data());
 
                     auto track = (xs_singing_track *) qnrbf_malloc(sizeof(xs_singing_track));
-
-                    // Copy base
                     track->base.track_type = SINGING;
-                    copy_track_base(*singingTrack, &track->base);
 
                     copy_string(singingTrack->AISingerId, &track->AISingerId);
                     track->needRefreshBaseMetadataFlag = singingTrack->needRefreshBaseMetadataFlag;
@@ -370,6 +360,7 @@ void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
                                 info->HeadPhoneTimeInSec = org.HeadPhoneTimeInSec;
                                 info->MidPartOverTailPartRatio = org.MidPartOverTailPartRatio;
 
+                                // Save one
                                 note->NotePhoneInfo = info;
                             } else {
                                 note->NotePhoneInfo = nullptr;
@@ -391,6 +382,7 @@ void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
                                         ? nullptr
                                         : create_line_param_list(*org.freqLine.data());
 
+                                // Save one
                                 note->Vibrato = vibrato;
                             } else {
                                 note->Vibrato = nullptr;
@@ -405,6 +397,7 @@ void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
                                 info->startPercent = org.startPercent;
                                 info->endPercent = org.endPercent;
 
+                                // Save one
                                 note->VibratoPercentInfo = info;
                             } else {
                                 note->VibratoPercentInfo = nullptr;
@@ -424,15 +417,13 @@ void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
                         }
                     }
 
-                    trackPtr = track;
+                    // Save one
+                    trackPtr = (xs_track *) track;
                 } else {
                     auto instrumentTrack = dynamic_cast<QNrbf::XSInstrumentTrack *>(item.data());
 
                     auto track = (xs_instrument_track *) qnrbf_malloc(sizeof(xs_instrument_track));
-
-                    // Copy base
                     track->base.track_type = INSTRUMENT;
-                    copy_track_base(*instrumentTrack, &track->base);
 
                     track->SampleRate = instrumentTrack->SampleRate;
                     track->SampleCount = instrumentTrack->SampleCount;
@@ -440,8 +431,16 @@ void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
                     track->OffsetInPos = instrumentTrack->OffsetInPos;
                     copy_string(instrumentTrack->InstrumentFilePath, &track->InstrumentFilePath);
 
-                    trackPtr = track;
+                    // Save one
+                    trackPtr = (xs_track *) track;
                 }
+
+                // Copy base
+                trackPtr->volume = item->volume;
+                trackPtr->pan = item->pan;
+                trackPtr->mute = item->mute;
+                trackPtr->solo = item->solo;
+                copy_string(item->name, &trackPtr->name);
 
                 // Create node
                 auto node = (xs_node *) qnrbf_malloc(sizeof(xs_node));
@@ -459,9 +458,6 @@ void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
 
         ctx->model = resModel;
     }
-
-    delete hError;
-    hError = nullptr;
 }
 
 void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx) {
@@ -486,6 +482,7 @@ void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx) {
             tempo.pos = inTempo->pos;
             tempo.tempo = inTempo->tempo;
 
+            // Save one
             model.tempoList.append(tempo);
 
             node = node->next;
@@ -503,6 +500,7 @@ void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx) {
             beat.barIndex = inBeat->barIndex;
             beat.beatSize = QNrbf::XSBeatSize(inBeat->beatSize.x, inBeat->beatSize.y);
 
+            // Save one
             model.beatList.append(beat);
 
             node = node->next;
@@ -517,7 +515,10 @@ void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx) {
             auto node = lineParams;
             while (node) {
                 auto inParam = (xs_line_param *) node->data;
+
+                // Save one
                 res.nodeLinkedList.emplace_back(inParam->Pos, inParam->Value);
+
                 node = node->next;
             };
 
@@ -576,39 +577,48 @@ void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx) {
 
                         // Copy NotePhoneInfo
                         if (inNote->NotePhoneInfo) {
+                            const auto &org = inNote->NotePhoneInfo;
+
+                            // Save one
                             note.NotePhoneInfo = QSharedPointer<QNrbf::XSNotePhoneInfo>::create(
-                                inNote->NotePhoneInfo->HeadPhoneTimeInSec,
-                                inNote->NotePhoneInfo->MidPartOverTailPartRatio);
+                                org->HeadPhoneTimeInSec, org->MidPartOverTailPartRatio);
                         }
 
                         // Copy Vibrato
                         if (inNote->Vibrato) {
-                            const auto &inVibrato = inNote->Vibrato;
+                            const auto &org = inNote->Vibrato;
 
                             QNrbf::XSVibratoStyle vibrato;
-                            vibrato.IsAntiPhase = inVibrato->IsAntiPhase;
-                            if (inVibrato->ampLine)
+                            vibrato.IsAntiPhase = org->IsAntiPhase;
+                            if (org->ampLine)
                                 vibrato.ampLine = QSharedPointer<QNrbf::XSLineParam>::create(
-                                    createLineParam(inVibrato->ampLine));
-                            if (inVibrato->freqLine)
+                                    createLineParam(org->ampLine));
+                            if (org->freqLine)
                                 vibrato.freqLine = QSharedPointer<QNrbf::XSLineParam>::create(
-                                    createLineParam(inVibrato->freqLine));
+                                    createLineParam(org->freqLine));
+
+                            // Save one
+                            note.Vibrato = QSharedPointer<QNrbf::XSVibratoStyle>::create(vibrato);
                         }
 
                         // Copy VibratoPercentInfo
                         if (inNote->VibratoPercentInfo) {
+                            const auto &org = inNote->VibratoPercentInfo;
+
+                            // Save one
                             note.VibratoPercentInfo =
                                 QSharedPointer<QNrbf::XSVibratoPercentInfo>::create(
-                                    inNote->VibratoPercentInfo->startPercent,
-                                    inNote->VibratoPercentInfo->endPercent);
+                                    org->startPercent, org->endPercent);
                         }
 
+                        // Save one
                         singingTrack->noteList.append(note);
 
                         noteNode = noteNode->next;
                     }
                 }
 
+                // Save one
                 track = singingTrack;
             } else {
                 auto inTrack = (xs_instrument_track *) baseTrack;
@@ -620,6 +630,7 @@ void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx) {
                 instrumentTrack->OffsetInPos = inTrack->OffsetInPos;
                 instrumentTrack->InstrumentFilePath = from_xs_string(inTrack->InstrumentFilePath);
 
+                // Save one
                 track = instrumentTrack;
             }
 
@@ -630,41 +641,40 @@ void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx) {
             track->mute = baseTrack->mute;
             track->solo = baseTrack->solo;
 
+            // Save one
             model.trackList.append(track);
 
             node = node->next;
         }
     }
 
+    // Remove content
+    free_context_content(ctx);
+
     // Filter debug output
     hError = new MessageHandler();
     auto orgHandler = qInstallMessageHandler(customMessageHandler);
-
-    // Remove buf
-    free_string(&ctx->buf);
-    free_string(&ctx->error);
-    free_model(ctx->model);
-    ctx->model = nullptr;
 
     // Write
     QByteArray data;
     QNrbfStream out(&data, QIODevice::WriteOnly);
     out << model;
 
+    QByteArray errorMessage = hError->error;
+
     // Restore debug output
     qInstallMessageHandler(orgHandler);
+    delete hError;
+    hError = nullptr;
 
     // Set status
     ctx->status = (qnrbf_stream_status) out.status();
 
     if (out.status() != QDataStream::Ok) {
         // Set error message
-        copy_string(hError->error, &ctx->error);
+        copy_string(errorMessage, &ctx->error);
     } else {
         // Set output data
         copy_string(data, &ctx->buf);
     }
-
-    delete hError;
-    hError = nullptr;
 }

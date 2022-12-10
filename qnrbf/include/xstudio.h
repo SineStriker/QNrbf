@@ -173,9 +173,9 @@ QNRBF_API qnrbf_xstudio_context *qnrbf_xstudio_alloc_context();
 
 QNRBF_API void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx);
 
-QNRBF_API void qnrbf_xstudio_read(qnrbf_xstudio_context *lineParam);
+QNRBF_API void qnrbf_xstudio_read(qnrbf_xstudio_context *src);
 
-QNRBF_API void qnrbf_xstudio_write(qnrbf_xstudio_context *lineParams);
+QNRBF_API void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx);
 
 QNRBF_EXTERN_C_END
 

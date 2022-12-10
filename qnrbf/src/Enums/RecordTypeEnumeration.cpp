@@ -1,5 +1,9 @@
 #include "RecordTypeEnumeration.h"
 
+#include <QDebug>
+
+#include "Utils/NrbfHelper.h"
+
 QNRBF_BEGIN_NAMESPACE
 
 QString Parser::strRecordTypeEnum(RecordTypeEnumeration type) {

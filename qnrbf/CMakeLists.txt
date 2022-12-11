@@ -44,11 +44,15 @@ set_target_properties(${QNRBF_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${QNRBF_TARGET_NAME}$<$<CONFIG:Debug>:d>
 )
 
-target_link_libraries(${QNRBF_TARGET_NAME} PUBLIC ${_qt_libs})
+if(QNRBF_ONLY_C_STYLE)
+    target_link_libraries(${QNRBF_TARGET_NAME} PRIVATE ${_qt_libs})
+else()
+    target_link_libraries(${QNRBF_TARGET_NAME} PUBLIC ${_qt_libs})
+endif()
 
 target_include_directories(${QNRBF_TARGET_NAME} PUBLIC include)
 
-if(QNRBF_BUILD_STATIC)
+if(QNRBF_BUILD_STATIC AND NOT QNRBF_ONLY_C_STYLE)
     target_include_directories(${QNRBF_TARGET_NAME} PUBLIC src)
 else()
     target_include_directories(${QNRBF_TARGET_NAME} PRIVATE src)
@@ -63,19 +67,19 @@ if(WIN32)
     set(WIN32_FILE_DESC "QNrbfFormat")
     set(WIN32_PRODUCT_NAME "QNrbfFormat")
     configure_file(
-            res/win32/Win32DllRes.rc.in
-            ${CMAKE_CURRENT_BINARY_DIR}/res.rc
-            @ONLY
+        res/win32/Win32DllRes.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/res.rc
+        @ONLY
     )
     target_sources(${QNRBF_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/res.rc)
 elseif(APPLE)
     # configure mac plist
     set_target_properties(${QNRBF_TARGET_NAME} PROPERTIES
-            FRAMEWORK TRUE
-            FRAMEWORK_VERSION CXX
-            MACOSX_FRAMEWORK_NAME QNrbfFormat
-            MACOSX_FRAMEWORK_IDENTIFIER com.SineStriker.QNrbf
-            MACOSX_FRAMEWORK_BUNDLE_VERSION ${PROJECT_VERSION}
-            MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        FRAMEWORK TRUE
+        FRAMEWORK_VERSION CXX
+        MACOSX_FRAMEWORK_NAME QNrbfFormat
+        MACOSX_FRAMEWORK_IDENTIFIER com.SineStriker.QNrbf
+        MACOSX_FRAMEWORK_BUNDLE_VERSION ${PROJECT_VERSION}
+        MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     )
 endif()

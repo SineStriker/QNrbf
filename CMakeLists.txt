@@ -8,6 +8,9 @@ option(QNRBF_CHECK_ASSEMBLY "Check assembly name when deserialize nrbf file, tur
 option(QNRBF_ENABLE_EXTRA_PARAMS "Enable svip params which are brought in after stable edition, no side-effect" ON)
 option(QNRBF_BUILD_NRBF_ONLY "Skip building OpenSVIP modules and test targets, turn on if you want QNrbf to be a submodule" OFF)
 
+# Compiling simplification
+option(QNRBF_ONLY_C_STYLE "Export only C style interfaces" OFF)
+
 # This option will be ignored if `QNRBF_BUILD_NRBF_ONLY` is on
 option(QSVIP_BUILD_STATIC "Build QSvip as a static library" OFF)
 

@@ -14,16 +14,24 @@
 #  endif
 #endif
 
-#ifndef QNRBF_API
+#ifndef QNRBF_EXPORT
 #  ifdef QNRBF_STATIC
-#    define QNRBF_API
+#    define QNRBF_EXPORT
 #  else
 #    ifdef QNRBF_LIBRARY
-#      define QNRBF_API Q_DECL_EXPORT
+#      define QNRBF_EXPORT Q_DECL_EXPORT
 #    else
-#      define QNRBF_API Q_DECL_IMPORT
+#      define QNRBF_EXPORT Q_DECL_IMPORT
 #    endif
 #  endif
+#endif
+
+#ifdef QNRBF_ONLY_C_STYLE
+#  define QNRBF_API
+#  define QNRBF_C_API QNRBF_EXPORT
+#else
+#  define QNRBF_API QNRBF_EXPORT
+#  define QNRBF_C_API QNRBF_EXPORT
 #endif
 
 #ifndef QNRBF_INTERNAL

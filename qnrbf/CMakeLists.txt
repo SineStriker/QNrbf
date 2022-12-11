@@ -35,6 +35,10 @@ if(QNRBF_ENABLE_EXTRA_PARAMS)
     target_compile_definitions(${QNRBF_TARGET_NAME} PRIVATE QNRBF_ENABLE_EXTRA_PARAMS)
 endif()
 
+if(QNRBF_ONLY_C_STYLE)
+    target_compile_definitions(${QNRBF_TARGET_NAME} PRIVATE QNRBF_ONLY_C_STYLE)
+endif()
+
 # Other properties
 set_target_properties(${QNRBF_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${QNRBF_TARGET_NAME}$<$<CONFIG:Debug>:d>

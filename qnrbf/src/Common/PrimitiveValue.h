@@ -7,7 +7,6 @@
 #include "Primitive/TimeSpan.h"
 
 #include <QSharedDataPointer>
-#include <QVariant>
 
 QNRBF_BEGIN_NAMESPACE
 

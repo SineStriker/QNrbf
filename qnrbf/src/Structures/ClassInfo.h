@@ -3,6 +3,8 @@
 
 #include "qnrbf_global.h"
 
+#include <QStringList>
+
 QNRBF_BEGIN_NAMESPACE
 
 // 2.3.1.1 ClassInfo

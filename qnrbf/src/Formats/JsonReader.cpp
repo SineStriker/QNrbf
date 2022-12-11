@@ -1,7 +1,6 @@
 #include "JsonReader.h"
 
 #include <QJsonArray>
-#include <QVariant>
 
 #include "Objects/DeferredReferenceObject.h"
 #include "Objects/ObjectListObject.h"

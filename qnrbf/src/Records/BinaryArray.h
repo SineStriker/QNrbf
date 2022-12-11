@@ -1,8 +1,6 @@
 #ifndef QNRBF_BINARYARRAY_H
 #define QNRBF_BINARYARRAY_H
 
-#include <QVariant>
-
 #include "Common/RemotingTypeInfo.h"
 #include "Enums/BinaryArrayTypeEnumeration.h"
 

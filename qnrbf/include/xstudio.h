@@ -160,22 +160,22 @@ struct qnrbf_xstudio_context {
 /* The APIs are not thread-safe, please use only one instance at any time. */
 
 /* Allocator */
-QNRBF_API void *qnrbf_malloc(int size);
+QNRBF_C_API void *qnrbf_malloc(int size);
 
-QNRBF_API void qnrbf_free(void *data);
+QNRBF_C_API void qnrbf_free(void *data);
 
-QNRBF_API void qnrbf_memcpy(void *dst, const void *src, int count);
+QNRBF_C_API void qnrbf_memcpy(void *dst, const void *src, int count);
 
-QNRBF_API void qnrbf_memset(void *dst, int value, int count);
+QNRBF_C_API void qnrbf_memset(void *dst, int value, int count);
 
 /* Context */
-QNRBF_API qnrbf_xstudio_context *qnrbf_xstudio_alloc_context();
+QNRBF_C_API qnrbf_xstudio_context *qnrbf_xstudio_alloc_context();
 
-QNRBF_API void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx);
+QNRBF_C_API void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx);
 
-QNRBF_API void qnrbf_xstudio_read(qnrbf_xstudio_context *src);
+QNRBF_C_API void qnrbf_xstudio_read(qnrbf_xstudio_context *src);
 
-QNRBF_API void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx);
+QNRBF_C_API void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx);
 
 QNRBF_EXTERN_C_END
 

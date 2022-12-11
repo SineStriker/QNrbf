@@ -5,7 +5,6 @@
 #include "private/PrimitiveValueData.h"
 
 #include <QDebug>
-#include <QVariant>
 
 QNRBF_BEGIN_NAMESPACE
 

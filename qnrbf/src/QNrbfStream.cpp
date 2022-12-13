@@ -53,15 +53,6 @@ NrbfRegistry QNrbfStreamPrivate::deserialize() {
 void QNrbfStreamPrivate::serialize(const NrbfRegistry &reg) {
     Q_UNUSED(this);
 
-    //    JsonReader reader(reg);
-    //    if (!reader.load()) {
-    //        q->setStatus(QDataStream::ReadCorruptData);
-    //    } else {
-    //        QJsonDocument doc(reader.jsonObj);
-    //        auto data = doc.toJson();
-    //        q->writeRawData(data.data(), data.size());
-    //    }
-
     NrbfWriter writer(q, reg);
     if (!writer.write()) {
         q->setStatus(QDataStream::WriteFailed);

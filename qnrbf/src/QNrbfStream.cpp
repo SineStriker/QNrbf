@@ -81,7 +81,12 @@ QNrbfStream::QNrbfStream(const QByteArray &in) : QDataStream(in), d(new QNrbfStr
 QNrbfStream::~QNrbfStream() {
 }
 
-QDataStream &QNrbfStream::operator>>(QString &str) {
+QNrbfStream &QNrbfStream::operator>>(QChar &ch) {
+    Parser::readUtf8Char(ch, *this);
+    return *this;
+}
+
+QNrbfStream &QNrbfStream::operator>>(QString &str) {
     QString res;
     if (!Parser::readString(res, *this)) {
         str.clear();
@@ -91,7 +96,7 @@ QDataStream &QNrbfStream::operator>>(QString &str) {
     return *this;
 }
 
-QDataStream &QNrbfStream::operator>>(QJsonObject &obj) {
+QNrbfStream &QNrbfStream::operator>>(QJsonObject &obj) {
     auto reg = d->deserialize();
     if (status() == Ok) {
         JsonReader reader(reg);
@@ -104,7 +109,7 @@ QDataStream &QNrbfStream::operator>>(QJsonObject &obj) {
     return *this;
 }
 
-QDataStream &QNrbfStream::operator>>(XSAppModel &svip) {
+QNrbfStream &QNrbfStream::operator>>(XSAppModel &svip) {
     auto reg = d->deserialize();
     if (status() == Ok) {
         SvipReader reader(reg);
@@ -117,12 +122,17 @@ QDataStream &QNrbfStream::operator>>(XSAppModel &svip) {
     return *this;
 }
 
-QDataStream &QNrbfStream::operator<<(const QString &str) {
+QNrbfStream &QNrbfStream::operator<<(const QChar &ch) {
+    Parser::writeUtf8Char(ch, *this);
+    return *this;
+}
+
+QNrbfStream &QNrbfStream::operator<<(const QString &str) {
     Parser::writeString(str, *this);
     return *this;
 }
 
-QDataStream &QNrbfStream::operator<<(const XSAppModel &svip) {
+QNrbfStream &QNrbfStream::operator<<(const XSAppModel &svip) {
     SvipWriter writer(svip);
     if (!writer.save()) {
         setStatus(QDataStream::ReadCorruptData);

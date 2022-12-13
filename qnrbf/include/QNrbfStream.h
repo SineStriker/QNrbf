@@ -16,12 +16,14 @@ public:
     ~QNrbfStream();
 
 public:
-    QDataStream &operator>>(QString &str);
-    QDataStream &operator>>(QJsonObject &obj);
-    QDataStream &operator>>(QNrbf::XSAppModel &svip);
+    QNrbfStream &operator>>(QChar &ch);
+    QNrbfStream &operator>>(QString &str);
+    QNrbfStream &operator>>(QJsonObject &obj);
+    QNrbfStream &operator>>(QNrbf::XSAppModel &svip);
 
-    QDataStream &operator<<(const QString &str);
-    QDataStream &operator<<(const QNrbf::XSAppModel &svip);
+    QNrbfStream &operator<<(const QChar &ch);
+    QNrbfStream &operator<<(const QString &str);
+    QNrbfStream &operator<<(const QNrbf::XSAppModel &svip);
 
 protected:
     QScopedPointer<QNrbfStreamPrivate> d;

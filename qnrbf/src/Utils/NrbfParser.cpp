@@ -83,34 +83,28 @@ bool Parser::readString(QString &out, QDataStream &in) {
 }
 
 bool Parser::readUtf8Char(QChar &out, QDataStream &in) {
-    quint8 head;
+    quint8 buf[4];
+    auto &head = buf[0];
+
+    // Read first byte
     in >> head;
     if (in.status() != QDataStream::Ok) {
         return false;
     }
-    // 0xF0 = 0b11110000
-    // 0xE0 = 0b11100000
-    // 0xC0 = 0b11000000
-    // 0x80 = 0b10000000
-    // 0x3F = 0b00111111
-    int suffix = (head & 0xF0) != 0 ? 3 : (
-                 (head & 0xE0) != 0 ? 2 : (
-                 (head & 0xC0) != 0 ? 1 : 0));
-    char tail[3];
-    if (in.readRawData(tail, suffix) != suffix) {
+
+    // Read suffix bytes
+    int suffix = (head & 0b11111000) == 0b11110000 ? 3 : (
+                 (head & 0b11110000) == 0b11100000 ? 2 : (
+                 (head & 0b11100000) == 0b11000000 ? 1 : 0));
+    if (in.readRawData((char *) buf + 1, suffix) != suffix) {
         return false;
     }
-    for (int i = 0; i < suffix; ++i) {
-        // Invalid suffix bytes
-        if ((tail[i] & 0xC0) != 0x80) {
-            return false;
-        }
+
+    QString str = QString::fromUtf8((char *) buf, suffix + 1);
+    if (str.isEmpty()) {
+        return false;
     }
-    quint16 value =   suffix == 3 ? ((head & 0x3F) << 18) + ((tail[0] & 0x3F) << 12) + ((tail[1] & 0x3F) << 6) + (tail[2] & 0x3F)
-                    : suffix == 2 ? ((head & 0x3F) << 12) + ((tail[0] & 0x3F) << 6)  +  (tail[1] & 0x3F)
-                    : suffix == 1 ? ((head & 0x3F) << 6)  +  (tail[0] & 0x3F)
-                    : (head & 0x3F);
-    out = QChar(value);
+    out = str.front();
     return true;
 }
 

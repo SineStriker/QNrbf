@@ -77,6 +77,10 @@ QNrbfStream::QNrbfStream(const QByteArray &in) : QDataStream(in), d(new QNrbfStr
 QNrbfStream::~QNrbfStream() {
 }
 
+QString QNrbfStream::libraryVersion() {
+    return QNRBF_VERSION;
+}
+
 QNrbfStream &QNrbfStream::operator>>(QChar &ch) {
     Parser::readUtf8Char(ch, *this);
     return *this;

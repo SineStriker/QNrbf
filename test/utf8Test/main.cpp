@@ -4,6 +4,8 @@
 #include "QNrbfStream.h"
 
 int main(int argc, char *argv[]) {
+    qDebug() << QNrbfStream::libraryVersion();
+
     for (int i = 0x0; i < 0x7F; ++i) {
         QChar ch(i);
         QByteArray bytes = QString(ch).toUtf8();

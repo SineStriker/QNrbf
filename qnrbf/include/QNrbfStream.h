@@ -15,6 +15,8 @@ public:
     QNrbfStream(const QByteArray &in);
     ~QNrbfStream();
 
+    static QString libraryVersion();
+
 public:
     QNrbfStream &operator>>(QChar &ch);
     QNrbfStream &operator>>(QString &str);

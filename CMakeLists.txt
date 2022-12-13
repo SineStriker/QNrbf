@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-project(QNrbfFormat LANGUAGES CXX VERSION 0.0.1.2)
+project(QNrbfFormat LANGUAGES CXX VERSION 0.0.1.4)
 
 # Options for QNrbf library, you may need to specify `QNRBF_BUILD_NRBF_ONLY`, others are recommended to keep
 option(QNRBF_BUILD_STATIC "Build QNrbf as a static library, please check the license" OFF)

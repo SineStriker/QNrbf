@@ -26,6 +26,8 @@ endif()
 
 target_compile_definitions(${QNRBF_TARGET_NAME} PRIVATE QNRBF_LIBRARY)
 
+target_compile_definitions(${QNRBF_TARGET_NAME} PRIVATE QNRBF_VERSION="${PROJECT_VERSION}")
+
 # Conditional compiling macros
 if(QNRBF_CHECK_ASSEMBLY)
     target_compile_definitions(${QNRBF_TARGET_NAME} PRIVATE QNRBF_CHECK_ASSEMBLY)

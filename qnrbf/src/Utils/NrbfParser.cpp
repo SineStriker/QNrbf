@@ -70,7 +70,7 @@ bool Parser::readString(QString &out, QDataStream &in) {
     // Check size valid
     auto dev = in.device();
     if (dev->size() - dev->pos() < (qint64) size) {
-        in.setStatus(QDataStream::ReadPastEnd);
+        in.setStatus(QDataStream::ReadCorruptData);
         return false;
     }
 
@@ -193,6 +193,6 @@ bool Parser::writeDecimal(const QNrbf::Decimal &in, QDataStream &out) {
 }
 
 bool Parser::writeTimeSpan(const QNrbf::TimeSpan &in, QDataStream &out) {
-    out << in._data;
+    out << in.ticks;
     return true;
 }

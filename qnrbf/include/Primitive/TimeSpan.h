@@ -10,7 +10,7 @@ QNRBF_BEGIN_NAMESPACE
 class QNRBF_API TimeSpan {
 public:
     TimeSpan();
-    explicit TimeSpan(quint64 data);
+    explicit TimeSpan(qint64 data);
 
     TimeSpan(const TimeSpan &other);
     TimeSpan(TimeSpan &&other) noexcept;
@@ -18,7 +18,7 @@ public:
     TimeSpan &operator=(const TimeSpan &other);
     TimeSpan &operator=(TimeSpan &&other) noexcept;
 
-    quint64 _data;
+    qint64 ticks;
 };
 
 QNRBF_END_NAMESPACE

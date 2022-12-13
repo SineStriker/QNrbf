@@ -70,7 +70,7 @@ QString Parser::strRecordTypeEnum(RecordTypeEnumeration type) {
             res = "MethodReturn";
             break;
         default:
-            res = QString("Unknown Type %1").arg(qint32(type));
+            res = QString("Unknown type %1").arg(QString::number(qint32(type)));
             break;
     }
     return res;

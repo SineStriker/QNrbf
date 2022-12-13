@@ -273,7 +273,7 @@ QString PrimitiveValue::asString() const {
             break;
         }
         case PrimitiveTypeEnumeration::TimeSpan: {
-            res = QString::number(toTimeSpan()._data);
+            res = QString::number(toTimeSpan().ticks);
             break;
         }
         case PrimitiveTypeEnumeration::DateTime: {

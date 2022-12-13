@@ -31,11 +31,7 @@ public:
 void QNrbfStreamPrivate::init() {
     Q_UNUSED(this);
 
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
     q->setByteOrder(QDataStream::LittleEndian);
-#else
-    q->setByteOrder(QDataStream::BigEndian);
-#endif
 }
 
 NrbfRegistry QNrbfStreamPrivate::deserialize() {

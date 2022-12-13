@@ -133,11 +133,7 @@ bool SvipWriter::save() {
         QByteArray bytes;
 
         QDataStream in(&bytes, QIODevice::WriteOnly);
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
         in.setByteOrder(QDataStream::LittleEndian);
-#else
-        in.setByteOrder(QDataStream::BigEndian);
-#endif
 
         // Write size
         in << qint32(param->nodeLinkedList.size());

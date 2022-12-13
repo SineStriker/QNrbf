@@ -5,24 +5,24 @@ QNRBF_BEGIN_NAMESPACE
 TimeSpan::TimeSpan() : TimeSpan(0) {
 }
 
-TimeSpan::TimeSpan(quint64 data) : _data(data) {
+TimeSpan::TimeSpan(qint64 data) : ticks(data) {
 }
 
 TimeSpan::TimeSpan(const TimeSpan &other) {
-    _data = other._data;
+    ticks = other.ticks;
 }
 
 TimeSpan::TimeSpan(TimeSpan &&other) noexcept {
-    _data = std::move(other._data);
+    ticks = std::move(other.ticks);
 }
 
 TimeSpan &TimeSpan::operator=(const TimeSpan &other) {
-    _data = other._data;
+    ticks = other.ticks;
     return *this;
 }
 
 TimeSpan &TimeSpan::operator=(TimeSpan &&other) noexcept {
-    _data = std::move(other._data);
+    ticks = std::move(other.ticks);
     return *this;
 }
 

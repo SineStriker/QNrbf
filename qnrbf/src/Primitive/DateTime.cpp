@@ -26,11 +26,16 @@ DateTime &DateTime::operator=(DateTime &&other) noexcept {
     return *this;
 }
 
-int DateTime::tick() const {
-    return 0;
+qint64 DateTime::ticks() const {
+    qint64 tmp = qint64(_data) << 2;
+    return tmp >> 2;
 }
-int DateTime::kind() const {
-    return 0;
+DateTime::Kind DateTime::kind() const {
+    Kind res = static_cast<Kind>(_data >> 62);
+    if (res > Local || res < Unspecified){
+        res = Unspecified;
+    }
+    return res;
 }
 
 QNRBF_END_NAMESPACE

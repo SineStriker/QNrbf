@@ -63,7 +63,7 @@ QString Parser::strPrimitiveTypeEnum(PrimitiveTypeEnumeration type) {
             res = "String";
             break;
         default:
-            res = QString("Unknown Type %1").arg(qint32(type));
+            res = QString("Unknown type %1").arg(QString::number(qint32(type)));
             break;
     }
     return res;
@@ -83,7 +83,7 @@ bool Parser::readPrimitiveTypeEnum(PrimitiveTypeEnumeration &out, QDataStream &i
     return true;
 }
 
-bool Parser::writePrimitiveTypeEnum(PrimitiveTypeEnumeration in, QDataStream &out){
+bool Parser::writePrimitiveTypeEnum(PrimitiveTypeEnumeration in, QDataStream &out) {
     out << quint8(in);
     if (out.status() != QDataStream::Ok) {
         return false;

@@ -433,7 +433,7 @@ QStringList PrimitiveValueArray::asStringList() const {
         case PrimitiveTypeEnumeration::TimeSpan: {
             auto list = toTimeSpanList();
             for (const auto &item : qAsConst(list)) {
-                res.append(QString::number(item._data));
+                res.append(QString::number(item.ticks));
             }
             break;
         }

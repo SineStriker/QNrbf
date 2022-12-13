@@ -9,6 +9,12 @@ QNRBF_BEGIN_NAMESPACE
 
 class QNRBF_API DateTime {
 public:
+    enum Kind {
+        Unspecified,
+        Utc,
+        Local,
+    };
+
     DateTime();
     explicit DateTime(quint64 data);
 
@@ -18,8 +24,8 @@ public:
     DateTime &operator=(const DateTime &other);
     DateTime &operator=(DateTime &&other) noexcept;
 
-    int tick() const;
-    int kind() const;
+    qint64 ticks() const;
+    Kind kind() const;
 
     quint64 _data;
 };

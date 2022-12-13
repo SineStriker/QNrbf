@@ -3,8 +3,14 @@
 #include <QDebug>
 
 static const quint8 mask_high1 = 0b10000000;
+static const quint8 mask_high2 = 0b11000000;
+static const quint8 mask_high3 = 0b11100000;
+static const quint8 mask_high4 = 0b11110000;
+static const quint8 mask_high5 = 0b11111000;
+
 static const quint8 mask_low7 = 0b01111111;
 static const quint8 mask_low3 = 0b00000111;
+
 static const quint32 max_length = 2147483647;
 
 using namespace QNrbf;
@@ -47,7 +53,7 @@ bool Parser::readLengthPrefix(quint32 &out, QDataStream &in) {
     offset += 3;
     size |= quint32(byte & mask_low3) << offset;
     // High 5 bits must be 0
-    if (byte & (~mask_low3)) {
+    if (byte & mask_high5) {
         return false;
     }
 
@@ -93,9 +99,9 @@ bool Parser::readUtf8Char(QChar &out, QDataStream &in) {
     }
 
     // Read suffix bytes
-    int suffix = (head & 0b11111000) == 0b11110000 ? 3 : (
-                 (head & 0b11110000) == 0b11100000 ? 2 : (
-                 (head & 0b11100000) == 0b11000000 ? 1 : 0));
+    int suffix = (head & mask_high5) == mask_high4 ? 3 : (
+                 (head & mask_high4) == mask_high3 ? 2 : (
+                 (head & mask_high3) == mask_high2 ? 1 : 0));
     if (in.readRawData((char *) buf + 1, suffix) != suffix) {
         return false;
     }

@@ -46,6 +46,7 @@ void NrbfWriter::setRegistry(const NrbfRegistry &reg) {
 
 bool NrbfWriter::write() {
     if (reg.header.isNull()) {
+        qDebug() << "NrbfWriter: Header is not defined";
         return false;
     }
 
@@ -148,6 +149,7 @@ bool NrbfWriter::writeObject(const ObjectRef &objRef) {
                         // Write members
                         if (!writeMembers(classRef->value, classRef->classInfo.memberNames,
                                           classRef->memberTypeInfo)) {
+                            errorWriteFailed("members");
                             return false;
                         }
                         break;
@@ -173,6 +175,7 @@ bool NrbfWriter::writeObject(const ObjectRef &objRef) {
                         // Write members
                         if (!writeMembers(classRef->value, classRef->classInfo.memberNames,
                                           classRef->memberTypeInfo)) {
+                            errorWriteFailed("members");
                             return false;
                         }
                         break;
@@ -220,6 +223,7 @@ bool NrbfWriter::writeObject(const ObjectRef &objRef) {
                 // Write members
                 if (!writeMembers(mapping, classRef->classInfo.memberNames,
                                   classRef->memberTypeInfo)) {
+                    errorWriteFailed("members");
                     return false;
                 }
                 break;
@@ -508,7 +512,7 @@ bool NrbfWriter::writeNullObjects(int nullCount) {
         record.nullCount = nullCount;
 
         if (!record.write(out, true)) {
-            errorWriteFailed("ObjectNullMultiple record");
+            errorWriteFailed("ObjectNullMultiple256 record");
             return false;
         }
     } else {

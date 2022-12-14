@@ -183,7 +183,12 @@ bool SvipReader::load() {
             CHECK_OBJECT_TYPE(obj, Mapping, "ITrack");
 
             auto trackMapping = obj.dynamicCast<MappingObject>();
+
+#ifndef QNRBF_CHECK_ASSEMBLY
+            if (trackMapping->typeName.contains("SingingTrack", Qt::CaseInsensitive)) {
+#else
             if (trackMapping->typeName == ASSEMBLY_NAME_SINGING_TRACK) {
+#endif
                 // Read singing track
                 XSSingingTrack track;
                 const auto &trackMembers = trackMapping->members;
@@ -334,7 +339,12 @@ bool SvipReader::load() {
                 }
 
                 svip.trackList.append(QSharedPointer<XSSingingTrack>::create(std::move(track)));
+
+#ifndef QNRBF_CHECK_ASSEMBLY
+            } else if (trackMapping->typeName.contains("InstrumentTrack", Qt::CaseInsensitive)) {
+#else
             } else if (trackMapping->typeName == ASSEMBLY_NAME_INSTRUMENT_TRACK) {
+#endif
                 // Read instrument track
                 XSInstrumentTrack track;
                 const auto &trackMembers = trackMapping->members;

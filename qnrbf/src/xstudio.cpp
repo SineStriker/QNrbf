@@ -1,5 +1,8 @@
 #include "xstudio.h"
 
+#include <QMutex>
+#include <QThread>
+
 #include <memory>
 
 #include "QNrbfStream.h"
@@ -134,6 +137,69 @@ static void free_context_content(qnrbf_xstudio_context *ctx) {
     free_model(&ctx->model);
 }
 
+struct MessageHandler {
+private:
+    QHash<void *, QByteArray> errors;
+    QMutex lock;
+    QtMessageHandler orgHandler;
+
+    static MessageHandler *global;
+
+    static void Handler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+        QMutexLocker guard(&global->lock);
+        global->errors[QThread::currentThreadId()].append(msg.toUtf8());
+    }
+
+    MessageHandler() : orgHandler(nullptr) {
+        orgHandler = qInstallMessageHandler(MessageHandler::Handler);
+    }
+
+    ~MessageHandler() {
+        qInstallMessageHandler(orgHandler);
+    }
+
+public:
+    static void create() {
+        if (global)
+            return;
+        global = new MessageHandler();
+    }
+
+    static void destroy() {
+        if (!global)
+            return;
+        delete global;
+        global = nullptr;
+    }
+
+    static void addLogger() {
+        // In case that the user didn't call `init`
+        create();
+
+        QMutexLocker guard(&global->lock);
+        global->errors.insert(QThread::currentThreadId(), {});
+    }
+
+    static void removeLogger() {
+        QMutexLocker guard(&global->lock);
+        global->errors.remove(QThread::currentThreadId());
+    }
+
+    static QByteArray getLog() {
+        return global->errors[QThread::currentThreadId()];
+    }
+};
+
+MessageHandler *MessageHandler::global = nullptr;
+
+void qnrbf_dll_init() {
+    MessageHandler::create();
+}
+
+void qnrbf_dll_exit() {
+    MessageHandler::destroy();
+}
+
 void *qnrbf_malloc(int size) {
     auto ptr = malloc(size);
     memset(ptr, 0, size);
@@ -171,17 +237,6 @@ void qnrbf_xstudio_free_context(qnrbf_xstudio_context *ctx) {
     free(ctx);
 }
 
-struct MessageHandler {
-    QByteArray error;
-};
-
-static MessageHandler *hError = nullptr;
-
-static void customMessageHandler(QtMsgType type, const QMessageLogContext &context,
-                                 const QString &msg) {
-    hError->error.append(msg.toUtf8());
-}
-
 void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
     // Get buf
     QByteArray data(ctx->buf.str, ctx->buf.size);
@@ -189,21 +244,19 @@ void qnrbf_xstudio_read(qnrbf_xstudio_context *ctx) {
     // Remove content
     free_context_content(ctx);
 
-    // Filter debug output
-    hError = new MessageHandler();
-    auto orgHandler = qInstallMessageHandler(customMessageHandler);
+    // Register debug output
+    MessageHandler::addLogger();
 
     // Read
     QNrbfStream in(&data, QIODevice::ReadOnly);
     QNrbf::XSAppModel model;
     in >> model;
 
-    QByteArray errorMessage = hError->error;
+    // Get error message
+    QByteArray errorMessage = MessageHandler::getLog();
 
-    // Restore debug output
-    qInstallMessageHandler(orgHandler);
-    delete hError;
-    hError = nullptr;
+    // Unregister debug output
+    MessageHandler::removeLogger();
 
     // Set status
     ctx->status = (qnrbf_stream_status) in.status();
@@ -651,21 +704,19 @@ void qnrbf_xstudio_write(qnrbf_xstudio_context *ctx) {
     // Remove content
     free_context_content(ctx);
 
-    // Filter debug output
-    hError = new MessageHandler();
-    auto orgHandler = qInstallMessageHandler(customMessageHandler);
+    // Register debug output
+    MessageHandler::addLogger();
 
     // Write
     QByteArray data;
     QNrbfStream out(&data, QIODevice::WriteOnly);
     out << model;
 
-    QByteArray errorMessage = hError->error;
+    // Get error message
+    QByteArray errorMessage = MessageHandler::getLog();
 
-    // Restore debug output
-    qInstallMessageHandler(orgHandler);
-    delete hError;
-    hError = nullptr;
+    // Unregister debug output
+    MessageHandler::removeLogger();
 
     // Set status
     ctx->status = (qnrbf_stream_status) out.status();

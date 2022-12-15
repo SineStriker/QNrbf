@@ -157,7 +157,12 @@ struct qnrbf_xstudio_context {
     struct xs_app_model *model;
 };
 
-/* The APIs are not thread-safe, please use only one instance at any time. */
+/* You must call the following functions when loading or freeing this library,
+ * to make it thread-safe for your application.
+ */
+QNRBF_C_API void qnrbf_dll_init();
+
+QNRBF_C_API void qnrbf_dll_exit();
 
 /* Allocator */
 QNRBF_C_API void *qnrbf_malloc(int size);

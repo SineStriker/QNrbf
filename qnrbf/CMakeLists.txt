@@ -43,7 +43,7 @@ endif()
 
 # Other properties
 set_target_properties(${QNRBF_TARGET_NAME} PROPERTIES
-    OUTPUT_NAME ${QNRBF_TARGET_NAME}$<$<CONFIG:Debug>:d>
+    DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}"
 )
 
 if(QNRBF_ONLY_C_STYLE)
@@ -52,9 +52,12 @@ else()
     target_link_libraries(${QNRBF_TARGET_NAME} PUBLIC ${_qt_libs})
 endif()
 
-target_include_directories(${QNRBF_TARGET_NAME} PUBLIC include)
+target_include_directories(${QNRBF_TARGET_NAME} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QNRBF_INSTALL_NAME}>
+)
 
-if(QNRBF_BUILD_STATIC AND NOT QNRBF_ONLY_C_STYLE)
+if(QNRBF_BUILD_STATIC AND NOT QNRBF_ONLY_C_STYLE AND NOT QNRBF_INSTALL)
     target_include_directories(${QNRBF_TARGET_NAME} PUBLIC src)
 else()
     target_include_directories(${QNRBF_TARGET_NAME} PRIVATE src)
@@ -83,5 +86,52 @@ elseif(APPLE)
         MACOSX_FRAMEWORK_IDENTIFIER com.SineStriker.QNrbf
         MACOSX_FRAMEWORK_BUNDLE_VERSION ${PROJECT_VERSION}
         MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    )
+endif()
+
+if(QNRBF_INSTALL)
+    # Add install target
+    include(GNUInstallDirs)
+    include(CMakePackageConfigHelpers)
+
+    set(_install_dir ${CMAKE_INSTALL_PREFIX}/cmake/${QNRBF_INSTALL_NAME})
+
+    # Add version file
+    write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/${QNRBF_INSTALL_NAME}ConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY AnyNewerVersion
+    )
+
+    # Add configuration file
+    configure_package_config_file(
+        ${QNRBF_INSTALL_NAME}Config.cmake.in
+        "${CMAKE_CURRENT_BINARY_DIR}/${QNRBF_INSTALL_NAME}Config.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/${QNRBF_INSTALL_NAME}
+        NO_CHECK_REQUIRED_COMPONENTS_MACRO
+    )
+
+    install(TARGETS ${QNRBF_TARGET_NAME}
+        EXPORT QNrbfTargets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+
+    # Install cmake files
+    install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/${QNRBF_INSTALL_NAME}Config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${QNRBF_INSTALL_NAME}ConfigVersion.cmake"
+        DESTINATION ${_install_dir}
+    )
+
+    # Install cmake targets files
+    install(EXPORT QNrbfTargets
+        DESTINATION ${_install_dir}
+    )
+
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${QNRBF_INSTALL_NAME}
+        FILES_MATCHING PATTERN "*.h"
     )
 endif()

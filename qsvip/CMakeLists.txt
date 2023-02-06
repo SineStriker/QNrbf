@@ -22,7 +22,7 @@ target_compile_definitions(${QSVIP_TARGET_NAME} PRIVATE QSVIP_LIBRARY)
 
 # Other properties
 set_target_properties(${QSVIP_TARGET_NAME} PROPERTIES
-    OUTPUT_NAME ${QSVIP_TARGET_NAME}$<$<CONFIG:Debug>:d>
+    DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}"
 )
 
 target_link_libraries(${QSVIP_TARGET_NAME} PUBLIC ${QNRBF_TARGET_NAME})

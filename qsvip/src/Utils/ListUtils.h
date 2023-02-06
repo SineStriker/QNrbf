@@ -29,11 +29,11 @@ namespace ListUtils {
     template <class T, class Validator>
     bool Any(const QList<T> &list, Validator validator) {
         for (const auto &item : qAsConst(list)) {
-            if (!validator(item)) {
-                return false;
+            if (validator(item)) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
 }; // namespace ListUtils

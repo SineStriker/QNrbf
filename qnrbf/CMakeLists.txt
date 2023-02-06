@@ -91,9 +91,6 @@ endif()
 
 if(QNRBF_INSTALL)
     # Add install target
-    include(GNUInstallDirs)
-    include(CMakePackageConfigHelpers)
-
     set(_install_dir ${CMAKE_INSTALL_LIBDIR}/cmake/${QNRBF_INSTALL_NAME})
 
     # Add version file

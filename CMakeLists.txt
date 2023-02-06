@@ -15,6 +15,9 @@ option(QNRBF_ONLY_C_STYLE "Export only C style interfaces" OFF)
 # This option will be ignored if `QNRBF_BUILD_NRBF_ONLY` is on
 option(QSVIP_BUILD_STATIC "Build QSvip as a static library" OFF)
 
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

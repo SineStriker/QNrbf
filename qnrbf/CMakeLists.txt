@@ -94,7 +94,7 @@ if(QNRBF_INSTALL)
     include(GNUInstallDirs)
     include(CMakePackageConfigHelpers)
 
-    set(_install_dir ${CMAKE_INSTALL_PREFIX}/cmake/${QNRBF_INSTALL_NAME})
+    set(_install_dir ${CMAKE_INSTALL_LIBDIR}/cmake/${QNRBF_INSTALL_NAME})
 
     # Add version file
     write_basic_package_version_file(
@@ -107,7 +107,7 @@ if(QNRBF_INSTALL)
     configure_package_config_file(
         ${QNRBF_INSTALL_NAME}Config.cmake.in
         "${CMAKE_CURRENT_BINARY_DIR}/${QNRBF_INSTALL_NAME}Config.cmake"
-        INSTALL_DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/${QNRBF_INSTALL_NAME}
+        INSTALL_DESTINATION ${_install_dir}
         NO_CHECK_REQUIRED_COMPONENTS_MACRO
     )
 

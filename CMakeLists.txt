@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-project(QNrbfFormat LANGUAGES CXX VERSION 0.0.1.4)
+project(QNrbfFormat LANGUAGES CXX VERSION 0.0.1.5)
 
 # Options for QNrbf library, you may need to specify `QNRBF_BUILD_NRBF_ONLY`, others are recommended to keep
 option(QNRBF_BUILD_STATIC "Build QNrbf as a static library, please check the license" OFF)
@@ -29,7 +29,7 @@ endif()
 # Set a global version variable for sub-projects to use
 set(QNRBF_VERSION_VERBOSE ${PROJECT_VERSION})
 set(QNRBF_TARGET_NAME ${PROJECT_NAME})
-set(QNRBF_INSTALL_NAME QNrbf)
+set(QNRBF_INSTALL_NAME qnrbf)
 set(QSVIP_TARGET_NAME qsvip)
 
 # Add sub-projects

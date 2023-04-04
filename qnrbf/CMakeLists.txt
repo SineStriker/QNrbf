@@ -95,15 +95,15 @@ if(QNRBF_INSTALL)
 
     # Add version file
     write_basic_package_version_file(
-        "${CMAKE_CURRENT_BINARY_DIR}/${QNRBF_INSTALL_NAME}ConfigVersion.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/QNrbfConfigVersion.cmake"
         VERSION ${PROJECT_VERSION}
         COMPATIBILITY AnyNewerVersion
     )
 
     # Add configuration file
     configure_package_config_file(
-        ${QNRBF_INSTALL_NAME}Config.cmake.in
-        "${CMAKE_CURRENT_BINARY_DIR}/${QNRBF_INSTALL_NAME}Config.cmake"
+        QNrbfConfig.cmake.in
+        "${CMAKE_CURRENT_BINARY_DIR}/QNrbfConfig.cmake"
         INSTALL_DESTINATION ${_install_dir}
         NO_CHECK_REQUIRED_COMPONENTS_MACRO
     )
@@ -117,8 +117,8 @@ if(QNRBF_INSTALL)
 
     # Install cmake files
     install(FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/${QNRBF_INSTALL_NAME}Config.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/${QNRBF_INSTALL_NAME}ConfigVersion.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/QNrbfConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/QNrbfConfigVersion.cmake"
         DESTINATION ${_install_dir}
     )
 
